@@ -2,9 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:QuickMusic3"
-             StartupUri="MVVM/View/MainWindow.xaml">
+             xmlns:converters="clr-namespace:QuickMusic3.Converters"
+             StartupUri="MVVM/View/PlayerWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <converters:TimeConverter x:Key="TimeConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./Themes/PlaylistItem.xaml"/>
                 <ResourceDictionary Source="./Themes/TitleBar.xaml"/>
