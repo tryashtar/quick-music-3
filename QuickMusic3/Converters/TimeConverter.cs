@@ -9,18 +9,16 @@ using System.Windows.Data;
 namespace QuickMusic3.Converters
 {
     [ValueConversion(typeof(TimeSpan), typeof(double))]
-    public class TimeConverter : IValueConverter
+    public class TimeConverter : GenericConverter<TimeSpan, double>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override double Convert(TimeSpan value)
         {
-            TimeSpan time = (TimeSpan)value;
-            return (double)time.Ticks;
+            return (double)value.Ticks;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override TimeSpan ConvertBack(double value)
         {
-            double ticks = (double)value;
-            return TimeSpan.FromTicks((long)ticks);
+            return TimeSpan.FromTicks((long)value);
         }
     }
 }
