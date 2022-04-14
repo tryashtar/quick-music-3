@@ -17,9 +17,30 @@ namespace QuickMusic3;
 
 public class CustomSlider : Slider
 {
-    protected override void OnPreviewMouseMove(MouseEventArgs e)
+    private bool clickedInSlider;
+    protected override void OnMouseMove(MouseEventArgs e)
     {
-        if (e.LeftButton == MouseButtonState.Pressed)
-            OnPreviewMouseLeftButtonDown(new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left, e.StylusDevice) { RoutedEvent = Button.ClickEvent });
+        if (e.LeftButton == MouseButtonState.Pressed && this.clickedInSlider)
+        {
+            var thumb = (Template.FindName("PART_Track", this) as System.Windows.Controls.Primitives.Track).Thumb;
+            thumb.RaiseEvent(new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left)
+            {
+                RoutedEvent = UIElement.MouseLeftButtonDownEvent,
+                Source = e.Source
+            });
+        }
+        base.OnMouseMove(e);
+    }
+
+    protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+    {
+        clickedInSlider = true;
+        base.OnPreviewMouseLeftButtonDown(e);
+    }
+
+    protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+    {
+        clickedInSlider = false;
+        base.OnPreviewMouseLeftButtonDown(e);
     }
 }
