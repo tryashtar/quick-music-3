@@ -7,7 +7,52 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Page Update="MVVM\View\PlayerWindow.xaml">
+    <None Remove="Resources\down.png" />
+    <None Remove="Resources\list.png" />
+    <None Remove="Resources\mute.png" />
+    <None Remove="Resources\next.png" />
+    <None Remove="Resources\once.png" />
+    <None Remove="Resources\pause.png" />
+    <None Remove="Resources\play.png" />
+    <None Remove="Resources\previous.png" />
+    <None Remove="Resources\repeat_all.png" />
+    <None Remove="Resources\repeat_one.png" />
+    <None Remove="Resources\shuffle.png" />
+    <None Remove="Resources\volume.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\down.png" />
+    <Resource Include="Resources\list.png" />
+    <Resource Include="Resources\mute.png" />
+    <Resource Include="Resources\next.png" />
+    <Resource Include="Resources\once.png" />
+    <Resource Include="Resources\pause.png" />
+    <Resource Include="Resources\play.png" />
+    <Resource Include="Resources\previous.png" />
+    <Resource Include="Resources\repeat_all.png" />
+    <Resource Include="Resources\repeat_one.png" />
+    <Resource Include="Resources\shuffle.png" />
+    <Resource Include="Resources\volume.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="MVVM\View\MainWindow.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

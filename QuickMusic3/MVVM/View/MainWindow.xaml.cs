@@ -18,16 +18,11 @@ namespace QuickMusic3
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class PlayerWindow : Window
+    public partial class MainWindow : Window
     {
-        public PlayerWindow()
+        public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
         }
     }
 }

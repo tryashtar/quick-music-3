@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:QuickMusic3"
              xmlns:converters="clr-namespace:QuickMusic3.Converters"
-             StartupUri="MVVM/View/PlayerWindow.xaml">
+             StartupUri="MVVM/View/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <converters:TimeConverter x:Key="TimeConverter"/>
