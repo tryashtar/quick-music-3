@@ -9,7 +9,6 @@
             <converters:TimeConverter x:Key="TimeConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./Themes/PlaylistItem.xaml"/>
-                <ResourceDictionary Source="./Themes/TitleBar.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

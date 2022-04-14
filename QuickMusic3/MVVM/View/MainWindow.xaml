@@ -6,63 +6,236 @@
         xmlns:local="clr-namespace:QuickMusic3"
         xmlns:viewmodel="clr-namespace:QuickMusic3.MVVM.ViewModel"
         mc:Ignorable="d"
-        Height="650" Width="1200">
+        Height="340"
+        Width="1200">
     <Window.DataContext>
-        <viewmodel:MainViewModel/>
+        <viewmodel:MainViewModel />
     </Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="SliderButtonStyle"
+               TargetType="{x:Type RepeatButton}">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="true" />
+            <Setter Property="OverridesDefaultStyle"
+                    Value="true" />
+            <Setter Property="IsTabStop"
+                    Value="false" />
+            <Setter Property="Focusable"
+                    Value="false" />
+        </Style>
+        <Style x:Key="IncreaseSliderButtonStyle"
+               TargetType="{x:Type RepeatButton}"
+               BasedOn="{StaticResource SliderButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                        <Border Background="Transparent" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DecreaseSliderButtonStyle"
+               TargetType="{x:Type RepeatButton}"
+               BasedOn="{StaticResource SliderButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                        <Border Background="#7fb2f0" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SliderThumbStyle"
+               TargetType="{x:Type Thumb}">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="true" />
+            <Setter Property="OverridesDefaultStyle"
+                    Value="true" />
+        </Style>
+        <Style x:Key="RectangleSliderThumbStyle"
+               TargetType="{x:Type Thumb}"
+               BasedOn="{StaticResource SliderThumbStyle}">
+            <Setter Property="Height"
+                    Value="15" />
+            <Setter Property="Width"
+                    Value="8" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Rectangle Fill="#0078d7"
+                                   Margin="0,-5,0,-5" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CircleSliderThumbStyle"
+               TargetType="{x:Type Thumb}"
+               BasedOn="{StaticResource SliderThumbStyle}">
+            <Setter Property="Height"
+                    Value="4" />
+            <Setter Property="Width"
+                    Value="4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Ellipse Fill="#0078d7"
+                                 Margin="-5" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ControlTemplate x:Key="CircleSlider"
+                         TargetType="{x:Type Slider}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Name="TrackBackground"
+                        Grid.Row="1"
+                        Background="#c8c8c8" />
+                <Track Grid.Row="1"
+                       Name="PART_Track">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
+                                      Command="Slider.DecreaseLarge" />
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource CircleSliderThumbStyle}" />
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
+                                      Command="Slider.IncreaseLarge" />
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <ControlTemplate x:Key="RectangleSlider"
+                         TargetType="{x:Type Slider}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Name="TrackBackground"
+                        Grid.Row="1"
+                        Background="#c8c8c8" />
+                <Track Grid.Row="1"
+                       Name="PART_Track">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
+                                      Command="Slider.DecreaseLarge" />
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource RectangleSliderThumbStyle}" />
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
+                                      Command="Slider.IncreaseLarge" />
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <Style x:Key="SliderStyle"
+               TargetType="{x:Type Slider}">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="true" />
+            <Setter Property="OverridesDefaultStyle"
+                    Value="true" />
+            <Setter Property="IsMoveToPointEnabled"
+                    Value="true" />
+        </Style>
+        <Style x:Key="CircleSliderStyle"
+               TargetType="{x:Type Slider}"
+               BasedOn="{StaticResource SliderStyle}">
+            <Setter Property="Template"
+                    Value="{StaticResource CircleSlider}" />
+        </Style>
+        <Style x:Key="RectangleSliderStyle"
+               TargetType="{x:Type Slider}"
+               BasedOn="{StaticResource SliderStyle}">
+            <Setter Property="Template"
+                    Value="{StaticResource RectangleSlider}" />
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="1" Orientation="Vertical" Margin="20,5,10,5">
-                <TextBlock Text="{Binding Path=Player.CurrentTime}"/>
-                <Slider Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
-                        Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}"/>
+            <StackPanel Grid.Row="1"
+                        Orientation="Vertical"
+                        Margin="20,5,10,5">
+                <TextBlock Text="{Binding Path=Player.CurrentTime}" />
+                <local:CustomSlider Style="{StaticResource RectangleSliderStyle}"
+                        Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
+                        Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}"
+                        Margin="0,0,0,8" />
                 <Grid>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <Button Width="42" Height="42" Margin="4">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Left">
+                        <Button Width="42"
+                                Height="42"
+                                Margin="0,0,6,0">
                             <Image Source="/Resources/play.png"
                                    Margin="1"
-                                   SnapsToDevicePixels="True"/>
+                                   SnapsToDevicePixels="True" />
                         </Button>
-                        <Button Width="42" Height="42" Margin="4">
+                        <Button Width="42"
+                                Height="42"
+                                Margin="0,0,6,0">
                             <Image Source="/Resources/repeat_all.png"
                                    Margin="2"
-                                   SnapsToDevicePixels="True"/>
+                                   SnapsToDevicePixels="True" />
                         </Button>
-                        <Button Width="42" Height="42" Margin="4">
+                        <Button Width="42"
+                                Height="42"
+                                Margin="0,0,6,0">
                             <Image Source="/Resources/shuffle.png"
                                    Margin="1"
-                                   SnapsToDevicePixels="True"/>
+                                   SnapsToDevicePixels="True" />
                         </Button>
-                        <Button Width="42" Height="42" Margin="4"
+                        <Button Width="32"
+                                Height="42"
+                                Margin="0,0,6,0"
                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                             <Image Source="/Resources/volume.png"
-                                   Margin="1"
-                                   SnapsToDevicePixels="True"/>
+                                   Margin="-4"
+                                   SnapsToDevicePixels="True" />
                         </Button>
-                        <Slider Width="100"/>
+                        <local:CustomSlider Style="{StaticResource CircleSliderStyle}"
+                                Width="100"
+                                VerticalAlignment="Center" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Width="42" Height="42" Margin="4">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Width="42"
+                                Height="42"
+                                Margin="0,0,6,0">
                             <Image Source="/Resources/previous.png"
                                    Margin="1"
-                                   SnapsToDevicePixels="True"/>
+                                   SnapsToDevicePixels="True" />
                         </Button>
-                        <Button Width="42" Height="42" Margin="4">
+                        <Button Width="42"
+                                Height="42"
+                                Margin="0,0,6,0">
                             <Image Source="/Resources/next.png"
                                    Margin="1"
-                                   SnapsToDevicePixels="True"/>
+                                   SnapsToDevicePixels="True" />
                         </Button>
-                        <Button Width="84" Height="42" Margin="4"
+                        <Button Width="84"
+                                Height="42"
+                                Margin="0"
                                 Content="Browse"
-                                FontSize="16"/>
+                                FontSize="16" />
                     </StackPanel>
                 </Grid>
             </StackPanel>
