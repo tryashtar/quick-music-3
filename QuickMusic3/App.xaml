@@ -6,7 +6,9 @@
              StartupUri="MVVM/View/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <converters:TimeConverter x:Key="TimeConverter"/>
+            <converters:TimeConverter x:Key="TimeConverter" />
+            <converters:TimeStringConverter x:Key="TimeStringConverter" />
+            <converters:PlayPauseIcon x:Key="PlayPauseIcon" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./Themes/PlaylistItem.xaml"/>
             </ResourceDictionary.MergedDictionaries>

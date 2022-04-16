@@ -22,6 +22,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NAudio\NAudio.Core\NAudio.Core.csproj" />
+    <ProjectReference Include="..\NAudio\NAudio\NAudio.csproj" />
+    <ProjectReference Include="..\utils.utility\TryashtarUtils.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Resources\down.png" />
     <Resource Include="Resources\list.png" />
     <Resource Include="Resources\mute.png" />
@@ -56,10 +62,6 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="MVVM\Model\" />
   </ItemGroup>
 
 </Project>

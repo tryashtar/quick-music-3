@@ -112,10 +112,10 @@
                 </Track>
                 <Rectangle Fill="Transparent"
                            Grid.Row="0"
-                           Height="20"></Rectangle>
+                           Height="20" />
                 <Rectangle Fill="Transparent"
                            Grid.Row="2"
-                           Height="20"></Rectangle>
+                           Height="20" />
             </Grid>
         </ControlTemplate>
         <ControlTemplate x:Key="RectangleSlider"
@@ -145,10 +145,10 @@
                 </Track>
                 <Rectangle Fill="Transparent"
                            Grid.Row="0"
-                           Height="10"></Rectangle>
+                           Height="10" />
                 <Rectangle Fill="Transparent"
                            Grid.Row="2"
-                           Height="10"></Rectangle>
+                           Height="10" />
             </Grid>
         </ControlTemplate>
         <Style x:Key="SliderStyle"
@@ -208,25 +208,35 @@
                         Orientation="Vertical"
                         Margin="20,5,10,5">
                 <Grid>
-                    <TextBlock Text="{Binding Path=Player.CurrentTime, FallbackValue=0:00}"
+                    <TextBlock Text="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeStringConverter}}"
                                FontSize="18"
                                HorizontalAlignment="Left" />
-                    <TextBlock Text="{Binding Path=Player.TotalTime, FallbackValue=0:00}"
+                    <TextBlock Text="{Binding Path=Player.TotalTime, Converter={StaticResource TimeStringConverter}}"
                                FontSize="18"
                                HorizontalAlignment="Right" />
                 </Grid>
                 <local:CustomSlider Style="{StaticResource RectangleSliderStyle}"
                                     Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
-                                    Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}" />
+                                    Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}"
+                                    GotMouseCapture="TimeBar_MouseDown"
+                                    LostMouseCapture="TimeBar_MouseUp"/>
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">
                         <Button Width="42"
                                 Height="42"
-                                Margin="0,0,6,0">
-                            <Image Source="/Resources/play.png"
-                                   Margin="1"
-                                   SnapsToDevicePixels="True" />
+                                Margin="0,0,6,0"
+                                Command="{Binding PlayPauseCommand}">
+                            <Image Margin="1"
+                                   SnapsToDevicePixels="True">
+                                <Image.Source>
+                                    <MultiBinding Converter="{StaticResource PlayPauseIcon}">
+                                        <Binding Path="PlayDragging"
+                                                 RelativeSource="{RelativeSource FindAncestor, AncestorType=Window}" />
+                                        <Binding Path="Player.PlayState"/>
+                                    </MultiBinding>
+                                </Image.Source>
+                            </Image>
                         </Button>
                         <Button Width="42"
                                 Height="42"
@@ -274,7 +284,8 @@
                                 Height="42"
                                 Margin="0"
                                 Content="Browse"
-                                FontSize="18" />
+                                FontSize="18"
+                                Click="BrowseButton_Click" />
                     </StackPanel>
                 </Grid>
             </StackPanel>
