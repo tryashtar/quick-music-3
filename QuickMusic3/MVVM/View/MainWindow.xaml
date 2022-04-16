@@ -178,9 +178,11 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Image Grid.Column="0"
-               Source="/Resources/play.png">
-        </Image>
+        <Grid Grid.Column="0">
+            <Image Source="/Resources/play.png"
+                   VerticalAlignment="Center">
+            </Image>
+        </Grid>
         <Grid Grid.Column="1"
               Background="#f0f0f0">
             <Grid.RowDefinitions>
