@@ -29,15 +29,14 @@ public class Player : ObservableObject, IDisposable
             OnPropertyChanged();
         }
     }
-    private float volume = 1.0f;
     public float Volume
     {
-        get { return volume; }
+        get { return Properties.Settings.Default.Volume; }
         set
         {
-            volume = value;
+            Properties.Settings.Default.Volume = value;
             if (Output != null)
-                Output.Volume = volume * volume;
+                Output.Volume = value * value;
             OnPropertyChanged();
         }
     }
@@ -77,7 +76,7 @@ public class Player : ObservableObject, IDisposable
         Stream.Seeked += Stream_Seeked;
         Output?.Dispose();
         Output = new();
-        Output.Volume = volume;
+        Output.Volume = Properties.Settings.Default.Volume;
         Output.Init(Stream);
         Stream_CurrentChanged(this, EventArgs.Empty);
         Play();

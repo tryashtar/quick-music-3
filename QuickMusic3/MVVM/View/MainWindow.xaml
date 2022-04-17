@@ -7,7 +7,8 @@
         xmlns:viewmodel="clr-namespace:QuickMusic3.MVVM.ViewModel"
         mc:Ignorable="d"
         Height="340"
-        Width="1200">
+        Width="1200"
+        Closed="Window_Closed">
     <Window.DataContext>
         <viewmodel:MainViewModel />
     </Window.DataContext>
@@ -175,13 +176,22 @@
                     Value="{StaticResource RectangleSlider}" />
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition />
+            <ColumnDefinition Width="1*">
+                <ColumnDefinition.MaxWidth>
+                    <MultiBinding Converter="{StaticResource AlbumArtFitter}">
+                        <Binding Path="Player.CurrentTrack.Metadata.HighResImage" />
+                        <Binding Path="ActualHeight" ElementName="MainGrid" />
+                    </MultiBinding>
+                </ColumnDefinition.MaxWidth>
+            </ColumnDefinition>
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
-            <Image Source="/Resources/play.png"
+            <Image x:Name="AlbumArt"
+                   Source="{Binding Player.CurrentTrack.Metadata.HighResImage}"
+                   RenderOptions.BitmapScalingMode="HighQuality"
                    VerticalAlignment="Center">
             </Image>
         </Grid>
@@ -221,7 +231,7 @@
                                     Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
                                     Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}"
                                     GotMouseCapture="TimeBar_MouseDown"
-                                    LostMouseCapture="TimeBar_MouseUp"/>
+                                    LostMouseCapture="TimeBar_MouseUp" />
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">
@@ -236,7 +246,7 @@
                                     <MultiBinding Converter="{StaticResource PlayPauseIcon}">
                                         <Binding Path="PlayDragging"
                                                  RelativeSource="{RelativeSource FindAncestor, AncestorType=Window}" />
-                                        <Binding Path="Player.PlayState"/>
+                                        <Binding Path="Player.PlayState" />
                                     </MultiBinding>
                                 </Image.Source>
                             </Image>
@@ -273,7 +283,7 @@
                                             Value="{Binding Player.Volume}"
                                             Minimum="0"
                                             Maximum="1"
-                                            PreviewMouseWheel="Volume_PreviewMouseWheel"/>
+                                            PreviewMouseWheel="Volume_PreviewMouseWheel" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">

@@ -68,5 +68,10 @@ namespace QuickMusic3
                 Model.Player.Volume = Math.Clamp(volume, 0, 1);
             }
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Save();
+        }
     }
 }
