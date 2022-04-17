@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using NAudio.Wave;
+using QuickMusic3.MVVM.Model;
 using QuickMusic3.MVVM.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace QuickMusic3
             var dialog = new OpenFileDialog();
             dialog.Multiselect = true;
             if (dialog.ShowDialog() == true)
-                Model.Player.OpenFiles(dialog.FileNames);
+                Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
         }
 
         private void TimeBar_MouseDown(object sender, MouseEventArgs e)
