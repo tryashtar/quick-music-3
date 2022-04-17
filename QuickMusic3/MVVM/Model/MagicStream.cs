@@ -1,4 +1,4 @@
-﻿using NAudio.Wave;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,9 +19,13 @@ public class MagicStream : WaveStream
         get => current_index;
         set
         {
-            current_index = FixIndex(value);
-            Sources[current_index].Stream.CurrentTime = TimeSpan.Zero;
-            int next = FixIndex(NextIndex());
+            int destination = WrapIndex(value);
+            current_index = Math.Clamp(destination, 0, Sources.Length - 1);
+            if (destination >= Sources.Length)
+                Current.CurrentTime = Current.TotalTime;
+            else
+                Current.CurrentTime = TimeSpan.Zero;
+            int? next = UpcomingIndex();
             for (int i = 0; i < Sources.Length; i++)
             {
                 if (i == next)
@@ -34,7 +38,7 @@ public class MagicStream : WaveStream
     }
     public RepeatMode RepeatMode { get; set; }
     public int SourceCount => Sources.Length;
-    public LoadableStream CurrentTrack => Sources[Math.Clamp(current_index, 0, Sources.Length - 1)];
+    public LoadableStream CurrentTrack => Sources[current_index];
     private WaveStream Current => CurrentTrack.Stream;
 
     public MagicStream(IEnumerable<string> files)
@@ -55,29 +59,35 @@ public class MagicStream : WaveStream
     public override int Read(byte[] buffer, int offset, int count)
     {
         var read = 0;
-        while (read < count && current_index < Sources.Length)
+        while (read < count)
         {
             var needed = count - read;
-            var readThisTime = Sources[current_index].Stream.Read(buffer, offset + read, needed);
+            var readThisTime = Current.Read(buffer, offset + read, needed);
             read += readThisTime;
             if (readThisTime == 0)
-                CurrentIndex = NextIndex();
+            {
+                int next = UpcomingIndex();
+                if (next < 0 || next >= Sources.Length)
+                    break;
+                else
+                    CurrentIndex = next;
+            }
         }
         return read;
     }
 
-    private int FixIndex(int index)
+    private int WrapIndex(int index)
     {
-        if (RepeatMode == RepeatMode.RepeatAll)
-            return index % Sources.Length;
-        return Math.Clamp(index, 0, Sources.Length - 1);
+        if (RepeatMode == RepeatMode.RepeatAll || RepeatMode == RepeatMode.RepeatOne)
+            return (index % Sources.Length + Sources.Length) % Sources.Length;
+        return Math.Clamp(index, -1, Sources.Length);
     }
 
-    private int NextIndex()
+    private int UpcomingIndex()
     {
         if (RepeatMode == RepeatMode.RepeatOne)
             return current_index;
-        return current_index + 1;
+        return WrapIndex(current_index + 1);
     }
 
     protected override void Dispose(bool disposing)

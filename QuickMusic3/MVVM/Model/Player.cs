@@ -113,19 +113,13 @@ public class Player : ObservableObject, IDisposable
     public void Next()
     {
         if (Stream != null)
-        {
             Stream.CurrentIndex++;
-            Stream.CurrentTime = TimeSpan.Zero;
-        }
     }
 
     public void Prev()
     {
         if (Stream != null)
-        {
             Stream.CurrentIndex--;
-            Stream.CurrentTime = TimeSpan.Zero;
-        }
     }
 
     public void Dispose()
