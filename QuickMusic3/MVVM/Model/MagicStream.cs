@@ -42,9 +42,10 @@ public class MagicStream : WaveStream
     private WaveStream CurrentBase => CurrentTrack.BaseStream;
     private IWaveProvider CurrentPlayable => CurrentTrack.PlayableStream;
 
+    private readonly WaveFormat StandardFormat = new WaveFormat();
     public MagicStream(IEnumerable<string> files)
     {
-        this.Sources = files.Select(x => new LoadableStream(x)).ToArray();
+        this.Sources = files.Select(x => new LoadableStream(x, StandardFormat)).ToArray();
         CurrentIndex = 0;
     }
 

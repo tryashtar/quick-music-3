@@ -13,8 +13,19 @@ namespace QuickMusic3.MVVM.ViewModel;
 
 // current bugs:
 // - if you click the extra hitbox of slider, it doesn't fire MouseDown
-// - audio doesn't stop when application closed
 // - if you click the handle of a slider, it doesn't jump to the center of the cursor
+// - slider jittery for short tracks
+
+// features to port:
+// - tray
+// - real-time lyrics
+// - remaining shortcuts
+// - drag and drop
+// - playlist view
+// - blank home view
+// - more intelligent playlist building
+// - themes (data driven!)
+// - fallback album art
 
 public class MainViewModel
 {

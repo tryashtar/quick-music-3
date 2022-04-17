@@ -13,6 +13,7 @@ public class LoadableStream : IDisposable
     private WaveStream? base_stream;
     private IWaveProvider playable_stream;
     private Metadata metadata;
+    private readonly WaveFormat? RequiredFormat;
     public WaveStream BaseStream
     {
         get
@@ -40,15 +41,19 @@ public class LoadableStream : IDisposable
             return metadata;
         }
     }
-    public LoadableStream(string path)
+    public LoadableStream(string path, WaveFormat? format=null)
     {
         Path = path;
+        RequiredFormat = format;
     }
 
     private void LoadStream()
     {
         base_stream = new AudioFileReader(Path);
         playable_stream = base_stream;
+        if (RequiredFormat != null && base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
+            playable_stream = new ResamplerDmoStream(playable_stream, RequiredFormat);
+        System.Diagnostics.Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate}");
         ApplyReplayGain();
     }
 
@@ -61,7 +66,7 @@ public class LoadableStream : IDisposable
     private void ApplyReplayGain()
     {
         if (base_stream != null && metadata != null && metadata.ReplayGain != 0)
-            playable_stream = new DecibalOffsetProvider(base_stream.ToSampleProvider(), metadata.ReplayGain).ToWaveProvider();
+            playable_stream = new DecibalOffsetProvider(playable_stream.ToSampleProvider(), metadata.ReplayGain).ToWaveProvider();
     }
 
     public void LoadStreamBackground()
