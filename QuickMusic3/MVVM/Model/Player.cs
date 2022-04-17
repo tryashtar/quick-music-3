@@ -15,6 +15,7 @@ public class Player : ObservableObject, IDisposable
     private MagicStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
+    public LoadableStream CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState => Output?.PlaybackState ?? PlaybackState.Stopped;
     private RepeatMode repeat_mode = RepeatMode.PlayAll;
     public RepeatMode RepeatMode
@@ -78,14 +79,14 @@ public class Player : ObservableObject, IDisposable
         Output = new();
         Output.Volume = volume;
         Output.Init(Stream);
-        OnPropertyChanged(nameof(CurrentTime));
-        OnPropertyChanged(nameof(TotalTime));
+        Stream_CurrentChanged(this, EventArgs.Empty);
         Play();
     }
 
     private void Stream_CurrentChanged(object sender, EventArgs e)
     {
         Timer.Interval = Math.Clamp(Stream.TotalTime.TotalMilliseconds / 1000, 1, 20);
+        OnPropertyChanged(nameof(CurrentTrack));
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(TotalTime));
     }

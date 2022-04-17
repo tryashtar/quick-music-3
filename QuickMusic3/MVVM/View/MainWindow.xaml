@@ -194,14 +194,14 @@
             <StackPanel Grid.Row="0"
                         Margin="20,5,10,5"
                         Orientation="Vertical">
-                <TextBlock Text="{Binding Path=Player.CurrentTitle, FallbackValue=Title}"
+                <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
                            FontSize="36"
                            FontFamily="Arial" />
-                <TextBlock Text="{Binding Path=Player.CurrentArtist, FallbackValue=Artist}"
+                <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
                            FontSize="36"
                            FontFamily="Arial"
                            Foreground="#a0a0a0" />
-                <TextBlock Text="{Binding Path=Player.CurrentAlbum, FallbackValue=Album}"
+                <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
                            FontSize="36"
                            FontFamily="Arial"
                            Foreground="#a0a0a0" />

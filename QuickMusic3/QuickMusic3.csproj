@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NAudio\NAudio.Core\NAudio.Core.csproj" />
     <ProjectReference Include="..\NAudio\NAudio\NAudio.csproj" />
+    <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.csproj" />
     <ProjectReference Include="..\utils.utility\TryashtarUtils.Utility.csproj" />
   </ItemGroup>
 

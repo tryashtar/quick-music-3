@@ -25,7 +25,7 @@ public class MagicStream : WaveStream
             for (int i = 0; i < Sources.Length; i++)
             {
                 if (i == next)
-                    Sources[i].LoadBackground();
+                    Sources[i].LoadStreamBackground();
                 else if (i != current_index)
                     Sources[i].Close();
             }
@@ -34,7 +34,8 @@ public class MagicStream : WaveStream
     }
     public RepeatMode RepeatMode { get; set; }
     public int SourceCount => Sources.Length;
-    private WaveStream Current => Sources[Math.Clamp(current_index, 0, Sources.Length - 1)].Stream;
+    public LoadableStream CurrentTrack => Sources[Math.Clamp(current_index, 0, Sources.Length - 1)];
+    private WaveStream Current => CurrentTrack.Stream;
 
     public MagicStream(IEnumerable<string> files)
     {
