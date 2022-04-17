@@ -7,26 +7,46 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace QuickMusic3.Core
+namespace QuickMusic3.Core;
+
+public class RelayCommand : ICommand
 {
-    public class RelayCommand : ICommand
+    public event EventHandler CanExecuteChanged;
+
+    private readonly Action ExecuteAction;
+    public RelayCommand(Action execute)
     {
-        public event EventHandler CanExecuteChanged;
+        ExecuteAction = execute;
+    }
 
-        private readonly Action ExecuteAction;
-        public RelayCommand(Action execute)
-        {
-            ExecuteAction = execute;
-        }
+    public bool CanExecute(object parameter)
+    {
+        return true;
+    }
 
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
+    public void Execute(object parameter)
+    {
+        ExecuteAction();
+    }
+}
 
-        public void Execute(object parameter)
-        {
-            ExecuteAction();
-        }
+public class RelayCommand<T> : ICommand
+{
+    public event EventHandler CanExecuteChanged;
+
+    private readonly Action<T> ExecuteAction;
+    public RelayCommand(Action<T> execute)
+    {
+        ExecuteAction = execute;
+    }
+
+    public bool CanExecute(object parameter)
+    {
+        return true;
+    }
+
+    public void Execute(object parameter)
+    {
+        ExecuteAction((T)parameter);
     }
 }

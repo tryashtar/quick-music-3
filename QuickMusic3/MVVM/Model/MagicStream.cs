@@ -25,7 +25,7 @@ public class MagicStream : WaveStream
                 CurrentBase.CurrentTime = CurrentBase.TotalTime;
             else
                 CurrentBase.CurrentTime = TimeSpan.Zero;
-            int? next = UpcomingIndex();
+            int next = UpcomingIndex();
             for (int i = 0; i < Sources.Length; i++)
             {
                 if (i == next)
@@ -56,7 +56,21 @@ public class MagicStream : WaveStream
     public override long Position
     {
         get => CurrentBase.Position;
-        set { CurrentBase.Position = value; Seeked?.Invoke(this, EventArgs.Empty); }
+        set
+        {
+            while (value < 0)
+            {
+                CurrentIndex = UpcomingIndex(-1);
+                value = CurrentBase.Length + value;
+            }
+            while (value > CurrentBase.Length)
+            {
+                value -= CurrentBase.Length;
+                CurrentIndex = UpcomingIndex(1);
+            }
+            CurrentBase.Position = value;
+            Seeked?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -86,11 +100,11 @@ public class MagicStream : WaveStream
         return Math.Clamp(index, -1, Sources.Length);
     }
 
-    private int UpcomingIndex()
+    private int UpcomingIndex(int direction = 1)
     {
         if (RepeatMode == RepeatMode.RepeatOne)
             return current_index;
-        return WrapIndex(current_index + 1);
+        return WrapIndex(current_index + direction);
     }
 
     protected override void Dispose(bool disposing)

@@ -75,7 +75,7 @@ public class Player : ObservableObject, IDisposable
         set
         {
             if (Stream != null)
-                Stream.CurrentTime = value;
+                Stream.Position = (long)(value.TotalSeconds * Stream.WaveFormat.AverageBytesPerSecond);
         }
     }
     public TimeSpan TotalTime => Stream?.TotalTime ?? TimeSpan.Zero;

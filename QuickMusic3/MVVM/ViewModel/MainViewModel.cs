@@ -15,6 +15,8 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - if you click the extra hitbox of slider, it doesn't fire MouseDown
 // - if you click the handle of a slider, it doesn't jump to the center of the cursor
 // - slider jittery for short tracks
+// - SetCurrentPosition is not exact, makes seeking for flacs terrible
+// - some flac lengths are inaccurate too
 
 // features to port:
 // - tray
@@ -38,6 +40,7 @@ public class MainViewModel
     public ICommand ChangeShuffleCommand { get; }
     public ICommand IncreaseVolumeCommand { get; }
     public ICommand DecreaseVolumeCommand { get; }
+    public ICommand SeekCommand { get; }
 
     public MainViewModel()
     {
@@ -49,7 +52,13 @@ public class MainViewModel
                 Player.Play();
         });
         NextCommand = new RelayCommand(() => Player.Next());
-        PrevCommand = new RelayCommand(() => Player.Prev());
+        PrevCommand = new RelayCommand(() =>
+        {
+            if (Player.CurrentTime > TimeSpan.FromSeconds(2))
+                Player.CurrentTime = TimeSpan.Zero;
+            else
+                Player.Prev();
+        });
         ChangeRepeatCommand = new RelayCommand(() =>
         {
             if (Player.RepeatMode == RepeatMode.RepeatAll)
@@ -63,5 +72,6 @@ public class MainViewModel
         ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
         IncreaseVolumeCommand = new RelayCommand(() => { Player.Volume = Math.Clamp(Player.Volume + 1 / 20f, 0, 1); });
         DecreaseVolumeCommand = new RelayCommand(() => { Player.Volume = Math.Clamp(Player.Volume - 1 / 20f, 0, 1); });
+        SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));
     }
 }

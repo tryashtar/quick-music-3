@@ -5,6 +5,8 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\quick music.ico</ApplicationIcon>
+	  <AssemblyTitle>Quick Music 3</AssemblyTitle>
+	  <AssemblyName>Quick Music 3</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

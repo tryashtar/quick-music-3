@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:QuickMusic3"
         xmlns:converters="clr-namespace:QuickMusic3.Converters"
         xmlns:viewmodel="clr-namespace:QuickMusic3.MVVM.ViewModel"
@@ -46,6 +47,42 @@
                     Command="{Binding ChangeMuteCommand}" />
         <KeyBinding Key="VolumeMute"
                     Command="{Binding ChangeMuteCommand}" />
+        <KeyBinding Key="Left"
+                    Command="{Binding SeekCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Double>-2</sys:Double>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="Right"
+                    Command="{Binding SeekCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Double>2</sys:Double>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="J"
+                    Command="{Binding SeekCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Double>-10</sys:Double>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="L"
+                    Command="{Binding SeekCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Double>10</sys:Double>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="OemComma"
+                    Command="{Binding SeekCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Double>-0.1</sys:Double>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Key="OemPeriod"
+                    Command="{Binding SeekCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Double>0.1</sys:Double>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
     </Window.InputBindings>
     <Window.Resources>
         <converters:TimeConverter x:Key="TimeConverter" />
