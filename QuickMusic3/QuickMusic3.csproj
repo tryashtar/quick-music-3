@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources\quick music.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,10 @@
     <None Remove="Resources\repeat_one.png" />
     <None Remove="Resources\shuffle.png" />
     <None Remove="Resources\volume.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\quick music.ico" />
   </ItemGroup>
 
   <ItemGroup>

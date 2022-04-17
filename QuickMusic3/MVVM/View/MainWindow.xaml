@@ -8,11 +8,45 @@
         xmlns:viewmodel="clr-namespace:QuickMusic3.MVVM.ViewModel"
         mc:Ignorable="d"
         Height="340"
-        Width="1200"
+        Width="1300"
+        FontFamily="Arial"
+        Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat={}Quick Music – {0}}"
         Closed="Window_Closed">
     <Window.DataContext>
         <viewmodel:MainViewModel />
     </Window.DataContext>
+    <Window.InputBindings>
+        <KeyBinding Key="Space"
+                    Command="{Binding PlayPauseCommand}" />
+        <KeyBinding Key="K"
+                    Command="{Binding PlayPauseCommand}" />
+        <KeyBinding Key="MediaPlayPause"
+                    Command="{Binding PlayPauseCommand}" />
+        <KeyBinding Modifiers="Ctrl"
+                    Key="Left"
+                    Command="{Binding PrevCommand}" />
+        <KeyBinding Modifiers="Ctrl"
+                    Key="Right"
+                    Command="{Binding NextCommand}" />
+        <KeyBinding Key="MediaPreviousTrack"
+                    Command="{Binding PrevCommand}" />
+        <KeyBinding Key="MediaNextTrack"
+                    Command="{Binding NextCommand}" />
+        <KeyBinding Key="Up"
+                    Command="{Binding IncreaseVolumeCommand}" />
+        <KeyBinding Key="VolumeUp"
+                    Command="{Binding IncreaseVolumeCommand}" />
+        <KeyBinding Key="Down"
+                    Command="{Binding DecreaseVolumeCommand}" />
+        <KeyBinding Key="VolumeDown"
+                    Command="{Binding DecreaseVolumeCommand}" />
+        <KeyBinding Key="R"
+                    Command="{Binding ChangeRepeatCommand}" />
+        <KeyBinding Key="M"
+                    Command="{Binding ChangeMuteCommand}" />
+        <KeyBinding Key="VolumeMute"
+                    Command="{Binding ChangeMuteCommand}" />
+    </Window.InputBindings>
     <Window.Resources>
         <converters:TimeConverter x:Key="TimeConverter" />
         <converters:TimeStringConverter x:Key="TimeStringConverter" />
@@ -56,6 +90,8 @@
                     Value="true" />
             <Setter Property="OverridesDefaultStyle"
                     Value="true" />
+            <Setter Property="IsHitTestVisible"
+                    Value="false" />
         </Style>
         <Style x:Key="RectangleSliderThumbStyle"
                TargetType="{x:Type Thumb}"
@@ -211,16 +247,13 @@
                         Orientation="Vertical">
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
                            FontSize="36"
-                           FontFamily="Arial"
                            TextWrapping="WrapWithOverflow" />
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
                            FontSize="36"
-                           FontFamily="Arial"
                            Foreground="#a0a0a0"
                            TextWrapping="WrapWithOverflow" />
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
                            FontSize="36"
-                           FontFamily="Arial"
                            Foreground="#a0a0a0"
                            TextWrapping="WrapWithOverflow" />
             </StackPanel>
@@ -309,7 +342,7 @@
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeShuffleCommand}">
                             <Image Source="/Resources/shuffle.png"
-                                   Margin="1"
+                                   Margin="2"
                                    SnapsToDevicePixels="True">
                                 <Image.Style>
                                     <Style>

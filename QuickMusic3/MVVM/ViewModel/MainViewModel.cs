@@ -25,6 +25,8 @@ public class MainViewModel
     public ICommand ChangeRepeatCommand { get; }
     public ICommand ChangeMuteCommand { get; }
     public ICommand ChangeShuffleCommand { get; }
+    public ICommand IncreaseVolumeCommand { get; }
+    public ICommand DecreaseVolumeCommand { get; }
 
     public MainViewModel()
     {
@@ -48,5 +50,7 @@ public class MainViewModel
         });
         ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
         ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
+        IncreaseVolumeCommand = new RelayCommand(() => { Player.Volume = Math.Clamp(Player.Volume + 1 / 20f, 0, 1); });
+        DecreaseVolumeCommand = new RelayCommand(() => { Player.Volume = Math.Clamp(Player.Volume - 1 / 20f, 0, 1); });
     }
 }
