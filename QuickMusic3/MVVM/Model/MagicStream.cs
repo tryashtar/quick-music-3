@@ -22,9 +22,9 @@ public class MagicStream : WaveStream
             int destination = WrapIndex(value);
             current_index = Math.Clamp(destination, 0, Sources.Length - 1);
             if (destination >= Sources.Length)
-                Current.CurrentTime = Current.TotalTime;
+                CurrentBase.CurrentTime = CurrentBase.TotalTime;
             else
-                Current.CurrentTime = TimeSpan.Zero;
+                CurrentBase.CurrentTime = TimeSpan.Zero;
             int? next = UpcomingIndex();
             for (int i = 0; i < Sources.Length; i++)
             {
@@ -39,7 +39,8 @@ public class MagicStream : WaveStream
     public RepeatMode RepeatMode { get; set; }
     public int SourceCount => Sources.Length;
     public LoadableStream CurrentTrack => Sources[current_index];
-    private WaveStream Current => CurrentTrack.Stream;
+    private WaveStream CurrentBase => CurrentTrack.BaseStream;
+    private IWaveProvider CurrentPlayable => CurrentTrack.PlayableStream;
 
     public MagicStream(IEnumerable<string> files)
     {
@@ -47,14 +48,14 @@ public class MagicStream : WaveStream
         CurrentIndex = 0;
     }
 
-    public override WaveFormat WaveFormat => Current.WaveFormat;
+    public override WaveFormat WaveFormat => CurrentPlayable.WaveFormat;
 
-    public override long Length => Current.Length;
+    public override long Length => CurrentBase.Length;
 
     public override long Position
     {
-        get => Current.Position;
-        set { Current.Position = value; Seeked?.Invoke(this, EventArgs.Empty); }
+        get => CurrentBase.Position;
+        set { CurrentBase.Position = value; Seeked?.Invoke(this, EventArgs.Empty); }
     }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -63,7 +64,7 @@ public class MagicStream : WaveStream
         while (read < count)
         {
             var needed = count - read;
-            var readThisTime = Current.Read(buffer, offset + read, needed);
+            var readThisTime = CurrentPlayable.Read(buffer, offset + read, needed);
             read += readThisTime;
             if (readThisTime == 0)
             {

@@ -7,18 +7,28 @@ namespace QuickMusic3.MVVM.Model;
 public class LoadableStream : IDisposable
 {
     public readonly string Path;
-    public bool IsStreamLoaded => stream != null;
+    public bool IsStreamLoaded => base_stream != null;
     public bool IsMetadataLoaded => metadata != null;
     private Task StreamLoadingTask;
-    private WaveStream? stream;
+    private WaveStream? base_stream;
+    private IWaveProvider playable_stream;
     private Metadata metadata;
-    public WaveStream Stream
+    public WaveStream BaseStream
     {
         get
         {
-            if (stream == null)
+            if (base_stream == null)
                 LoadStreamNow();
-            return stream;
+            return base_stream;
+        }
+    }
+    public IWaveProvider PlayableStream
+    {
+        get
+        {
+            if (base_stream == null)
+                LoadStreamNow();
+            return playable_stream;
         }
     }
     public Metadata Metadata
@@ -37,17 +47,26 @@ public class LoadableStream : IDisposable
 
     private void LoadStream()
     {
-        stream = new AudioFileReader(Path);
+        base_stream = new AudioFileReader(Path);
+        playable_stream = base_stream;
+        ApplyReplayGain();
     }
 
     private void LoadMetadata()
     {
         metadata = new Metadata(Path);
+        ApplyReplayGain();
+    }
+
+    private void ApplyReplayGain()
+    {
+        if (base_stream != null && metadata != null && metadata.ReplayGain != 0)
+            playable_stream = new DecibalOffsetProvider(base_stream.ToSampleProvider(), metadata.ReplayGain).ToWaveProvider();
     }
 
     public void LoadStreamBackground()
     {
-        if (stream == null && (StreamLoadingTask == null || StreamLoadingTask.IsCompleted))
+        if (base_stream == null && (StreamLoadingTask == null || StreamLoadingTask.IsCompleted))
             StreamLoadingTask = Task.Run(LoadStream);
     }
 
@@ -55,7 +74,7 @@ public class LoadableStream : IDisposable
     {
         if (StreamLoadingTask != null && !StreamLoadingTask.IsCompleted)
             StreamLoadingTask.Wait();
-        else if (stream == null)
+        else if (base_stream == null)
             LoadStream();
     }
 
@@ -70,11 +89,12 @@ public class LoadableStream : IDisposable
         if (StreamLoadingTask != null && !StreamLoadingTask.IsCompleted)
             StreamLoadingTask.Wait();
         StreamLoadingTask = null;
-        if (stream != null)
+        if (base_stream != null)
         {
-            stream.Dispose();
-            stream = null;
+            base_stream.Dispose();
+            base_stream = null;
         }
+        playable_stream = null;
     }
 
     public void Dispose()

@@ -10,7 +10,7 @@
         Height="340"
         Width="1300"
         FontFamily="Arial"
-        Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat={}Quick Music – {0}}"
+        Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}}"
         Closed="Window_Closed">
     <Window.DataContext>
         <viewmodel:MainViewModel />
