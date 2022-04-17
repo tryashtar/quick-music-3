@@ -59,5 +59,14 @@ namespace QuickMusic3
                 Model.Player.Play();
             PlayDragging = false;
         }
+
+        private void Volume_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta != 0)
+            {
+                float volume = Model.Player.Volume + (1 / ((float)e.Delta / 3));
+                Model.Player.Volume = Math.Clamp(volume, 0, 1);
+            }
+        }
     }
 }

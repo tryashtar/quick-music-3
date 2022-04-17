@@ -13,9 +13,34 @@ namespace QuickMusic3.MVVM.Model;
 public class Player : ObservableObject, IDisposable
 {
     private MagicStream Stream;
-    private WasapiOut Output;
-    private Timer Timer;
+    private WaveOutEvent Output;
+    private readonly Timer Timer;
     public PlaybackState PlayState => Output?.PlaybackState ?? PlaybackState.Stopped;
+    private RepeatMode repeat_mode = RepeatMode.PlayAll;
+    public RepeatMode RepeatMode
+    {
+        get { return repeat_mode; }
+        set
+        {
+            repeat_mode = value;
+            if (Stream != null)
+                Stream.RepeatMode = repeat_mode;
+            OnPropertyChanged();
+        }
+    }
+    private float volume = 1.0f;
+    public float Volume
+    {
+        get { return volume; }
+        set
+        {
+            volume = value;
+            if (Output != null)
+                Output.Volume = volume * volume;
+            OnPropertyChanged();
+        }
+    }
+
     public TimeSpan CurrentTime
     {
         get => Stream?.CurrentTime ?? TimeSpan.Zero;
@@ -29,7 +54,7 @@ public class Player : ObservableObject, IDisposable
 
     public Player()
     {
-        Timer = new(5) { Enabled = false };
+        Timer = new() { Enabled = false };
         Timer.Elapsed += Timer_Elapsed;
     }
 
@@ -41,12 +66,18 @@ public class Player : ObservableObject, IDisposable
     public void OpenFiles(string[] files)
     {
         if (Stream != null)
+        {
             Stream.CurrentChanged -= Stream_CurrentChanged;
+            Stream.Seeked -= Stream_Seeked;
+        }
         Stream = new(files);
+        Stream.RepeatMode = repeat_mode;
+        Stream.CurrentChanged += Stream_CurrentChanged;
+        Stream.Seeked += Stream_Seeked;
         Output?.Dispose();
         Output = new();
+        Output.Volume = volume;
         Output.Init(Stream);
-        Stream.CurrentChanged += Stream_CurrentChanged;
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(TotalTime));
         Play();
@@ -54,8 +85,14 @@ public class Player : ObservableObject, IDisposable
 
     private void Stream_CurrentChanged(object sender, EventArgs e)
     {
+        Timer.Interval = Math.Clamp(Stream.TotalTime.TotalMilliseconds / 1000, 1, 20);
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(TotalTime));
+    }
+
+    private void Stream_Seeked(object sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(CurrentTime));
     }
 
     public void Play()
@@ -71,6 +108,24 @@ public class Player : ObservableObject, IDisposable
         Output?.Pause();
         Timer.Enabled = false;
         OnPropertyChanged(nameof(PlayState));
+    }
+
+    public void Next()
+    {
+        if (Stream != null)
+        {
+            Stream.CurrentIndex++;
+            Stream.CurrentTime = TimeSpan.Zero;
+        }
+    }
+
+    public void Prev()
+    {
+        if (Stream != null)
+        {
+            Stream.CurrentIndex--;
+            Stream.CurrentTime = TimeSpan.Zero;
+        }
     }
 
     public void Dispose()

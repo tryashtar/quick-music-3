@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using QuickMusic3.MVVM.Model;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -25,6 +26,28 @@ public class PlayPauseIcon : IMultiValueConverter
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
+        throw new InvalidOperationException();
+    }
+}
+
+public class RepeatModeIcon : IValueConverter
+{
+    private static readonly BitmapFrame RepeatAll = BitmapFrame.Create(new Uri("pack://application:,,,/Resources/repeat_all.png"));
+    private static readonly BitmapFrame RepeatOne = BitmapFrame.Create(new Uri("pack://application:,,,/Resources/repeat_one.png"));
+    private static readonly BitmapFrame PlayAll = BitmapFrame.Create(new Uri("pack://application:,,,/Resources/once.png"));
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var mode = (RepeatMode)value;
+        if (mode == RepeatMode.RepeatAll)
+            return RepeatAll;
+        if (mode == RepeatMode.RepeatOne)
+            return RepeatOne;
+        return PlayAll;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         throw new InvalidOperationException();
     }

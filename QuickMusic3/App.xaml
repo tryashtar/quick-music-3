@@ -9,6 +9,7 @@
             <converters:TimeConverter x:Key="TimeConverter" />
             <converters:TimeStringConverter x:Key="TimeStringConverter" />
             <converters:PlayPauseIcon x:Key="PlayPauseIcon" />
+            <converters:RepeatModeIcon x:Key="RepeatModeIcon" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./Themes/PlaylistItem.xaml"/>
             </ResourceDictionary.MergedDictionaries>

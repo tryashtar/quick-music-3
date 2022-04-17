@@ -159,6 +159,8 @@
                     Value="true" />
             <Setter Property="IsMoveToPointEnabled"
                     Value="true" />
+            <Setter Property="Focusable"
+                    Value="false" />
         </Style>
         <Style x:Key="CircleSliderStyle"
                TargetType="{x:Type Slider}"
@@ -225,6 +227,7 @@
                                 HorizontalAlignment="Left">
                         <Button Width="42"
                                 Height="42"
+                                Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding PlayPauseCommand}">
                             <Image Margin="1"
@@ -240,13 +243,16 @@
                         </Button>
                         <Button Width="42"
                                 Height="42"
-                                Margin="0,0,6,0">
-                            <Image Source="/Resources/repeat_all.png"
+                                Focusable="False"
+                                Margin="0,0,6,0"
+                                Command="{Binding ChangeRepeatCommand}">
+                            <Image Source="{Binding Player.RepeatMode, Converter={StaticResource RepeatModeIcon}}"
                                    Margin="2"
                                    SnapsToDevicePixels="True" />
                         </Button>
                         <Button Width="42"
                                 Height="42"
+                                Focusable="False"
                                 Margin="0,0,6,0">
                             <Image Source="/Resources/shuffle.png"
                                    Margin="1"
@@ -254,6 +260,7 @@
                         </Button>
                         <Button Width="32"
                                 Height="42"
+                                Focusable="False"
                                 Margin="0,0,6,0"
                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                             <Image Source="/Resources/volume.png"
@@ -262,20 +269,28 @@
                         </Button>
                         <local:CustomSlider Style="{StaticResource CircleSliderStyle}"
                                             Width="100"
-                                            VerticalAlignment="Center" />
+                                            VerticalAlignment="Center"
+                                            Value="{Binding Player.Volume}"
+                                            Minimum="0"
+                                            Maximum="1"
+                                            PreviewMouseWheel="Volume_PreviewMouseWheel"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
                         <Button Width="42"
                                 Height="42"
-                                Margin="0,0,6,0">
+                                Focusable="False"
+                                Margin="0,0,6,0"
+                                Command="{Binding PrevCommand}">
                             <Image Source="/Resources/previous.png"
                                    Margin="1"
                                    SnapsToDevicePixels="True" />
                         </Button>
                         <Button Width="42"
                                 Height="42"
-                                Margin="0,0,6,0">
+                                Focusable="False"
+                                Margin="0,0,6,0"
+                                Command="{Binding NextCommand}">
                             <Image Source="/Resources/next.png"
                                    Margin="1"
                                    SnapsToDevicePixels="True" />
@@ -283,6 +298,7 @@
                         <Button Width="84"
                                 Height="42"
                                 Margin="0"
+                                Focusable="False"
                                 Content="Browse"
                                 FontSize="18"
                                 Click="BrowseButton_Click" />

@@ -7,6 +7,7 @@ namespace QuickMusic3.MVVM.Model;
 public class LoadableStream : IDisposable
 {
     public readonly string Path;
+    public bool IsLoaded => stream != null;
     private Task LoadingTask;
     private WaveStream? stream;
     public WaveStream Stream
@@ -30,7 +31,7 @@ public class LoadableStream : IDisposable
 
     public void LoadBackground()
     {
-        if (stream == null && LoadingTask != null || LoadingTask.IsCompleted)
+        if (stream == null && (LoadingTask == null || LoadingTask.IsCompleted))
             LoadingTask = Task.Run(LoadStream);
     }
 
