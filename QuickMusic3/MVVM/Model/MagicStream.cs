@@ -44,6 +44,7 @@ public class MagicStream : WaveStream
     public MagicStream(IEnumerable<string> files)
     {
         this.Sources = files.Select(x => new LoadableStream(x)).ToArray();
+        CurrentIndex = 0;
     }
 
     public override WaveFormat WaveFormat => Current.WaveFormat;

@@ -14,6 +14,7 @@ namespace QuickMusic3.MVVM.ViewModel;
 // current bugs:
 // - if you click the extra hitbox of slider, it doesn't fire MouseDown
 // - audio doesn't stop when application closed
+// - if you click the handle of a slider, it doesn't jump to the center of the cursor
 
 public class MainViewModel
 {
@@ -22,6 +23,8 @@ public class MainViewModel
     public ICommand NextCommand { get; }
     public ICommand PrevCommand { get; }
     public ICommand ChangeRepeatCommand { get; }
+    public ICommand ChangeMuteCommand { get; }
+    public ICommand ChangeShuffleCommand { get; }
 
     public MainViewModel()
     {
@@ -43,5 +46,7 @@ public class MainViewModel
             else
                 Player.RepeatMode = RepeatMode.RepeatAll;
         });
+        ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
+        ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
     }
 }

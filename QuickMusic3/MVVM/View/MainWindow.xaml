@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuickMusic3"
+        xmlns:converters="clr-namespace:QuickMusic3.Converters"
         xmlns:viewmodel="clr-namespace:QuickMusic3.MVVM.ViewModel"
         mc:Ignorable="d"
         Height="340"
@@ -13,6 +14,9 @@
         <viewmodel:MainViewModel />
     </Window.DataContext>
     <Window.Resources>
+        <converters:TimeConverter x:Key="TimeConverter" />
+        <converters:TimeStringConverter x:Key="TimeStringConverter" />
+        <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
         <Style x:Key="SliderButtonStyle"
                TargetType="{x:Type RepeatButton}">
             <Setter Property="SnapsToDevicePixels"
@@ -182,7 +186,8 @@
                 <ColumnDefinition.MaxWidth>
                     <MultiBinding Converter="{StaticResource AlbumArtFitter}">
                         <Binding Path="Player.CurrentTrack.Metadata.HighResImage" />
-                        <Binding Path="ActualHeight" ElementName="MainGrid" />
+                        <Binding Path="ActualHeight"
+                                 ElementName="MainGrid" />
                     </MultiBinding>
                 </ColumnDefinition.MaxWidth>
             </ColumnDefinition>
@@ -206,15 +211,18 @@
                         Orientation="Vertical">
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
                            FontSize="36"
-                           FontFamily="Arial" />
+                           FontFamily="Arial"
+                           TextWrapping="WrapWithOverflow" />
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
                            FontSize="36"
                            FontFamily="Arial"
-                           Foreground="#a0a0a0" />
+                           Foreground="#a0a0a0"
+                           TextWrapping="WrapWithOverflow" />
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
                            FontSize="36"
                            FontFamily="Arial"
-                           Foreground="#a0a0a0" />
+                           Foreground="#a0a0a0"
+                           TextWrapping="WrapWithOverflow" />
             </StackPanel>
             <StackPanel Grid.Row="1"
                         Orientation="Vertical"
@@ -242,13 +250,27 @@
                                 Command="{Binding PlayPauseCommand}">
                             <Image Margin="1"
                                    SnapsToDevicePixels="True">
-                                <Image.Source>
-                                    <MultiBinding Converter="{StaticResource PlayPauseIcon}">
-                                        <Binding Path="PlayDragging"
-                                                 RelativeSource="{RelativeSource FindAncestor, AncestorType=Window}" />
-                                        <Binding Path="Player.PlayState" />
-                                    </MultiBinding>
-                                </Image.Source>
+                                <Image.Style>
+                                    <Style>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Player.PlayState}"
+                                                         Value="Playing">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/pause.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Player.PlayState}"
+                                                         Value="Paused">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/play.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding PlayDragging, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                                         Value="true">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/pause.png" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
                             </Image>
                         </Button>
                         <Button Width="42"
@@ -256,26 +278,77 @@
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeRepeatCommand}">
-                            <Image Source="{Binding Player.RepeatMode, Converter={StaticResource RepeatModeIcon}}"
-                                   Margin="2"
-                                   SnapsToDevicePixels="True" />
+                            <Image Margin="2"
+                                   SnapsToDevicePixels="True">
+                                <Image.Style>
+                                    <Style>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Player.RepeatMode}"
+                                                         Value="RepeatAll">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/repeat_all.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Player.RepeatMode}"
+                                                         Value="RepeatOne">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/repeat_one.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Player.RepeatMode}"
+                                                         Value="PlayAll">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/once.png" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Button>
                         <Button Width="42"
                                 Height="42"
                                 Focusable="False"
-                                Margin="0,0,6,0">
+                                Margin="0,0,6,0"
+                                Command="{Binding ChangeShuffleCommand}">
                             <Image Source="/Resources/shuffle.png"
                                    Margin="1"
-                                   SnapsToDevicePixels="True" />
+                                   SnapsToDevicePixels="True">
+                                <Image.Style>
+                                    <Style>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Player.Shuffle}"
+                                                         Value="false">
+                                                <Setter Property="Image.Opacity"
+                                                        Value="0.2" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Button>
                         <Button Width="32"
                                 Height="42"
                                 Focusable="False"
                                 Margin="0,0,6,0"
+                                Command="{Binding ChangeMuteCommand}"
                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                            <Image Source="/Resources/volume.png"
-                                   Margin="-4"
-                                   SnapsToDevicePixels="True" />
+                            <Image Margin="-4"
+                                   SnapsToDevicePixels="True">
+                                <Image.Style>
+                                    <Style>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Player.Muted}"
+                                                         Value="true">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/mute.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Player.Muted}"
+                                                         Value="false">
+                                                <Setter Property="Image.Source"
+                                                        Value="/Resources/volume.png" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Button>
                         <local:CustomSlider Style="{StaticResource CircleSliderStyle}"
                                             Width="100"

@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
@@ -15,17 +16,17 @@ public class Metadata
     {
         get
         {
-            using var file = TagLib.File.Create(Path);
+            using var file = TagLib.File.Create(FilePath);
             return ArtCache.GetHighResEmbeddedImage(file.Tag);
         }
     }
 
-    private readonly string Path;
+    private readonly string FilePath;
     public Metadata(string path)
     {
-        Path = path;
+        FilePath = path;
         using var file = TagLib.File.Create(path);
-        Title = file.Tag.Title;
+        Title = file.Tag.Title ?? Path.GetFileName(path);
         Artist = file.Tag.FirstPerformer;
         Album = file.Tag.Album;
         Thumbnail = ArtCache.GetEmbeddedImage(file.Tag);

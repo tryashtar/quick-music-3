@@ -2,18 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:QuickMusic3"
-             xmlns:converters="clr-namespace:QuickMusic3.Converters"
              StartupUri="MVVM/View/MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary>
-            <converters:TimeConverter x:Key="TimeConverter" />
-            <converters:TimeStringConverter x:Key="TimeStringConverter" />
-            <converters:PlayPauseIcon x:Key="PlayPauseIcon" />
-            <converters:RepeatModeIcon x:Key="RepeatModeIcon" />
-            <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="./Themes/PlaylistItem.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
     </Application.Resources>
 </Application>

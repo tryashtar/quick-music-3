@@ -26,7 +26,9 @@ public static class ArtCache
         var hash = Convert.ToBase64String(hasher.ComputeHash(data));
         if (HashToImage.TryGetValue(hash, out var existing))
             return existing;
-        var hd = GetHighResEmbeddedImage(tag);
+        var hd = DataToImage(data);
+        if (hd == null)
+            return null;
         var thumbnail = Thumbnail(hd);
         lock (HashToImage)
         {
@@ -48,12 +50,23 @@ public static class ArtCache
     public static BitmapSource GetHighResEmbeddedImage(TagLib.Tag tag)
     {
         var data = FetchEmbeddedImageData(tag);
+        return DataToImage(data);
+    }
+
+    private static BitmapSource DataToImage(byte[] data)
+    {
+        if (data == null)
+            return null;
         var stream = new MemoryStream(data);
-        var img = new BitmapImage();
-        img.BeginInit();
-        img.StreamSource = stream;
-        img.EndInit();
-        return img;
+        try
+        {
+            var img = new BitmapImage();
+            img.BeginInit();
+            img.StreamSource = stream;
+            img.EndInit();
+            return img;
+        }
+        catch { return null; }
     }
 
     private static byte[] FetchEmbeddedImageData(TagLib.Tag tag)

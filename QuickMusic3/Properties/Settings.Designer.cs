@@ -34,5 +34,41 @@ namespace QuickMusic3.Properties {
                 this["Volume"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int RepeatMode {
+            get {
+                return ((int)(this["RepeatMode"]));
+            }
+            set {
+                this["RepeatMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Muted {
+            get {
+                return ((bool)(this["Muted"]));
+            }
+            set {
+                this["Muted"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Shuffle {
+            get {
+                return ((bool)(this["Shuffle"]));
+            }
+            set {
+                this["Shuffle"] = value;
+            }
+        }
     }
 }

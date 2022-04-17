@@ -16,16 +16,25 @@ public class Player : ObservableObject, IDisposable
     private WaveOutEvent Output;
     private readonly Timer Timer;
     public LoadableStream CurrentTrack => Stream?.CurrentTrack;
-    public PlaybackState PlayState => Output?.PlaybackState ?? PlaybackState.Stopped;
-    private RepeatMode repeat_mode = RepeatMode.PlayAll;
+    public PlaybackState PlayState
+    {
+        get
+        {
+            if (Output == null)
+                return PlaybackState.Paused;
+            if (Output.PlaybackState == PlaybackState.Stopped)
+                return PlaybackState.Paused;
+            return Output.PlaybackState;
+        }
+    }
     public RepeatMode RepeatMode
     {
-        get { return repeat_mode; }
+        get { return (RepeatMode)Properties.Settings.Default.RepeatMode; }
         set
         {
-            repeat_mode = value;
+            Properties.Settings.Default.RepeatMode = (int)value;
             if (Stream != null)
-                Stream.RepeatMode = repeat_mode;
+                Stream.RepeatMode = value;
             OnPropertyChanged();
         }
     }
@@ -35,8 +44,27 @@ public class Player : ObservableObject, IDisposable
         set
         {
             Properties.Settings.Default.Volume = value;
-            if (Output != null)
-                Output.Volume = value * value;
+            Muted = false;
+            UpdateVolume();
+            OnPropertyChanged();
+        }
+    }
+    public bool Muted
+    {
+        get { return Properties.Settings.Default.Muted; }
+        set
+        {
+            Properties.Settings.Default.Muted = value;
+            UpdateVolume();
+            OnPropertyChanged();
+        }
+    }
+    public bool Shuffle
+    {
+        get { return Properties.Settings.Default.Shuffle; }
+        set
+        {
+            Properties.Settings.Default.Shuffle = value;
             OnPropertyChanged();
         }
     }
@@ -61,6 +89,7 @@ public class Player : ObservableObject, IDisposable
     private void Timer_Elapsed(object sender, ElapsedEventArgs e)
     {
         OnPropertyChanged(nameof(CurrentTime));
+        // System.Diagnostics.Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
     public void OpenFiles(string[] files)
@@ -71,15 +100,21 @@ public class Player : ObservableObject, IDisposable
             Stream.Seeked -= Stream_Seeked;
         }
         Stream = new(files);
-        Stream.RepeatMode = repeat_mode;
+        Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.CurrentChanged += Stream_CurrentChanged;
         Stream.Seeked += Stream_Seeked;
         Output?.Dispose();
         Output = new();
-        Output.Volume = Properties.Settings.Default.Volume;
+        UpdateVolume();
         Output.Init(Stream);
         Stream_CurrentChanged(this, EventArgs.Empty);
         Play();
+    }
+
+    private void UpdateVolume()
+    {
+        if (Output != null)
+            Output.Volume = Muted ? 0 : Volume * Volume;
     }
 
     private void Stream_CurrentChanged(object sender, EventArgs e)
@@ -105,7 +140,8 @@ public class Player : ObservableObject, IDisposable
 
     public void Pause()
     {
-        Output?.Pause();
+        // using stop instead of pause fixes audio blips when seeking
+        Output?.Stop();
         Timer.Enabled = false;
         OnPropertyChanged(nameof(PlayState));
     }

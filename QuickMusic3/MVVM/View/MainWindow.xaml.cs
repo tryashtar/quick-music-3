@@ -62,7 +62,7 @@ namespace QuickMusic3
 
         private void Volume_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (e.Delta != 0)
+            if (e.Delta != 0 && !Model.Player.Muted)
             {
                 float volume = Model.Player.Volume + (1 / ((float)e.Delta / 3));
                 Model.Player.Volume = Math.Clamp(volume, 0, 1);
