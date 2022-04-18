@@ -41,7 +41,7 @@ public class LoadableStream : IDisposable
             return metadata;
         }
     }
-    public LoadableStream(string path, WaveFormat? format=null)
+    public LoadableStream(string path, WaveFormat? format = null)
     {
         Path = path;
         RequiredFormat = format;
@@ -99,7 +99,12 @@ public class LoadableStream : IDisposable
             base_stream.Dispose();
             base_stream = null;
         }
-        playable_stream = null;
+        if (playable_stream != null)
+        {
+            if (playable_stream is IDisposable d)
+                d.Dispose();
+            playable_stream = null;
+        }
     }
 
     public void Dispose()

@@ -1,8 +1,9 @@
-﻿using NAudio.Wave;
+using NAudio.Wave;
 using QuickMusic3.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -71,7 +72,7 @@ public class Player : ObservableObject, IDisposable
 
     public TimeSpan CurrentTime
     {
-        get => Stream?.CurrentTime ?? TimeSpan.Zero;
+        get => Stream?.CurrentTime + MissingTime.Elapsed ?? TimeSpan.Zero;
         set
         {
             if (Stream != null)
@@ -86,8 +87,17 @@ public class Player : ObservableObject, IDisposable
         Timer.Elapsed += Timer_Elapsed;
     }
 
+    // Stream.Position doesn't update very often since it reads from the stream in chunks
+    // so we fill in the missing time ourselves
+    private readonly Stopwatch MissingTime = new();
+    private long LastPosition;
     private void Timer_Elapsed(object sender, ElapsedEventArgs e)
     {
+        if (LastPosition != Stream.Position)
+        {
+            LastPosition = Stream.Position;
+            MissingTime.Restart();
+        }
         OnPropertyChanged(nameof(CurrentTime));
         // System.Diagnostics.Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
@@ -119,7 +129,6 @@ public class Player : ObservableObject, IDisposable
 
     private void Stream_CurrentChanged(object sender, EventArgs e)
     {
-        Timer.Interval = Math.Clamp(Stream.TotalTime.TotalMilliseconds / 1000, 1, 20);
         OnPropertyChanged(nameof(CurrentTrack));
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(TotalTime));
@@ -134,6 +143,7 @@ public class Player : ObservableObject, IDisposable
     {
         Output?.Play();
         Timer.Enabled = true;
+        MissingTime.Restart();
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(PlayState));
     }
@@ -143,6 +153,7 @@ public class Player : ObservableObject, IDisposable
         // using stop instead of pause fixes audio blips when seeking
         Output?.Stop();
         Timer.Enabled = false;
+        MissingTime.Reset();
         OnPropertyChanged(nameof(PlayState));
     }
 
@@ -163,6 +174,7 @@ public class Player : ObservableObject, IDisposable
         Timer.Enabled = false;
         Timer.Elapsed -= Timer_Elapsed;
         Timer.Dispose();
+        MissingTime.Reset();
         if (Stream != null)
             Stream.CurrentChanged -= Stream_CurrentChanged;
         Stream?.Dispose();

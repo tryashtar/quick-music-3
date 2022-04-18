@@ -26,10 +26,7 @@ public static class ArtCache
         var hash = Convert.ToBase64String(hasher.ComputeHash(data));
         if (HashToImage.TryGetValue(hash, out var existing))
             return existing;
-        var hd = DataToImage(data);
-        if (hd == null)
-            return null;
-        var thumbnail = Thumbnail(hd);
+        var thumbnail = DataToImage(data, 64);
         lock (HashToImage)
         {
             HashToImage[hash] = thumbnail;
@@ -38,13 +35,16 @@ public static class ArtCache
         return thumbnail;
     }
 
-    private static BitmapSource Thumbnail(BitmapSource image)
+    internal static void SaveTo(string folder)
     {
-        float max_width = 64;
-        float max_height = 64;
-        double ratio = Math.Min(max_width / image.Width, max_height / image.Height);
-        var result = new TransformedBitmap(image, new ScaleTransform(ratio, ratio));
-        return result;
+        Directory.CreateDirectory(folder);
+        foreach (var item in HashToImage)
+        {
+            using var stream = new FileStream(Path.Combine(folder, item.Key + ".png"), FileMode.Create);
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(item.Value));
+            encoder.Save(stream);
+        }
     }
 
     public static BitmapSource GetHighResEmbeddedImage(TagLib.Tag tag)
@@ -53,7 +53,7 @@ public static class ArtCache
         return DataToImage(data);
     }
 
-    private static BitmapSource DataToImage(byte[] data)
+    private static BitmapSource DataToImage(byte[] data, int? set_width = null)
     {
         if (data == null)
             return null;
@@ -63,6 +63,8 @@ public static class ArtCache
             var img = new BitmapImage();
             img.BeginInit();
             img.StreamSource = stream;
+            if (set_width != null)
+                img.DecodePixelWidth = set_width.Value;
             img.EndInit();
             return img;
         }
