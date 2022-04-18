@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using System;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ public class LoadableStream : IDisposable
     private IWaveProvider playable_stream;
     private Metadata metadata;
     private readonly WaveFormat? RequiredFormat;
+    private object loading_lock = new();
     public WaveStream BaseStream
     {
         get
@@ -51,15 +53,20 @@ public class LoadableStream : IDisposable
     {
         base_stream = new AudioFileReader(Path);
         playable_stream = base_stream;
+        if (RequiredFormat != null)
+        {
+            if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate || base_stream.WaveFormat.Channels != RequiredFormat.Channels)
+            {
+                ISampleProvider sample = playable_stream.ToSampleProvider();
+                if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
+                    sample = new WdlResamplingSampleProvider(sample, RequiredFormat.SampleRate);
+                if (base_stream.WaveFormat.Channels != RequiredFormat.Channels)
+                    sample = new MonoToStereoSampleProvider(sample);
+                playable_stream = sample.ToWaveProvider();
+            }
+        }
         ApplyReplayGain();
-    }
-
-    // this can't run on a background thread
-    private void LoadStreamAfter()
-    {
-        if (RequiredFormat != null && base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
-            playable_stream = new ResamplerDmoStream(playable_stream, RequiredFormat);
-        System.Diagnostics.Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate}");
+        System.Diagnostics.Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate} / {base_stream.WaveFormat.Channels}");
     }
 
     private void LoadMetadata()
@@ -76,18 +83,21 @@ public class LoadableStream : IDisposable
 
     public void LoadStreamBackground()
     {
-        if (base_stream == null && (StreamLoadingTask == null || StreamLoadingTask.IsCompleted))
-            StreamLoadingTask = Task.Run(LoadStream).ContinueWith(x => LoadStreamAfter());
+        lock (loading_lock)
+        {
+            if (base_stream == null && (StreamLoadingTask == null || StreamLoadingTask.IsCompleted))
+                StreamLoadingTask = Task.Run(LoadStream);
+        }
     }
 
     public void LoadStreamNow()
     {
-        if (StreamLoadingTask != null && !StreamLoadingTask.IsCompleted)
-            StreamLoadingTask.Wait();
-        else if (base_stream == null)
+        lock (loading_lock)
         {
-            LoadStream();
-            LoadStreamAfter();
+            if (StreamLoadingTask != null && !StreamLoadingTask.IsCompleted)
+                StreamLoadingTask.Wait();
+            else if (base_stream == null)
+                LoadStream();
         }
     }
 

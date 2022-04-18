@@ -14,9 +14,6 @@ namespace QuickMusic3.MVVM.ViewModel;
 // current bugs:
 // - if you click the extra hitbox of slider, it doesn't fire MouseDown
 // - if you click the handle of a slider, it doesn't jump to the center of the cursor
-// - slider jittery for short tracks
-// - SetCurrentPosition is not exact, makes seeking for flacs terrible
-// - some flac lengths are inaccurate too
 
 // features to port:
 // - tray

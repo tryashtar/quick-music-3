@@ -7,7 +7,7 @@ using System.Text;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class MagicStream : WaveStream
+public class MagicStream : IWaveProvider, IDisposable
 {
     public event EventHandler CurrentChanged;
     public event EventHandler Seeked;
@@ -49,31 +49,33 @@ public class MagicStream : WaveStream
         CurrentIndex = 0;
     }
 
-    public override WaveFormat WaveFormat => CurrentPlayable.WaveFormat;
+    public WaveFormat WaveFormat => CurrentPlayable.WaveFormat;
 
-    public override long Length => CurrentBase.Length;
-
-    public override long Position
+    // we have to use CurrentBase.WaveFormat, not CurrentPlayable.WaveFormat
+    // I promise
+    public TimeSpan TotalTime => CurrentBase.TotalTime;
+    public TimeSpan CurrentTime
     {
-        get => CurrentBase.Position;
+        get => CurrentBase.CurrentTime;
         set
         {
-            while (value < 0)
+            long position = (long)(value.TotalSeconds * CurrentBase.WaveFormat.AverageBytesPerSecond);
+            while (position < 0)
             {
                 CurrentIndex = UpcomingIndex(-1);
-                value = CurrentBase.Length + value;
+                position = CurrentBase.Length + position;
             }
-            while (value > CurrentBase.Length)
+            while (position > CurrentBase.Length)
             {
-                value -= CurrentBase.Length;
+                position -= CurrentBase.Length;
                 CurrentIndex = UpcomingIndex(1);
             }
-            CurrentBase.Position = value;
+            CurrentBase.Position = position;
             Seeked?.Invoke(this, EventArgs.Empty);
         }
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public int Read(byte[] buffer, int offset, int count)
     {
         var read = 0;
         while (read < count)
@@ -107,15 +109,11 @@ public class MagicStream : WaveStream
         return WrapIndex(current_index + direction);
     }
 
-    protected override void Dispose(bool disposing)
+    public void Dispose()
     {
-        base.Dispose(disposing);
-        if (disposing)
+        foreach (var item in Sources)
         {
-            foreach (var item in Sources)
-            {
-                item.Dispose();
-            }
+            item.Dispose();
         }
     }
 }

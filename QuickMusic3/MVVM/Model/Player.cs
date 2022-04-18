@@ -76,14 +76,14 @@ public class Player : ObservableObject, IDisposable
         set
         {
             if (Stream != null)
-                Stream.Position = (long)(value.TotalSeconds * Stream.WaveFormat.AverageBytesPerSecond);
+                Stream.CurrentTime = value;
         }
     }
     public TimeSpan TotalTime => Stream?.TotalTime ?? TimeSpan.Zero;
 
     public Player()
     {
-        Timer = new() { Enabled = false, Interval = 20 };
+        Timer = new() { Enabled = false, Interval = 50 };
         Timer.Elapsed += Timer_Elapsed;
     }
 
@@ -93,13 +93,14 @@ public class Player : ObservableObject, IDisposable
     private long LastPosition;
     private void Timer_Elapsed(object sender, ElapsedEventArgs e)
     {
-        if (LastPosition != Stream.Position)
+        if (LastPosition != Stream.CurrentTime.Ticks)
         {
-            LastPosition = Stream.Position;
+            LastPosition = Stream.CurrentTime.Ticks;
+            // Debug.WriteLine(MissingTime.ElapsedMilliseconds);
             MissingTime.Restart();
         }
         OnPropertyChanged(nameof(CurrentTime));
-        // System.Diagnostics.Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
+        // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
     public void OpenFiles(string[] files)
@@ -108,17 +109,33 @@ public class Player : ObservableObject, IDisposable
         {
             Stream.CurrentChanged -= Stream_CurrentChanged;
             Stream.Seeked -= Stream_Seeked;
+            Stream.Dispose();
         }
         Stream = new(files);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.CurrentChanged += Stream_CurrentChanged;
         Stream.Seeked += Stream_Seeked;
-        Output?.Dispose();
+        if (Output != null)
+        {
+            Output.PlaybackStopped -= Output_PlaybackStopped;
+            Output.Dispose();
+        }
         Output = new();
+        Output.PlaybackStopped += Output_PlaybackStopped;
         UpdateVolume();
         Output.Init(Stream);
         Stream_CurrentChanged(this, EventArgs.Empty);
         Play();
+    }
+
+    // if you spam forward a lot, it stops sometimes with an error
+    private void Output_PlaybackStopped(object sender, StoppedEventArgs e)
+    {
+        if (e.Exception != null)
+        {
+            System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
+            Play();
+        }
     }
 
     private void UpdateVolume()
