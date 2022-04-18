@@ -51,10 +51,15 @@ public class LoadableStream : IDisposable
     {
         base_stream = new AudioFileReader(Path);
         playable_stream = base_stream;
+        ApplyReplayGain();
+    }
+
+    // this can't run on a background thread
+    private void LoadStreamAfter()
+    {
         if (RequiredFormat != null && base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
             playable_stream = new ResamplerDmoStream(playable_stream, RequiredFormat);
         System.Diagnostics.Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate}");
-        ApplyReplayGain();
     }
 
     private void LoadMetadata()
@@ -72,7 +77,7 @@ public class LoadableStream : IDisposable
     public void LoadStreamBackground()
     {
         if (base_stream == null && (StreamLoadingTask == null || StreamLoadingTask.IsCompleted))
-            StreamLoadingTask = Task.Run(LoadStream);
+            StreamLoadingTask = Task.Run(LoadStream).ContinueWith(x => LoadStreamAfter());
     }
 
     public void LoadStreamNow()
@@ -80,7 +85,10 @@ public class LoadableStream : IDisposable
         if (StreamLoadingTask != null && !StreamLoadingTask.IsCompleted)
             StreamLoadingTask.Wait();
         else if (base_stream == null)
+        {
             LoadStream();
+            LoadStreamAfter();
+        }
     }
 
     public void LoadMetadataNow()

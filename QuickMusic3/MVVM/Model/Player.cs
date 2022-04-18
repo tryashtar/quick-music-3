@@ -83,7 +83,7 @@ public class Player : ObservableObject, IDisposable
 
     public Player()
     {
-        Timer = new() { Enabled = false };
+        Timer = new() { Enabled = false, Interval = 20 };
         Timer.Elapsed += Timer_Elapsed;
     }
 
