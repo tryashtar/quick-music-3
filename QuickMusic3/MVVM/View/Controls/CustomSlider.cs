@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace QuickMusic3;
+namespace QuickMusic3.MVVM.View;
 
 public class CustomSlider : Slider
 {
