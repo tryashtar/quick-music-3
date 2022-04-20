@@ -13,6 +13,8 @@
         mc:Ignorable="d"
         Height="340"
         Width="1300"
+        MinHeight="200"
+        MinWidth="690"
         Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}}"
         Closed="Window_Closed"
         IsVisibleChanged="Window_IsVisibleChanged">

@@ -9,6 +9,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              FontFamily="Arial"
+             Background="White"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
@@ -194,8 +195,7 @@
             </ColumnDefinition>
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0"
-              Background="White">
+        <Grid Grid.Column="0">
             <Image x:Name="AlbumArt"
                    Source="{Binding Player.CurrentTrack.Metadata.HighResImage}"
                    RenderOptions.BitmapScalingMode="HighQuality"

@@ -40,7 +40,7 @@ public static class ArtCache
         Directory.CreateDirectory(folder);
         foreach (var item in HashToImage)
         {
-            using var stream = new FileStream(Path.Combine(folder, item.Key + ".png"), FileMode.Create);
+            using var stream = new FileStream(Path.Combine(folder, item.Key.Replace('/', '_') + ".png"), FileMode.Create);
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(item.Value));
             encoder.Save(stream);
@@ -62,13 +62,14 @@ public static class ArtCache
         {
             var img = new BitmapImage();
             img.BeginInit();
-            img.StreamSource = stream;
             if (set_width != null)
                 img.DecodePixelWidth = set_width.Value;
+            img.StreamSource = stream;
             img.EndInit();
+            img.Freeze();
             return img;
         }
-        catch { return null; }
+        catch { stream.Dispose(); return null; }
     }
 
     private static byte[] FetchEmbeddedImageData(TagLib.Tag tag)
