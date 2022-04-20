@@ -147,20 +147,26 @@ public class Player : ObservableObject, IDisposable
 
     public void Play()
     {
-        Output?.Play();
-        Timer.Enabled = true;
-        MissingTime.Restart();
-        OnPropertyChanged(nameof(CurrentTime));
-        OnPropertyChanged(nameof(PlayState));
+        if (Output != null)
+        {
+            Output.Play();
+            Timer.Enabled = true;
+            MissingTime.Restart();
+            OnPropertyChanged(nameof(CurrentTime));
+            OnPropertyChanged(nameof(PlayState));
+        }
     }
 
     public void Pause()
     {
-        // using stop instead of pause fixes audio blips when seeking
-        Output?.Stop();
-        Timer.Enabled = false;
-        MissingTime.Reset();
-        OnPropertyChanged(nameof(PlayState));
+        if (Output != null)
+        {
+            // using stop instead of pause fixes audio blips when seeking
+            Output.Stop();
+            Timer.Enabled = false;
+            MissingTime.Reset();
+            OnPropertyChanged(nameof(PlayState));
+        }
     }
 
     public void Next()

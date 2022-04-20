@@ -1,3 +1,4 @@
+using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Win32;
 using NAudio.Wave;
 using QuickMusic3.MVVM.Model;
@@ -25,6 +26,7 @@ namespace QuickMusic3;
 /// </summary>
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
+    private readonly TaskbarIcon NotifyIcon;
     public event PropertyChangedEventHandler PropertyChanged;
 
     private bool playdragging;
@@ -38,8 +40,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public MainWindow()
     {
         InitializeComponent();
-        TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
-        TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
+        //TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
+        //TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
+        NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -78,5 +81,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void Window_Closed(object sender, EventArgs e)
     {
         Properties.Settings.Default.Save();
+        NotifyIcon.Dispose();
     }
 }

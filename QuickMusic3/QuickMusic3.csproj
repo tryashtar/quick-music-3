@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Resources\quick music.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\quick_music.ico</ApplicationIcon>
 	  <AssemblyTitle>Quick Music 3</AssemblyTitle>
 	  <AssemblyName>Quick Music 3</AssemblyName>
   </PropertyGroup>
@@ -25,7 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\quick music.ico" />
+    <Resource Include="Resources\quick_music.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
