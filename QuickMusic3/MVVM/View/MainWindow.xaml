@@ -1,4 +1,5 @@
 <Window x:Class="QuickMusic3.MainWindow"
+        x:Name="ThisWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,9 +13,9 @@
         mc:Ignorable="d"
         Height="340"
         Width="1300"
-        FontFamily="Arial"
         Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}}"
-        Closed="Window_Closed">
+        Closed="Window_Closed"
+        IsVisibleChanged="Window_IsVisibleChanged">
     <Window.InputBindings>
         <KeyBinding Key="Space"
                     Command="{Binding PlayPauseCommand}" />
@@ -33,13 +34,29 @@
         <KeyBinding Key="MediaNextTrack"
                     Command="{Binding NextCommand}" />
         <KeyBinding Key="Up"
-                    Command="{Binding IncreaseVolumeCommand}" />
+                    Command="{Binding ChangeVolumeCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Single>0.05</sys:Single>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
         <KeyBinding Key="VolumeUp"
-                    Command="{Binding IncreaseVolumeCommand}" />
+                    Command="{Binding ChangeVolumeCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Single>0.05</sys:Single>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
         <KeyBinding Key="Down"
-                    Command="{Binding DecreaseVolumeCommand}" />
+                    Command="{Binding ChangeVolumeCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Single>-0.05</sys:Single>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
         <KeyBinding Key="VolumeDown"
-                    Command="{Binding DecreaseVolumeCommand}" />
+                    Command="{Binding ChangeVolumeCommand}">
+            <KeyBinding.CommandParameter>
+                <sys:Single>-0.05</sys:Single>
+            </KeyBinding.CommandParameter>
+        </KeyBinding>
         <KeyBinding Key="R"
                     Command="{Binding ChangeRepeatCommand}" />
         <KeyBinding Key="M"
@@ -110,6 +127,9 @@
                 <sys:Double>0.1</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
+        <KeyBinding Modifiers="Ctrl"
+                    Key="O"
+                    Command="{Binding BrowseCommand, ElementName=MediaControls}" />
     </Window.InputBindings>
     <Window.Resources>
         <ResourceDictionary>
@@ -117,15 +137,13 @@
             <tb:TaskbarIcon x:Key="TaskbarIcon"
                             DataContext="{StaticResource ViewModel}"
                             IconSource="/Resources/quick_music.ico"
-                            LeftClickCommand="{Binding ShowWindowCommand}"
                             ToolTipText="Quick Music"
-                            PopupActivation="RightClick">
+                            PopupActivation="RightClick"
+                            Visibility="{Binding Tag.TrayIconVisibility, RelativeSource={RelativeSource Self}}">
                 <tb:TaskbarIcon.TrayPopup>
-                    <Border Background="White"
-                            BorderBrush="Black"
+                    <Border BorderBrush="Black"
                             BorderThickness="2">
                         <view:MediaControls Width="410"
-                                            Height="200"
                                             ButtonSize="32,32"
                                             VolumeWidth="50"
                                             MetadataFontSize="18"
@@ -138,7 +156,23 @@
     <Window.DataContext>
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
-    <view:MediaControls ButtonSize="42,42"
+    <view:MediaControls x:Name="MediaControls"
+                        ButtonSize="42,42"
                         VolumeWidth="100"
-                        MetadataFontSize="36"/>
+                        MetadataFontSize="36"
+                        Focusable="True">
+        <view:MediaControls.TopRight>
+            <Button Height="40"
+                    Width="40"
+                    Focusable="False"
+                    Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    VerticalAlignment="Top">
+                <Image Margin="-6"
+                       SnapsToDevicePixels="True"
+                       Source="/Resources/down.png"
+                       Opacity="0.3" />
+            </Button>
+        </view:MediaControls.TopRight>
+    </view:MediaControls>
 </Window>

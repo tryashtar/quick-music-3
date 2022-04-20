@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using NAudio.Wave;
+using QuickMusic3.Core;
 using QuickMusic3.MVVM.Model;
 using QuickMusic3.MVVM.ViewModel;
 using System;
@@ -26,16 +27,19 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
 {
     public static readonly DependencyProperty ButtonSizeProperty =
             DependencyProperty.Register("ButtonSize", typeof(Size),
-            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+            typeof(MediaControls), new FrameworkPropertyMetadata(new Size(40, 40)));
     public static readonly DependencyProperty BrowseVisibilityProperty =
             DependencyProperty.Register("BrowseVisibility", typeof(Visibility),
-            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+            typeof(MediaControls), new FrameworkPropertyMetadata(Visibility.Visible));
     public static readonly DependencyProperty VolumeWidthProperty =
             DependencyProperty.Register("VolumeWidth", typeof(double),
-            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+            typeof(MediaControls), new FrameworkPropertyMetadata(100d));
     public static readonly DependencyProperty MetadataFontSizeProperty =
             DependencyProperty.Register("MetadataFontSize", typeof(double),
-            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+            typeof(MediaControls), new FrameworkPropertyMetadata(30d));
+    public static readonly DependencyProperty TopRightProperty =
+            DependencyProperty.Register("TopRight", typeof(FrameworkElement),
+            typeof(MediaControls), new FrameworkPropertyMetadata());
     public Size ButtonSize
     {
         get { return (Size)GetValue(ButtonSizeProperty); }
@@ -56,6 +60,11 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         get { return (double)GetValue(MetadataFontSizeProperty); }
         set { SetValue(MetadataFontSizeProperty, value); }
     }
+    public FrameworkElement TopRight
+    {
+        get { return (FrameworkElement)GetValue(TopRightProperty); }
+        set { SetValue(TopRightProperty, value); }
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     private MainViewModel Model => (MainViewModel)DataContext;
@@ -67,11 +76,23 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         set { playdragging = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlayDragging))); }
     }
 
+    public ICommand BrowseCommand { get; }
+
     public MediaControls()
     {
         InitializeComponent();
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
+        BrowseCommand = new RelayCommand(() =>
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Multiselect = true;
+            if (dialog.ShowDialog() == true)
+            {
+                Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+                Model.Player.Play();
+            }
+        });
     }
 
     private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -93,17 +114,6 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         {
             float volume = Model.Player.Volume + (1 / ((float)e.Delta / 3));
             Model.Player.Volume = Math.Clamp(volume, 0, 1);
-        }
-    }
-
-    private void BrowseButton_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog();
-        dialog.Multiselect = true;
-        if (dialog.ShowDialog() == true)
-        {
-            Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
-            Model.Player.Play();
         }
     }
 }

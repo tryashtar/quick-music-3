@@ -4,9 +4,11 @@ using QuickMusic3.MVVM.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace QuickMusic3.MVVM.ViewModel;
@@ -14,7 +16,6 @@ namespace QuickMusic3.MVVM.ViewModel;
 // current bugs:
 //
 // features to port:
-// - tray
 // - real-time lyrics
 // - remaining shortcuts
 // - drag and drop
@@ -26,15 +27,15 @@ namespace QuickMusic3.MVVM.ViewModel;
 
 public class MainViewModel
 {
-    public Player Player { get; private set; } = new();
+    public Player Player { get; } = new();
+
     public ICommand PlayPauseCommand { get; }
     public ICommand NextCommand { get; }
     public ICommand PrevCommand { get; }
     public ICommand ChangeRepeatCommand { get; }
     public ICommand ChangeMuteCommand { get; }
     public ICommand ChangeShuffleCommand { get; }
-    public ICommand IncreaseVolumeCommand { get; }
-    public ICommand DecreaseVolumeCommand { get; }
+    public ICommand ChangeVolumeCommand { get; }
     public ICommand SeekCommand { get; }
 
     public MainViewModel()
@@ -65,8 +66,7 @@ public class MainViewModel
         });
         ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
         ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
-        IncreaseVolumeCommand = new RelayCommand(() => { Player.Volume = Math.Clamp(Player.Volume + 1 / 20f, 0, 1); });
-        DecreaseVolumeCommand = new RelayCommand(() => { Player.Volume = Math.Clamp(Player.Volume - 1 / 20f, 0, 1); });
+        ChangeVolumeCommand = new RelayCommand<float>(n => { Player.Volume = Math.Clamp(Player.Volume + n, 0, 1); });
         SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));
     }
 }

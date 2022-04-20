@@ -1,6 +1,7 @@
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Win32;
 using NAudio.Wave;
+using QuickMusic3.Core;
 using QuickMusic3.MVVM.Model;
 using QuickMusic3.MVVM.ViewModel;
 using System;
@@ -24,19 +25,37 @@ namespace QuickMusic3;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private readonly TaskbarIcon NotifyIcon;
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public ICommand HideWindowCommand { get; }
+    public ICommand ShowWindowCommand { get; }
+
+    public Visibility TrayIconVisibility
+    {
+        get => this.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     public MainWindow()
     {
         InitializeComponent();
+        HideWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Collapsed; });
+        ShowWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Visible; });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
+        NotifyIcon.Tag = this;
+        NotifyIcon.LeftClickCommand = ShowWindowCommand;
     }
 
     private void Window_Closed(object sender, EventArgs e)
     {
         Properties.Settings.Default.Save();
         NotifyIcon.Dispose();
+    }
+
+    private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
     }
 }
