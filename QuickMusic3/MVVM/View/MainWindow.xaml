@@ -59,7 +59,8 @@
                 <sys:Double>2</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
-        <KeyBinding Modifiers ="Shift" Key="Left"
+        <KeyBinding Modifiers="Shift"
+                    Key="Left"
                     Command="{Binding SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-5</sys:Double>
@@ -84,7 +85,8 @@
                 <sys:Double>10</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
-        <KeyBinding Modifiers="Shift" Key="J"
+        <KeyBinding Modifiers="Shift"
+                    Key="J"
                     Command="{Binding SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-60</sys:Double>
@@ -284,7 +286,8 @@
             <ColumnDefinition Width="1*">
                 <ColumnDefinition.MaxWidth>
                     <MultiBinding Converter="{StaticResource AlbumArtFitter}">
-                        <Binding Path="Player.CurrentTrack.Metadata.HighResImage" />
+                        <Binding Path="Source"
+                                 ElementName="AlbumArt" />
                         <Binding Path="ActualHeight"
                                  ElementName="MainGrid" />
                     </MultiBinding>
@@ -331,11 +334,10 @@
                                FontSize="18"
                                HorizontalAlignment="Right" />
                 </Grid>
-                <local:CustomSlider Style="{StaticResource RectangleSliderStyle}"
+                <local:CustomSlider x:Name="TimeBar"
+                                    Style="{StaticResource RectangleSliderStyle}"
                                     Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
-                                    Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}"
-                                    GotMouseCapture="TimeBar_MouseDown"
-                                    LostMouseCapture="TimeBar_MouseUp" />
+                                    Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}" />
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">

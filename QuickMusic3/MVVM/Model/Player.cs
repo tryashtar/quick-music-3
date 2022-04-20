@@ -105,27 +105,16 @@ public class Player : ObservableObject, IDisposable
 
     public void OpenFiles(string[] files)
     {
-        if (Stream != null)
-        {
-            Stream.CurrentChanged -= Stream_CurrentChanged;
-            Stream.Seeked -= Stream_Seeked;
-            Stream.Dispose();
-        }
+        Close();
         Stream = new(files);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.CurrentChanged += Stream_CurrentChanged;
         Stream.Seeked += Stream_Seeked;
-        if (Output != null)
-        {
-            Output.PlaybackStopped -= Output_PlaybackStopped;
-            Output.Dispose();
-        }
         Output = new();
         Output.PlaybackStopped += Output_PlaybackStopped;
         UpdateVolume();
         Output.Init(Stream);
         Stream_CurrentChanged(this, EventArgs.Empty);
-        Play();
     }
 
     // if you spam forward a lot, it stops sometimes with an error
@@ -133,7 +122,7 @@ public class Player : ObservableObject, IDisposable
     {
         if (e.Exception != null)
         {
-            System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
+            Debug.WriteLine(e.Exception.ToString());
             Play();
         }
     }
@@ -186,14 +175,27 @@ public class Player : ObservableObject, IDisposable
             Stream.CurrentIndex--;
     }
 
+    private void Close()
+    {
+        if (Output != null)
+        {
+            Output.PlaybackStopped -= Output_PlaybackStopped;
+            Output.Dispose();
+        }
+        if (Stream != null)
+        {
+            Stream.CurrentChanged -= Stream_CurrentChanged;
+            Stream.Seeked -= Stream_Seeked;
+            Stream.Dispose();
+        }
+        Timer.Enabled = false;
+        MissingTime.Reset();
+    }
+
     public void Dispose()
     {
-        Timer.Enabled = false;
+        Close();
         Timer.Elapsed -= Timer_Elapsed;
         Timer.Dispose();
-        MissingTime.Reset();
-        if (Stream != null)
-            Stream.CurrentChanged -= Stream_CurrentChanged;
-        Stream?.Dispose();
     }
 }

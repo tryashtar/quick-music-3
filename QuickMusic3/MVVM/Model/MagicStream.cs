@@ -111,10 +111,12 @@ public class MagicStream : IWaveProvider, IDisposable
 
     public void Dispose()
     {
+        System.Diagnostics.Debug.WriteLine("Disposing MagicStream start");
         foreach (var item in Sources)
         {
             item.Dispose();
         }
+        System.Diagnostics.Debug.WriteLine("Disposing MagicStream complete");
     }
 }
 

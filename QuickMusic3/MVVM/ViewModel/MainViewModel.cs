@@ -12,9 +12,7 @@ using System.Windows.Input;
 namespace QuickMusic3.MVVM.ViewModel;
 
 // current bugs:
-// - if you click the extra hitbox of slider, it doesn't fire MouseDown
-// - if you click the handle of a slider, it doesn't jump to the center of the cursor
-
+//
 // features to port:
 // - tray
 // - real-time lyrics

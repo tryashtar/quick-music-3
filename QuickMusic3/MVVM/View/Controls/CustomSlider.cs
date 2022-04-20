@@ -41,7 +41,6 @@ public class CustomSlider : Slider
     protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
     {
         clickedInSlider = false;
-        // calling the base makes it so if you click off the slider, then move onto it and release, it jumps
-        //base.OnPreviewMouseLeftButtonDown(e);
+        base.OnPreviewMouseLeftButtonUp(e);
     }
 }

@@ -38,6 +38,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public MainWindow()
     {
         InitializeComponent();
+        TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
+        TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -45,16 +47,19 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var dialog = new OpenFileDialog();
         dialog.Multiselect = true;
         if (dialog.ShowDialog() == true)
+        {
             Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+            Model.Player.Play();
+        }
     }
 
-    private void TimeBar_MouseDown(object sender, MouseEventArgs e)
+    private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)
     {
         PlayDragging = Model.Player.PlayState == PlaybackState.Playing;
         Model.Player.Pause();
     }
 
-    private void TimeBar_MouseUp(object sender, MouseEventArgs e)
+    private void TimeBar_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (PlayDragging)
             Model.Player.Play();
