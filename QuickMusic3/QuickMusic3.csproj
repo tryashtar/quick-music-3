@@ -10,21 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\down.png" />
-    <None Remove="Resources\list.png" />
-    <None Remove="Resources\mute.png" />
-    <None Remove="Resources\next.png" />
-    <None Remove="Resources\once.png" />
-    <None Remove="Resources\pause.png" />
-    <None Remove="Resources\play.png" />
-    <None Remove="Resources\previous.png" />
-    <None Remove="Resources\repeat_all.png" />
-    <None Remove="Resources\repeat_one.png" />
-    <None Remove="Resources\shuffle.png" />
-    <None Remove="Resources\volume.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="Resources\quick_music.ico" />
   </ItemGroup>
 
@@ -37,21 +22,6 @@
     <ProjectReference Include="..\NAudio\NAudio\NAudio.csproj" />
     <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.csproj" />
     <ProjectReference Include="..\utils.utility\TryashtarUtils.Utility.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\down.png" />
-    <Resource Include="Resources\list.png" />
-    <Resource Include="Resources\mute.png" />
-    <Resource Include="Resources\next.png" />
-    <Resource Include="Resources\once.png" />
-    <Resource Include="Resources\pause.png" />
-    <Resource Include="Resources\play.png" />
-    <Resource Include="Resources\previous.png" />
-    <Resource Include="Resources\repeat_all.png" />
-    <Resource Include="Resources\repeat_one.png" />
-    <Resource Include="Resources\shuffle.png" />
-    <Resource Include="Resources\volume.png" />
   </ItemGroup>
 
   <ItemGroup>

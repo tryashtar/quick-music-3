@@ -132,15 +132,49 @@
         <KeyBinding Modifiers="Ctrl"
                     Key="O"
                     Command="{Binding BrowseCommand, ElementName=MediaControls}" />
+        <KeyBinding Modifiers="Ctrl"
+                    Key="Down"
+                    Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
     </Window.InputBindings>
     <Window.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
             <viewmodel:MainViewModel x:Key="ViewModel" />
+            <StackPanel x:Key="IconTopRight"
+                        Orientation="Horizontal">
+                <Button x:Name="CloseButton"
+                        Height="32"
+                        Width="32"
+                        Focusable="False"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        VerticalAlignment="Top"
+                        Margin="0,0,10,0">
+                    <Path Fill="DarkRed"
+                          Margin="-6"
+                          Stretch="Uniform"
+                          Data="{StaticResource CloseIcon}" />
+                </Button>
+                <Button x:Name="ShowButton"
+                        Height="32"
+                        Width="32"
+                        Focusable="False"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        VerticalAlignment="Top">
+                    <Path  Fill="Black"
+                           Margin="-6"
+                           Stretch="Uniform"
+                           Data="{StaticResource UpIcon}"
+                           Opacity="0.3" />
+                </Button>
+            </StackPanel>
             <tb:TaskbarIcon x:Key="TaskbarIcon"
                             DataContext="{StaticResource ViewModel}"
                             IconSource="/Resources/quick_music.ico"
                             ToolTipText="Quick Music"
                             PopupActivation="RightClick"
+                            NoLeftClickDelay="True"
                             Visibility="{Binding Tag.TrayIconVisibility, RelativeSource={RelativeSource Self}}">
                 <tb:TaskbarIcon.TrayPopup>
                     <Border BorderBrush="Black"
@@ -149,7 +183,8 @@
                                             ButtonSize="32,32"
                                             VolumeWidth="50"
                                             MetadataFontSize="18"
-                                            BrowseVisibility="Collapsed" />
+                                            BrowseVisibility="Collapsed"
+                                            TopRight="{StaticResource IconTopRight}" />
                     </Border>
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
@@ -170,10 +205,11 @@
                     Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                     Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                     VerticalAlignment="Top">
-                <Image Margin="-6"
-                       SnapsToDevicePixels="True"
-                       Source="/Resources/down.png"
-                       Opacity="0.3" />
+                <Path Fill="Black"
+                      Margin="-6"
+                      Stretch="Uniform"
+                      Data="{StaticResource DownIcon}"
+                      Opacity="0.3" />
             </Button>
         </view:MediaControls.TopRight>
     </view:MediaControls>

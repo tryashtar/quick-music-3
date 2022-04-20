@@ -32,6 +32,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public ICommand HideWindowCommand { get; }
     public ICommand ShowWindowCommand { get; }
+    public ICommand CloseWindowCommand { get; }
 
     public Visibility TrayIconVisibility
     {
@@ -42,10 +43,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         InitializeComponent();
         HideWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Collapsed; });
-        ShowWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Visible; });
+        ShowWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Visible; this.Activate(); NotifyIcon.TrayPopupResolved.IsOpen = false; });
+        CloseWindowCommand = new RelayCommand(() => { this.Close(); NotifyIcon.TrayPopupResolved.IsOpen = false; });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
         NotifyIcon.LeftClickCommand = ShowWindowCommand;
+        var top_right = (Panel)FindResource("IconTopRight");
+        ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "ShowButton")).Command = ShowWindowCommand;
+        ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "CloseButton")).Command = CloseWindowCommand;
     }
 
     private void Window_Closed(object sender, EventArgs e)

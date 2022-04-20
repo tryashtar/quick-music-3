@@ -13,173 +13,178 @@
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
-        <converters:MultiplyConverter x:Key="MultiplyBy" />
-        <converters:TimeConverter x:Key="TimeConverter" />
-        <converters:TimeStringConverter x:Key="TimeStringConverter" />
-        <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
-        <Style x:Key="SliderButtonStyle"
-               TargetType="{x:Type RepeatButton}">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="true" />
-            <Setter Property="OverridesDefaultStyle"
-                    Value="true" />
-            <Setter Property="IsTabStop"
-                    Value="false" />
-            <Setter Property="Focusable"
-                    Value="false" />
-        </Style>
-        <Style x:Key="IncreaseSliderButtonStyle"
-               TargetType="{x:Type RepeatButton}"
-               BasedOn="{StaticResource SliderButtonStyle}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Border Background="Transparent" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="DecreaseSliderButtonStyle"
-               TargetType="{x:Type RepeatButton}"
-               BasedOn="{StaticResource SliderButtonStyle}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Border Background="#7fb2f0" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="SliderThumbStyle"
-               TargetType="{x:Type Thumb}">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="true" />
-            <Setter Property="OverridesDefaultStyle"
-                    Value="true" />
-            <Setter Property="IsHitTestVisible"
-                    Value="false" />
-        </Style>
-        <Style x:Key="RectangleSliderThumbStyle"
-               TargetType="{x:Type Thumb}"
-               BasedOn="{StaticResource SliderThumbStyle}">
-            <Setter Property="Height"
-                    Value="14" />
-            <Setter Property="Width"
-                    Value="8" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Rectangle Fill="#0078d7"
-                                   Margin="0,-4,0,-4" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="CircleSliderThumbStyle"
-               TargetType="{x:Type Thumb}"
-               BasedOn="{StaticResource SliderThumbStyle}">
-            <Setter Property="Height"
-                    Value="4" />
-            <Setter Property="Width"
-                    Value="4" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Ellipse Fill="#0078d7"
-                                 Margin="-5" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <ControlTemplate x:Key="CircleSlider"
-                         TargetType="{x:Type Slider}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Border Name="TrackBackground"
-                        Grid.Row="1"
-                        Background="#c8c8c8" />
-                <Track Grid.Row="1"
-                       Name="PART_Track">
-                    <Track.DecreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
-                                      Command="Slider.DecreaseLarge" />
-                    </Track.DecreaseRepeatButton>
-                    <Track.Thumb>
-                        <Thumb Style="{StaticResource CircleSliderThumbStyle}" />
-                    </Track.Thumb>
-                    <Track.IncreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
-                                      Command="Slider.IncreaseLarge" />
-                    </Track.IncreaseRepeatButton>
-                </Track>
-                <Rectangle Fill="Transparent"
-                           Grid.Row="0"
-                           Height="20" />
-                <Rectangle Fill="Transparent"
-                           Grid.Row="2"
-                           Height="20" />
-            </Grid>
-        </ControlTemplate>
-        <ControlTemplate x:Key="RectangleSlider"
-                         TargetType="{x:Type Slider}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Border Name="TrackBackground"
-                        Grid.Row="1"
-                        Background="#c8c8c8" />
-                <Track Grid.Row="1"
-                       Name="PART_Track">
-                    <Track.DecreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
-                                      Command="Slider.DecreaseLarge" />
-                    </Track.DecreaseRepeatButton>
-                    <Track.Thumb>
-                        <Thumb Style="{StaticResource RectangleSliderThumbStyle}" />
-                    </Track.Thumb>
-                    <Track.IncreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
-                                      Command="Slider.IncreaseLarge" />
-                    </Track.IncreaseRepeatButton>
-                </Track>
-                <Rectangle Fill="Transparent"
-                           Grid.Row="0"
-                           Height="10" />
-                <Rectangle Fill="Transparent"
-                           Grid.Row="2"
-                           Height="10" />
-            </Grid>
-        </ControlTemplate>
-        <Style x:Key="SliderStyle"
-               TargetType="{x:Type Slider}">
-            <Setter Property="SnapsToDevicePixels"
-                    Value="true" />
-            <Setter Property="OverridesDefaultStyle"
-                    Value="true" />
-            <Setter Property="IsMoveToPointEnabled"
-                    Value="true" />
-            <Setter Property="Focusable"
-                    Value="false" />
-        </Style>
-        <Style x:Key="CircleSliderStyle"
-               TargetType="{x:Type Slider}"
-               BasedOn="{StaticResource SliderStyle}">
-            <Setter Property="Template"
-                    Value="{StaticResource CircleSlider}" />
-        </Style>
-        <Style x:Key="RectangleSliderStyle"
-               TargetType="{x:Type Slider}"
-               BasedOn="{StaticResource SliderStyle}">
-            <Setter Property="Template"
-                    Value="{StaticResource RectangleSlider}" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:MultiplyConverter x:Key="MultiplyBy" />
+            <converters:TimeConverter x:Key="TimeConverter" />
+            <converters:TimeStringConverter x:Key="TimeStringConverter" />
+            <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
+            <Style x:Key="SliderButtonStyle"
+                   TargetType="{x:Type RepeatButton}">
+                <Setter Property="SnapsToDevicePixels"
+                        Value="true" />
+                <Setter Property="OverridesDefaultStyle"
+                        Value="true" />
+                <Setter Property="IsTabStop"
+                        Value="false" />
+                <Setter Property="Focusable"
+                        Value="false" />
+            </Style>
+            <Style x:Key="IncreaseSliderButtonStyle"
+                   TargetType="{x:Type RepeatButton}"
+                   BasedOn="{StaticResource SliderButtonStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type RepeatButton}">
+                            <Border Background="Transparent" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="DecreaseSliderButtonStyle"
+                   TargetType="{x:Type RepeatButton}"
+                   BasedOn="{StaticResource SliderButtonStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type RepeatButton}">
+                            <Border Background="#7fb2f0" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="SliderThumbStyle"
+                   TargetType="{x:Type Thumb}">
+                <Setter Property="SnapsToDevicePixels"
+                        Value="true" />
+                <Setter Property="OverridesDefaultStyle"
+                        Value="true" />
+                <Setter Property="IsHitTestVisible"
+                        Value="false" />
+            </Style>
+            <Style x:Key="RectangleSliderThumbStyle"
+                   TargetType="{x:Type Thumb}"
+                   BasedOn="{StaticResource SliderThumbStyle}">
+                <Setter Property="Height"
+                        Value="14" />
+                <Setter Property="Width"
+                        Value="8" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Thumb}">
+                            <Rectangle Fill="#0078d7"
+                                       Margin="0,-4,0,-4" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="CircleSliderThumbStyle"
+                   TargetType="{x:Type Thumb}"
+                   BasedOn="{StaticResource SliderThumbStyle}">
+                <Setter Property="Height"
+                        Value="4" />
+                <Setter Property="Width"
+                        Value="4" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Thumb}">
+                            <Ellipse Fill="#0078d7"
+                                     Margin="-5" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <ControlTemplate x:Key="CircleSlider"
+                             TargetType="{x:Type Slider}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Border Name="TrackBackground"
+                            Grid.Row="1"
+                            Background="#c8c8c8" />
+                    <Track Grid.Row="1"
+                           Name="PART_Track">
+                        <Track.DecreaseRepeatButton>
+                            <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
+                                          Command="Slider.DecreaseLarge" />
+                        </Track.DecreaseRepeatButton>
+                        <Track.Thumb>
+                            <Thumb Style="{StaticResource CircleSliderThumbStyle}" />
+                        </Track.Thumb>
+                        <Track.IncreaseRepeatButton>
+                            <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
+                                          Command="Slider.IncreaseLarge" />
+                        </Track.IncreaseRepeatButton>
+                    </Track>
+                    <Rectangle Fill="Transparent"
+                               Grid.Row="0"
+                               Height="20" />
+                    <Rectangle Fill="Transparent"
+                               Grid.Row="2"
+                               Height="20" />
+                </Grid>
+            </ControlTemplate>
+            <ControlTemplate x:Key="RectangleSlider"
+                             TargetType="{x:Type Slider}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Border Name="TrackBackground"
+                            Grid.Row="1"
+                            Background="#c8c8c8" />
+                    <Track Grid.Row="1"
+                           Name="PART_Track">
+                        <Track.DecreaseRepeatButton>
+                            <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
+                                          Command="Slider.DecreaseLarge" />
+                        </Track.DecreaseRepeatButton>
+                        <Track.Thumb>
+                            <Thumb Style="{StaticResource RectangleSliderThumbStyle}" />
+                        </Track.Thumb>
+                        <Track.IncreaseRepeatButton>
+                            <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
+                                          Command="Slider.IncreaseLarge" />
+                        </Track.IncreaseRepeatButton>
+                    </Track>
+                    <Rectangle Fill="Transparent"
+                               Grid.Row="0"
+                               Height="10" />
+                    <Rectangle Fill="Transparent"
+                               Grid.Row="2"
+                               Height="10" />
+                </Grid>
+            </ControlTemplate>
+            <Style x:Key="SliderStyle"
+                   TargetType="{x:Type Slider}">
+                <Setter Property="SnapsToDevicePixels"
+                        Value="true" />
+                <Setter Property="OverridesDefaultStyle"
+                        Value="true" />
+                <Setter Property="IsMoveToPointEnabled"
+                        Value="true" />
+                <Setter Property="Focusable"
+                        Value="false" />
+            </Style>
+            <Style x:Key="CircleSliderStyle"
+                   TargetType="{x:Type Slider}"
+                   BasedOn="{StaticResource SliderStyle}">
+                <Setter Property="Template"
+                        Value="{StaticResource CircleSlider}" />
+            </Style>
+            <Style x:Key="RectangleSliderStyle"
+                   TargetType="{x:Type Slider}"
+                   BasedOn="{StaticResource SliderStyle}">
+                <Setter Property="Template"
+                        Value="{StaticResource RectangleSlider}" />
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
@@ -256,81 +261,84 @@
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding PlayPauseCommand}">
-                            <Image Margin="1"
-                                   SnapsToDevicePixels="True">
-                                <Image.Style>
+                            <Path Fill="Black"
+                                  Margin="1"
+                                  Stretch="Uniform">
+                                <Path.Style>
                                     <Style>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Player.PlayState}"
                                                          Value="Playing">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/pause.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource PauseIcon}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.PlayState}"
                                                          Value="Paused">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/play.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource PlayIcon}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding PlayDragging, ElementName=ThisControl}"
                                                          Value="true">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/pause.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource PauseIcon}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Image.Style>
-                            </Image>
+                                </Path.Style>
+                            </Path>
                         </Button>
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeRepeatCommand}">
-                            <Image Margin="2"
-                                   SnapsToDevicePixels="True">
-                                <Image.Style>
+                            <Path Fill="Black"
+                                  Margin="2"
+                                  Stretch="Uniform">
+                                <Path.Style>
                                     <Style>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Player.RepeatMode}"
                                                          Value="RepeatAll">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/repeat_all.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource RepeatAllIcon}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.RepeatMode}"
                                                          Value="RepeatOne">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/repeat_one.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource RepeatOneIcon}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.RepeatMode}"
                                                          Value="PlayAll">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/once.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource RepeatNoneIcon}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Image.Style>
-                            </Image>
+                                </Path.Style>
+                            </Path>
                         </Button>
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeShuffleCommand}">
-                            <Image Source="pack://application:,,,/QuickMusic3;component/Resources/shuffle.png"
+                            <Path  Fill="Black"
+                                   Data="{StaticResource ShuffleIcon}"
                                    Margin="2"
-                                   SnapsToDevicePixels="True">
-                                <Image.Style>
+                                   Stretch="Uniform">
+                                <Path.Style>
                                     <Style>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Player.Shuffle}"
                                                          Value="false">
-                                                <Setter Property="Image.Opacity"
+                                                <Setter Property="Path.Opacity"
                                                         Value="0.2" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Image.Style>
-                            </Image>
+                                </Path.Style>
+                            </Path>
                         </Button>
                         <Button Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
@@ -346,25 +354,26 @@
                                     </Binding.ConverterParameter>
                                 </Binding>
                             </Button.Width>
-                            <Image Margin="-4"
-                                   SnapsToDevicePixels="True">
-                                <Image.Style>
+                            <Path Fill="Black"
+                                  Margin="-4"
+                                  Stretch="Uniform">
+                                <Path.Style>
                                     <Style>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Player.Muted}"
                                                          Value="true">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/mute.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource MuteIcon}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.Muted}"
                                                          Value="false">
-                                                <Setter Property="Image.Source"
-                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/volume.png" />
+                                                <Setter Property="Path.Data"
+                                                        Value="{StaticResource VolumeIcon}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Image.Style>
-                            </Image>
+                                </Path.Style>
+                            </Path>
                         </Button>
                         <local:CustomSlider Style="{StaticResource CircleSliderStyle}"
                                             Width="{Binding VolumeWidth, ElementName=ThisControl}"
@@ -381,17 +390,19 @@
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding PrevCommand}">
-                            <Image Source="pack://application:,,,/QuickMusic3;component/Resources/previous.png"
-                                   Margin="1"
-                                   SnapsToDevicePixels="True" />
+                            <Path Fill="Black"
+                                  Data="{StaticResource PreviousIcon}"
+                                  Margin="1"
+                                  Stretch="Uniform" />
                         </Button>
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Command="{Binding NextCommand}">
-                            <Image Source="pack://application:,,,/QuickMusic3;component/Resources/next.png"
-                                   Margin="1"
-                                   SnapsToDevicePixels="True" />
+                            <Path Fill="Black"
+                                  Data="{StaticResource NextIcon}"
+                                  Margin="1"
+                                  Stretch="Uniform" />
                             <Button.Style>
                                 <Style>
                                     <Style.Triggers>
