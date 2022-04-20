@@ -24,6 +24,39 @@ namespace QuickMusic3.MVVM.View;
 /// </summary>
 public partial class MediaControls : UserControl, INotifyPropertyChanged
 {
+    public static readonly DependencyProperty ButtonSizeProperty =
+            DependencyProperty.Register("ButtonSize", typeof(Size),
+            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+    public static readonly DependencyProperty BrowseVisibilityProperty =
+            DependencyProperty.Register("BrowseVisibility", typeof(Visibility),
+            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+    public static readonly DependencyProperty VolumeWidthProperty =
+            DependencyProperty.Register("VolumeWidth", typeof(double),
+            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+    public static readonly DependencyProperty MetadataFontSizeProperty =
+            DependencyProperty.Register("MetadataFontSize", typeof(double),
+            typeof(MediaControls), new FrameworkPropertyMetadata(null));
+    public Size ButtonSize
+    {
+        get { return (Size)GetValue(ButtonSizeProperty); }
+        set { SetValue(ButtonSizeProperty, value); }
+    }
+    public Visibility BrowseVisibility
+    {
+        get { return (Visibility)GetValue(BrowseVisibilityProperty); }
+        set { SetValue(BrowseVisibilityProperty, value); }
+    }
+    public double VolumeWidth
+    {
+        get { return (double)GetValue(VolumeWidthProperty); }
+        set { SetValue(VolumeWidthProperty, value); }
+    }
+    public double MetadataFontSize
+    {
+        get { return (double)GetValue(MetadataFontSizeProperty); }
+        set { SetValue(MetadataFontSizeProperty, value); }
+    }
+
     public event PropertyChangedEventHandler PropertyChanged;
     private MainViewModel Model => (MainViewModel)DataContext;
 

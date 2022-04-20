@@ -5,10 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:QuickMusic3.MVVM.View"
              xmlns:converters="clr-namespace:QuickMusic3.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
+        <converters:MultiplyConverter x:Key="MultiplyBy" />
         <converters:TimeConverter x:Key="TimeConverter" />
         <converters:TimeStringConverter x:Key="TimeStringConverter" />
         <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
@@ -207,14 +209,14 @@
                         Margin="20,5,10,5"
                         Orientation="Vertical">
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
-                           FontSize="36"
+                           FontSize="{Binding MetadataFontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
                            TextWrapping="WrapWithOverflow" />
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
-                           FontSize="36"
+                           FontSize="{Binding MetadataFontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
                            Foreground="#a0a0a0"
                            TextWrapping="WrapWithOverflow" />
                 <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
-                           FontSize="36"
+                           FontSize="{Binding MetadataFontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
                            Foreground="#a0a0a0"
                            TextWrapping="WrapWithOverflow" />
             </StackPanel>
@@ -236,8 +238,8 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">
-                        <Button Width="42"
-                                Height="42"
+                        <Button Width="{Binding ButtonSize.Width, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding PlayPauseCommand}">
@@ -266,8 +268,8 @@
                                 </Image.Style>
                             </Image>
                         </Button>
-                        <Button Width="42"
-                                Height="42"
+                        <Button Width="{Binding ButtonSize.Width, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeRepeatCommand}">
@@ -296,8 +298,8 @@
                                 </Image.Style>
                             </Image>
                         </Button>
-                        <Button Width="42"
-                                Height="42"
+                        <Button Width="{Binding ButtonSize.Width, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeShuffleCommand}">
@@ -317,12 +319,20 @@
                                 </Image.Style>
                             </Image>
                         </Button>
-                        <Button Width="32"
-                                Height="42"
+                        <Button Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeMuteCommand}"
                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                            <Button.Width>
+                                <Binding Path="ButtonSize.Width"
+                                         RelativeSource="{RelativeSource AncestorType=UserControl}"
+                                         Converter="{StaticResource MultiplyBy}">
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>0.75</sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </Button.Width>
                             <Image Margin="-4"
                                    SnapsToDevicePixels="True">
                                 <Image.Style>
@@ -344,7 +354,7 @@
                             </Image>
                         </Button>
                         <local:CustomSlider Style="{StaticResource CircleSliderStyle}"
-                                            Width="100"
+                                            Width="{Binding VolumeWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             VerticalAlignment="Center"
                                             Value="{Binding Player.Volume}"
                                             Minimum="0"
@@ -353,8 +363,8 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
-                        <Button Width="42"
-                                Height="42"
+                        <Button Width="{Binding ButtonSize.Width, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding PrevCommand}">
@@ -362,22 +372,42 @@
                                    Margin="1"
                                    SnapsToDevicePixels="True" />
                         </Button>
-                        <Button Width="42"
-                                Height="42"
+                        <Button Width="{Binding ButtonSize.Width, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Focusable="False"
-                                Margin="0,0,6,0"
                                 Command="{Binding NextCommand}">
                             <Image Source="/Resources/next.png"
                                    Margin="1"
                                    SnapsToDevicePixels="True" />
+                            <Button.Style>
+                                <Style>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding BrowseVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                     Value="Visible">
+                                            <Setter Property="Button.Margin"
+                                                    Value="0,0,6,0" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
                         </Button>
-                        <Button Width="84"
-                                Height="42"
+                        <Button Height="{Binding ButtonSize.Height, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 Margin="0"
                                 Focusable="False"
                                 Content="Browse"
                                 FontSize="18"
-                                Click="BrowseButton_Click" />
+                                Visibility="{Binding BrowseVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                Click="BrowseButton_Click">
+                            <Button.Width>
+                                <Binding Path="ButtonSize.Width"
+                                         RelativeSource="{RelativeSource AncestorType=UserControl}"
+                                         Converter="{StaticResource MultiplyBy}">
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>2</sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </Button.Width>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </StackPanel>

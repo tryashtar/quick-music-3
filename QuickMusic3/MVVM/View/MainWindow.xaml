@@ -117,14 +117,19 @@
             <tb:TaskbarIcon x:Key="TaskbarIcon"
                             DataContext="{StaticResource ViewModel}"
                             IconSource="/Resources/quick_music.ico"
-                            DoubleClickCommand="{Binding ShowWindowCommand}"
-                            ToolTipText="Quick Music 3"
+                            LeftClickCommand="{Binding ShowWindowCommand}"
+                            ToolTipText="Quick Music"
                             PopupActivation="RightClick">
                 <tb:TaskbarIcon.TrayPopup>
                     <Border Background="White"
                             BorderBrush="Black"
                             BorderThickness="2">
-                        <view:MediaControls Width="400" Height="150"/>
+                        <view:MediaControls Width="410"
+                                            Height="200"
+                                            ButtonSize="32,32"
+                                            VolumeWidth="50"
+                                            MetadataFontSize="18"
+                                            BrowseVisibility="Collapsed" />
                     </Border>
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
@@ -133,5 +138,7 @@
     <Window.DataContext>
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
-    <view:MediaControls />
+    <view:MediaControls ButtonSize="42,42"
+                        VolumeWidth="100"
+                        MetadataFontSize="36"/>
 </Window>
