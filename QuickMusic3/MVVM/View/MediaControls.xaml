@@ -264,17 +264,17 @@
                                             <DataTrigger Binding="{Binding Player.PlayState}"
                                                          Value="Playing">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/pause.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/pause.png" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.PlayState}"
                                                          Value="Paused">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/play.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/play.png" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding PlayDragging, ElementName=ThisControl}"
                                                          Value="true">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/pause.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/pause.png" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -294,17 +294,17 @@
                                             <DataTrigger Binding="{Binding Player.RepeatMode}"
                                                          Value="RepeatAll">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/repeat_all.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/repeat_all.png" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.RepeatMode}"
                                                          Value="RepeatOne">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/repeat_one.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/repeat_one.png" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.RepeatMode}"
                                                          Value="PlayAll">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/once.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/once.png" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -316,7 +316,7 @@
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding ChangeShuffleCommand}">
-                            <Image Source="/Resources/shuffle.png"
+                            <Image Source="pack://application:,,,/QuickMusic3;component/Resources/shuffle.png"
                                    Margin="2"
                                    SnapsToDevicePixels="True">
                                 <Image.Style>
@@ -354,12 +354,12 @@
                                             <DataTrigger Binding="{Binding Player.Muted}"
                                                          Value="true">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/mute.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/mute.png" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Player.Muted}"
                                                          Value="false">
                                                 <Setter Property="Image.Source"
-                                                        Value="/Resources/volume.png" />
+                                                        Value="pack://application:,,,/QuickMusic3;component/Resources/volume.png" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -381,7 +381,7 @@
                                 Focusable="False"
                                 Margin="0,0,6,0"
                                 Command="{Binding PrevCommand}">
-                            <Image Source="/Resources/previous.png"
+                            <Image Source="pack://application:,,,/QuickMusic3;component/Resources/previous.png"
                                    Margin="1"
                                    SnapsToDevicePixels="True" />
                         </Button>
@@ -389,7 +389,7 @@
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Command="{Binding NextCommand}">
-                            <Image Source="/Resources/next.png"
+                            <Image Source="pack://application:,,,/QuickMusic3;component/Resources/next.png"
                                    Margin="1"
                                    SnapsToDevicePixels="True" />
                             <Button.Style>
