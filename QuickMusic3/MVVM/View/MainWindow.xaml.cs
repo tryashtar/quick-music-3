@@ -20,7 +20,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -33,6 +32,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private readonly TaskbarIcon NotifyIcon;
     public event PropertyChangedEventHandler PropertyChanged;
+    private readonly FileSystemWatcher ThemeWatcher;
 
     private Theme active_theme;
     public Theme ActiveTheme
@@ -73,7 +73,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             dialog.Multiselect = true;
             if (dialog.ShowDialog() == true)
             {
-                if (System.IO.Path.GetExtension(dialog.FileName) == ".yaml")
+                if (Path.GetExtension(dialog.FileName) == ".yaml")
                 {
                     Properties.Settings.Default.ImportedThemes.Add(dialog.FileName);
                 }
@@ -84,6 +84,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 }
             }
         });
+        ThemeWatcher = new();
+        ThemeWatcher.Changed += (s, e) => Dispatcher.Invoke(() => OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]));
         if (Properties.Settings.Default.ImportedThemes == null)
             Properties.Settings.Default.ImportedThemes = new();
         if (Properties.Settings.Default.ImportedThemes.Count > 0)
@@ -113,8 +115,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .Build();
-        using var file = File.OpenRead(path);
-        using var reader = new StreamReader(file);
-        ActiveTheme = deserializer.Deserialize<Theme>(reader);
+        try
+        {
+            using var file = File.OpenText(path);
+            ActiveTheme = deserializer.Deserialize<Theme>(file);
+        }
+        catch { }
+        ThemeWatcher.Path = Path.GetDirectoryName(path);
+        ThemeWatcher.Filter = Path.GetFileName(path);
+        ThemeWatcher.EnableRaisingEvents = true;
     }
 }

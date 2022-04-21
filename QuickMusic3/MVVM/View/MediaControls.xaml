@@ -95,21 +95,25 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0"
-                            Margin="20,5,10,5"
-                            Orientation="Vertical">
-                    <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
-                               FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                               TextWrapping="WrapWithOverflow" />
-                    <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
-                               FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                               Foreground="{Binding Theme.SubtleText, ElementName=ThisControl}"
-                               TextWrapping="WrapWithOverflow" />
-                    <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
-                               FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                               Foreground="{Binding Theme.SubtleText, ElementName=ThisControl}"
-                               TextWrapping="WrapWithOverflow" />
-                </StackPanel>
+                <Viewbox Grid.Column="0"
+                         Margin="20,5,10,5"
+                         StretchDirection="DownOnly"
+                         VerticalAlignment="Top"
+                         HorizontalAlignment="Left">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
+                                   FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
+                                   TextWrapping="WrapWithOverflow" />
+                        <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
+                                   FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
+                                   Foreground="{Binding Theme.SubtleText, ElementName=ThisControl}"
+                                   TextWrapping="WrapWithOverflow" />
+                        <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
+                                   FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
+                                   Foreground="{Binding Theme.SubtleText, ElementName=ThisControl}"
+                                   TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </Viewbox>
                 <ContentControl Grid.Column="1"
                                 Margin="0,5,5,5"
                                 Focusable="False"
