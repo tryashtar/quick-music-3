@@ -40,6 +40,9 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     public static readonly DependencyProperty TopRightProperty =
             DependencyProperty.Register("TopRight", typeof(FrameworkElement),
             typeof(MediaControls), new FrameworkPropertyMetadata());
+    public static readonly DependencyProperty ThemeProperty =
+            DependencyProperty.Register("Theme", typeof(Theme),
+            typeof(MediaControls), new FrameworkPropertyMetadata());
     public Size ButtonSize
     {
         get { return (Size)GetValue(ButtonSizeProperty); }
@@ -64,6 +67,11 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     {
         get { return (FrameworkElement)GetValue(TopRightProperty); }
         set { SetValue(TopRightProperty, value); }
+    }
+    public Theme Theme
+    {
+        get { return (Theme)GetValue(ThemeProperty); }
+        set { SetValue(ThemeProperty, value); }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

@@ -3,10 +3,12 @@ using Microsoft.Win32;
 using NAudio.Wave;
 using QuickMusic3.Core;
 using QuickMusic3.MVVM.Model;
+using QuickMusic3.MVVM.View;
 using QuickMusic3.MVVM.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,8 +21,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
-namespace QuickMusic3;
+namespace QuickMusic3.MVVM.View;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -30,6 +34,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly TaskbarIcon NotifyIcon;
     public event PropertyChangedEventHandler PropertyChanged;
 
+    public Theme ActiveTheme { get; private set; }
     public ICommand HideWindowCommand { get; }
     public ICommand ShowWindowCommand { get; }
     public ICommand CloseWindowCommand { get; }
@@ -41,6 +46,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public MainWindow()
     {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .Build();
+        using var file = File.OpenRead("theme.yaml");
+        using var reader = new StreamReader(file);
+        ActiveTheme = deserializer.Deserialize<Theme>(reader);
+
         InitializeComponent();
         HideWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Collapsed; });
         ShowWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Visible; this.Activate(); NotifyIcon.TrayPopupResolved.IsOpen = false; });

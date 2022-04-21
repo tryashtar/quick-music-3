@@ -9,7 +9,8 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              FontFamily="Arial"
-             Background="White"
+             Background="{Binding Theme.AlbumBackground, ElementName=ThisControl}"
+             Foreground="{Binding Theme.Text, ElementName=ThisControl}"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
@@ -49,7 +50,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type RepeatButton}">
-                            <Border Background="#7fb2f0" />
+                            <Border Background="{Binding Theme.BarFilled, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -73,7 +74,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Thumb}">
-                            <Rectangle Fill="#0078d7"
+                            <Rectangle Fill="{Binding Theme.BarButton, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                        Margin="0,-4,0,-4" />
                         </ControlTemplate>
                     </Setter.Value>
@@ -89,7 +90,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Thumb}">
-                            <Ellipse Fill="#0078d7"
+                            <Ellipse Fill="{Binding Theme.BarButton, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                      Margin="-5" />
                         </ControlTemplate>
                     </Setter.Value>
@@ -105,7 +106,7 @@
                     </Grid.RowDefinitions>
                     <Border Name="TrackBackground"
                             Grid.Row="1"
-                            Background="#c8c8c8" />
+                            Background="{Binding Theme.BarUnfilled, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                     <Track Grid.Row="1"
                            Name="PART_Track">
                         <Track.DecreaseRepeatButton>
@@ -208,7 +209,7 @@
             </Image>
         </Grid>
         <Grid Grid.Column="1"
-              Background="#f0f0f0">
+              Background="{Binding Theme.Background, ElementName=ThisControl}">
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
@@ -226,11 +227,11 @@
                                TextWrapping="WrapWithOverflow" />
                     <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
                                FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                               Foreground="#a0a0a0"
+                               Foreground="{Binding Theme.SubtleText, ElementName=ThisControl}"
                                TextWrapping="WrapWithOverflow" />
                     <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
                                FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                               Foreground="#a0a0a0"
+                               Foreground="{Binding Theme.SubtleText, ElementName=ThisControl}"
                                TextWrapping="WrapWithOverflow" />
                 </StackPanel>
                 <ContentControl Grid.Column="1"
@@ -257,11 +258,13 @@
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Margin="0,0,6,0"
-                                Command="{Binding PlayPauseCommand}">
-                            <Path Fill="Black"
+                                            Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
+                                            Focusable="False"
+                                            Margin="0,0,6,0"
+                                            Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                            BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
+                                            Command="{Binding PlayPauseCommand}">
+                            <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Margin="1"
                                   Stretch="Uniform">
                                 <Path.Style>
@@ -286,13 +289,15 @@
                                     </Style>
                                 </Path.Style>
                             </Path>
-                        </Button>
+                        </Button >
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
+                                Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
                                 Command="{Binding ChangeRepeatCommand}">
-                            <Path Fill="Black"
+                            <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Margin="2"
                                   Stretch="Uniform">
                                 <Path.Style>
@@ -322,8 +327,10 @@
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
+                                Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
                                 Command="{Binding ChangeShuffleCommand}">
-                            <Path  Fill="Black"
+                            <Path  Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                    Data="{StaticResource ShuffleIcon}"
                                    Margin="2"
                                    Stretch="Uniform">
@@ -354,7 +361,7 @@
                                     </Binding.ConverterParameter>
                                 </Binding>
                             </Button.Width>
-                            <Path Fill="Black"
+                            <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Margin="-4"
                                   Stretch="Uniform">
                                 <Path.Style>
@@ -389,8 +396,10 @@
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
                                 Margin="0,0,6,0"
+                                Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
                                 Command="{Binding PrevCommand}">
-                            <Path Fill="Black"
+                            <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Data="{StaticResource PreviousIcon}"
                                   Margin="1"
                                   Stretch="Uniform" />
@@ -398,8 +407,10 @@
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
                                 Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
                                 Focusable="False"
+                                Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
                                 Command="{Binding NextCommand}">
-                            <Path Fill="Black"
+                            <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Data="{StaticResource NextIcon}"
                                   Margin="1"
                                   Stretch="Uniform" />
@@ -420,6 +431,9 @@
                                 Focusable="False"
                                 Content="Browse"
                                 FontSize="18"
+                                Foreground="{Binding Theme.Text, ElementName=ThisControl}"
+                                Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
                                 Visibility="{Binding BrowseVisibility, ElementName=ThisControl}"
                                 Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                             <Button.Width>
