@@ -18,173 +18,30 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <converters:MultiplyConverter x:Key="MultiplyBy" />
-            <converters:TimeConverter x:Key="TimeConverter" />
-            <converters:TimeStringConverter x:Key="TimeStringConverter" />
-            <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
-            <Style x:Key="SliderButtonStyle"
-                   TargetType="{x:Type RepeatButton}">
-                <Setter Property="SnapsToDevicePixels"
-                        Value="true" />
-                <Setter Property="OverridesDefaultStyle"
-                        Value="true" />
-                <Setter Property="IsTabStop"
-                        Value="false" />
-                <Setter Property="Focusable"
-                        Value="false" />
-            </Style>
-            <Style x:Key="IncreaseSliderButtonStyle"
-                   TargetType="{x:Type RepeatButton}"
-                   BasedOn="{StaticResource SliderButtonStyle}">
+            <Style x:Key="ProgressBar"
+                   TargetType="RepeatButton">
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type RepeatButton}">
-                            <Border Background="Transparent" />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <Style x:Key="DecreaseSliderButtonStyle"
-                   TargetType="{x:Type RepeatButton}"
-                   BasedOn="{StaticResource SliderButtonStyle}">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type RepeatButton}">
+                        <ControlTemplate>
                             <Border Background="{Binding Theme.BarFilled, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="SliderThumbStyle"
-                   TargetType="{x:Type Thumb}">
-                <Setter Property="SnapsToDevicePixels"
-                        Value="true" />
-                <Setter Property="OverridesDefaultStyle"
-                        Value="true" />
-                <Setter Property="IsHitTestVisible"
-                        Value="false" />
-            </Style>
-            <Style x:Key="RectangleSliderThumbStyle"
-                   TargetType="{x:Type Thumb}"
-                   BasedOn="{StaticResource SliderThumbStyle}">
-                <Setter Property="Height"
-                        Value="14" />
-                <Setter Property="Width"
-                        Value="8" />
+            <Style x:Key="RemainingBar"
+                   TargetType="RepeatButton">
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Thumb}">
-                            <Rectangle Fill="{Binding Theme.BarButton, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                       Margin="0,-4,0,-4" />
+                        <ControlTemplate>
+                            <Border Background="{Binding Theme.BarUnfilled, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="CircleSliderThumbStyle"
-                   TargetType="{x:Type Thumb}"
-                   BasedOn="{StaticResource SliderThumbStyle}">
-                <Setter Property="Height"
-                        Value="4" />
-                <Setter Property="Width"
-                        Value="4" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Thumb}">
-                            <Ellipse Fill="{Binding Theme.BarButton, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                     Margin="-5" />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <ControlTemplate x:Key="CircleSlider"
-                             TargetType="{x:Type Slider}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Border Name="TrackBackground"
-                            Grid.Row="1"
-                            Background="{Binding Theme.BarUnfilled, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                    <Track Grid.Row="1"
-                           Name="PART_Track">
-                        <Track.DecreaseRepeatButton>
-                            <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
-                                          Command="Slider.DecreaseLarge" />
-                        </Track.DecreaseRepeatButton>
-                        <Track.Thumb>
-                            <Thumb Style="{StaticResource CircleSliderThumbStyle}" />
-                        </Track.Thumb>
-                        <Track.IncreaseRepeatButton>
-                            <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
-                                          Command="Slider.IncreaseLarge" />
-                        </Track.IncreaseRepeatButton>
-                    </Track>
-                    <Rectangle Fill="Transparent"
-                               Grid.Row="0"
-                               Height="20" />
-                    <Rectangle Fill="Transparent"
-                               Grid.Row="2"
-                               Height="20" />
-                </Grid>
-            </ControlTemplate>
-            <ControlTemplate x:Key="RectangleSlider"
-                             TargetType="{x:Type Slider}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Border Name="TrackBackground"
-                            Grid.Row="1"
-                            Background="#c8c8c8" />
-                    <Track Grid.Row="1"
-                           Name="PART_Track">
-                        <Track.DecreaseRepeatButton>
-                            <RepeatButton Style="{StaticResource DecreaseSliderButtonStyle}"
-                                          Command="Slider.DecreaseLarge" />
-                        </Track.DecreaseRepeatButton>
-                        <Track.Thumb>
-                            <Thumb Style="{StaticResource RectangleSliderThumbStyle}" />
-                        </Track.Thumb>
-                        <Track.IncreaseRepeatButton>
-                            <RepeatButton Style="{StaticResource IncreaseSliderButtonStyle}"
-                                          Command="Slider.IncreaseLarge" />
-                        </Track.IncreaseRepeatButton>
-                    </Track>
-                    <Rectangle Fill="Transparent"
-                               Grid.Row="0"
-                               Height="10" />
-                    <Rectangle Fill="Transparent"
-                               Grid.Row="2"
-                               Height="10" />
-                </Grid>
-            </ControlTemplate>
-            <Style x:Key="SliderStyle"
-                   TargetType="{x:Type Slider}">
-                <Setter Property="SnapsToDevicePixels"
-                        Value="true" />
-                <Setter Property="OverridesDefaultStyle"
-                        Value="true" />
-                <Setter Property="IsMoveToPointEnabled"
-                        Value="true" />
-                <Setter Property="Focusable"
-                        Value="false" />
-            </Style>
-            <Style x:Key="CircleSliderStyle"
-                   TargetType="{x:Type Slider}"
-                   BasedOn="{StaticResource SliderStyle}">
-                <Setter Property="Template"
-                        Value="{StaticResource CircleSlider}" />
-            </Style>
-            <Style x:Key="RectangleSliderStyle"
-                   TargetType="{x:Type Slider}"
-                   BasedOn="{StaticResource SliderStyle}">
-                <Setter Property="Template"
-                        Value="{StaticResource RectangleSlider}" />
-            </Style>
+            <converters:MultiplyConverter x:Key="MultiplyBy" />
+            <converters:TimeConverter x:Key="TimeConverter" />
+            <converters:TimeStringConverter x:Key="TimeStringConverter" />
+            <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid x:Name="MainGrid">
@@ -251,19 +108,39 @@
                                HorizontalAlignment="Right" />
                 </Grid>
                 <local:CustomSlider x:Name="TimeBar"
-                                    Style="{StaticResource RectangleSliderStyle}"
+                                    InvisibleHeight="36"
+                                    BarHeight="14"
+                                    ProgressBarStyle="{StaticResource ProgressBar}"
+                                    RemainingBarStyle="{StaticResource RemainingBar}"
+                                    Margin="0,0,0,0"
                                     Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
-                                    Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}" />
+                                    Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}">
+                    <local:CustomSlider.ThumbButtonStyle>
+                        <Style TargetType="Thumb">
+                            <Setter Property="Height"
+                                    Value="24" />
+                            <Setter Property="Width"
+                                    Value="8" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Rectangle Fill="{Binding Theme.BarButton, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </local:CustomSlider.ThumbButtonStyle>
+                </local:CustomSlider>
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">
                         <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                            Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                            Focusable="False"
-                                            Margin="0,0,6,0"
-                                            Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                            BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                            Command="{Binding PlayPauseCommand}">
+                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
+                                Focusable="False"
+                                Margin="0,0,6,0"
+                                Background="{Binding Theme.Button, ElementName=ThisControl}"
+                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
+                                Command="{Binding PlayPauseCommand}">
                             <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Margin="1"
                                   Stretch="Uniform">
@@ -382,13 +259,32 @@
                                 </Path.Style>
                             </Path>
                         </Button>
-                        <local:CustomSlider Style="{StaticResource CircleSliderStyle}"
-                                            Width="{Binding VolumeWidth, ElementName=ThisControl}"
+                        <local:CustomSlider Width="{Binding VolumeWidth, ElementName=ThisControl}"
+                                            InvisibleHeight="40"
+                                            BarHeight="4"
+                                            ProgressBarStyle="{StaticResource ProgressBar}"
+                                            RemainingBarStyle="{StaticResource RemainingBar}"
                                             VerticalAlignment="Center"
                                             Value="{Binding Player.Volume}"
                                             Minimum="0"
                                             Maximum="1"
-                                            PreviewMouseWheel="Volume_PreviewMouseWheel" />
+                                            PreviewMouseWheel="Volume_PreviewMouseWheel">
+                            <local:CustomSlider.ThumbButtonStyle>
+                                <Style TargetType="Thumb">
+                                    <Setter Property="Height"
+                                            Value="14" />
+                                    <Setter Property="Width"
+                                            Value="14" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Ellipse Fill="{Binding Theme.BarButton, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </local:CustomSlider.ThumbButtonStyle>
+                        </local:CustomSlider>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
