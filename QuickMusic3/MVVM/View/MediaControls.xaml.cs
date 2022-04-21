@@ -28,9 +28,6 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     public static readonly DependencyProperty ButtonSizeProperty =
             DependencyProperty.Register("ButtonSize", typeof(Size),
             typeof(MediaControls), new FrameworkPropertyMetadata(new Size(40, 40)));
-    public static readonly DependencyProperty BrowseVisibilityProperty =
-            DependencyProperty.Register("BrowseVisibility", typeof(Visibility),
-            typeof(MediaControls), new FrameworkPropertyMetadata(Visibility.Visible));
     public static readonly DependencyProperty VolumeWidthProperty =
             DependencyProperty.Register("VolumeWidth", typeof(double),
             typeof(MediaControls), new FrameworkPropertyMetadata(100d));
@@ -40,6 +37,9 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     public static readonly DependencyProperty TopRightProperty =
             DependencyProperty.Register("TopRight", typeof(FrameworkElement),
             typeof(MediaControls), new FrameworkPropertyMetadata());
+    public static readonly DependencyProperty BottomRightProperty =
+            DependencyProperty.Register("BottomRight", typeof(FrameworkElement),
+            typeof(MediaControls), new FrameworkPropertyMetadata());
     public static readonly DependencyProperty ThemeProperty =
             DependencyProperty.Register("Theme", typeof(Theme),
             typeof(MediaControls), new FrameworkPropertyMetadata());
@@ -47,11 +47,6 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     {
         get { return (Size)GetValue(ButtonSizeProperty); }
         set { SetValue(ButtonSizeProperty, value); }
-    }
-    public Visibility BrowseVisibility
-    {
-        get { return (Visibility)GetValue(BrowseVisibilityProperty); }
-        set { SetValue(BrowseVisibilityProperty, value); }
     }
     public double VolumeWidth
     {
@@ -67,6 +62,11 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     {
         get { return (FrameworkElement)GetValue(TopRightProperty); }
         set { SetValue(TopRightProperty, value); }
+    }
+    public FrameworkElement BottomRight
+    {
+        get { return (FrameworkElement)GetValue(BottomRightProperty); }
+        set { SetValue(BottomRightProperty, value); }
     }
     public Theme Theme
     {
@@ -84,30 +84,11 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         set { playdragging = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlayDragging))); }
     }
 
-    public ICommand BrowseCommand { get; }
-
     public MediaControls()
     {
         InitializeComponent();
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
-        BrowseCommand = new RelayCommand(() =>
-        {
-            var dialog = new OpenFileDialog();
-            dialog.Multiselect = true;
-            if (dialog.ShowDialog() == true)
-            {
-                if (System.IO.Path.GetExtension(dialog.FileName) == ".yaml")
-                {
-                    Properties.Settings.Default.ImportedThemes.Add(dialog.FileName);
-                }
-                else
-                {
-                    Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
-                    Model.Player.Play();
-                }
-            }
-        });
     }
 
     private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)

@@ -41,6 +41,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         private set { active_theme = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveTheme))); }
     }
 
+    public ICommand BrowseCommand { get; }
     public ICommand HideWindowCommand { get; }
     public ICommand ShowWindowCommand { get; }
     public ICommand CloseWindowCommand { get; }
@@ -50,6 +51,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         get => this.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
     }
+
+    private MainViewModel Model => (MainViewModel)DataContext;
 
     public MainWindow()
     {
@@ -63,6 +66,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             if (Properties.Settings.Default.ThemeIndex >= Properties.Settings.Default.ImportedThemes.Count)
                 Properties.Settings.Default.ThemeIndex = 0;
             OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]);
+        });
+        BrowseCommand = new RelayCommand(() =>
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Multiselect = true;
+            if (dialog.ShowDialog() == true)
+            {
+                if (System.IO.Path.GetExtension(dialog.FileName) == ".yaml")
+                {
+                    Properties.Settings.Default.ImportedThemes.Add(dialog.FileName);
+                }
+                else
+                {
+                    Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+                    Model.Player.Play();
+                }
+            }
         });
         if (Properties.Settings.Default.ImportedThemes == null)
             Properties.Settings.Default.ImportedThemes = new();

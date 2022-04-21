@@ -132,7 +132,7 @@
         </KeyBinding>
         <KeyBinding Modifiers="Ctrl"
                     Key="O"
-                    Command="{Binding BrowseCommand, ElementName=MediaControls}" />
+                    Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
         <KeyBinding Modifiers="Ctrl"
                     Key="Down"
                     Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -146,32 +146,49 @@
                 <ResourceDictionary Source="Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <viewmodel:MainViewModel x:Key="ViewModel" />
+            <Style x:Key="Button"
+                   TargetType="view:CustomButton">
+                <Setter Property="Focusable"
+                        Value="False" />
+                <Setter Property="Foreground"
+                        Value="{Binding Theme.Text, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
+                <Setter Property="NoHover"
+                        Value="{Binding Theme.Button, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
+                <Setter Property="Hover"
+                        Value="{Binding Theme.ButtonHover, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
+                <Setter Property="BorderBrush"
+                        Value="{Binding Theme.ButtonOutline, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+            </Style>
             <StackPanel x:Key="IconTopRight"
                         Orientation="Horizontal">
-                <Button x:Name="CloseButton"
-                        Height="32"
-                        Width="32"
-                        Focusable="False"
-                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                        VerticalAlignment="Top"
-                        Margin="0,0,10,0">
+                <view:CustomButton x:Name="CloseButton"
+                                   Height="32"
+                                   Width="32"
+                                   Style="{StaticResource Button}"
+                                   NoHover="Transparent"
+                                   BorderThickness="0"
+                                   VerticalAlignment="Top"
+                                   Margin="0,0,10,0">
                     <Path Fill="DarkRed"
                           Margin="-6"
                           Stretch="Uniform"
                           Data="{StaticResource CloseIcon}" />
-                </Button>
-                <Button x:Name="ShowButton"
-                        Height="32"
-                        Width="32"
-                        Focusable="False"
-                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                        VerticalAlignment="Top">
-                    <Path  Fill="Black"
-                           Margin="-6"
-                           Stretch="Uniform"
-                           Data="{StaticResource UpIcon}"
-                           Opacity="0.3" />
-                </Button>
+                </view:CustomButton>
+                <view:CustomButton x:Name="ShowButton"
+                                   Height="32"
+                                   Width="32"
+                                   Style="{StaticResource Button}"
+                                   NoHover="Transparent"
+                                   BorderThickness="0"
+                                   VerticalAlignment="Top">
+                    <Path Fill="{Binding Theme.Icon, RelativeSource={RelativeSource AncestorType=view:MediaControls}}"
+                          Margin="-6"
+                          Stretch="Uniform"
+                          Data="{StaticResource UpIcon}"
+                          Opacity="0.3" />
+                </view:CustomButton>
             </StackPanel>
             <tb:TaskbarIcon x:Key="TaskbarIcon"
                             DataContext="{StaticResource ViewModel}"
@@ -187,7 +204,6 @@
                                             ButtonSize="32,32"
                                             VolumeWidth="50"
                                             MetadataFontSize="18"
-                                            BrowseVisibility="Collapsed"
                                             TopRight="{StaticResource IconTopRight}"
                                             Theme="{Binding Tag.ActiveTheme, RelativeSource={RelativeSource AncestorType=Border}}" />
                     </Border>
@@ -204,18 +220,29 @@
                         MetadataFontSize="36"
                         Theme="{Binding ActiveTheme, ElementName=ThisWindow}">
         <view:MediaControls.TopRight>
-            <Button Height="40"
-                    Width="40"
-                    Focusable="False"
-                    Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                    VerticalAlignment="Top">
+            <view:CustomButton Height="40"
+                               Width="40"
+                               Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Style="{StaticResource Button}"
+                               NoHover="Transparent"
+                               BorderThickness="0"
+                               VerticalAlignment="Top">
                 <Path Fill="{Binding ActiveTheme.Icon, RelativeSource={RelativeSource AncestorType=Window}}"
                       Margin="-6"
                       Stretch="Uniform"
                       Data="{StaticResource DownIcon}"
                       Opacity="0.3" />
-            </Button>
+            </view:CustomButton>
         </view:MediaControls.TopRight>
+        <view:MediaControls.BottomRight>
+            <view:CustomButton Height="42"
+                               Width="84"
+                               Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Style="{StaticResource Button}"
+                               FontSize="18"
+                               Margin="6,0,0,0"
+                               Content="Browse">
+            </view:CustomButton>
+        </view:MediaControls.BottomRight>
     </view:MediaControls>
 </Window>

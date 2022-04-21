@@ -14,7 +14,6 @@ using System.Windows.Input;
 namespace QuickMusic3.MVVM.ViewModel;
 
 // current bugs:
-// down button isn't CustomButton (both it and Browse should be owned by Window)
 
 // features to port:
 // - real-time lyrics
