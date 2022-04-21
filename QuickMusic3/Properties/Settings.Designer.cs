@@ -70,5 +70,28 @@ namespace QuickMusic3.Properties {
                 this["Shuffle"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Generic.List<string> ImportedThemes {
+            get {
+                return ((global::System.Collections.Generic.List<string>)(this["ImportedThemes"]));
+            }
+            set {
+                this["ImportedThemes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ThemeIndex {
+            get {
+                return ((int)(this["ThemeIndex"]));
+            }
+            set {
+                this["ThemeIndex"] = value;
+            }
+        }
     }
 }

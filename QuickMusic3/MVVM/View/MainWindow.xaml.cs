@@ -34,10 +34,17 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly TaskbarIcon NotifyIcon;
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public Theme ActiveTheme { get; private set; }
+    private Theme active_theme;
+    public Theme ActiveTheme
+    {
+        get { return active_theme; }
+        private set { active_theme = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveTheme))); }
+    }
+
     public ICommand HideWindowCommand { get; }
     public ICommand ShowWindowCommand { get; }
     public ICommand CloseWindowCommand { get; }
+    public ICommand ChangeThemeCommand { get; }
 
     public Visibility TrayIconVisibility
     {
@@ -46,17 +53,21 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public MainWindow()
     {
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
-            .Build();
-        using var file = File.OpenRead("theme.yaml");
-        using var reader = new StreamReader(file);
-        ActiveTheme = deserializer.Deserialize<Theme>(reader);
-
         InitializeComponent();
         HideWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Collapsed; });
         ShowWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Visible; this.Activate(); NotifyIcon.TrayPopupResolved.IsOpen = false; });
         CloseWindowCommand = new RelayCommand(() => { this.Close(); NotifyIcon.TrayPopupResolved.IsOpen = false; });
+        ChangeThemeCommand = new RelayCommand(() =>
+        {
+            Properties.Settings.Default.ThemeIndex++;
+            if (Properties.Settings.Default.ThemeIndex >= Properties.Settings.Default.ImportedThemes.Count)
+                Properties.Settings.Default.ThemeIndex = 0;
+            OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]);
+        });
+        if (Properties.Settings.Default.ImportedThemes == null)
+            Properties.Settings.Default.ImportedThemes = new();
+        if (Properties.Settings.Default.ImportedThemes.Count > 0)
+            OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]);
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
         NotifyIcon.LeftClickCommand = ShowWindowCommand;
@@ -74,5 +85,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
+    }
+
+    private void OpenTheme(string path)
+    {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .Build();
+        using var file = File.OpenRead(path);
+        using var reader = new StreamReader(file);
+        ActiveTheme = deserializer.Deserialize<Theme>(reader);
     }
 }

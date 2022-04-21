@@ -97,8 +97,15 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
             dialog.Multiselect = true;
             if (dialog.ShowDialog() == true)
             {
-                Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
-                Model.Player.Play();
+                if (System.IO.Path.GetExtension(dialog.FileName) == ".yaml")
+                {
+                    Properties.Settings.Default.ImportedThemes.Add(dialog.FileName);
+                }
+                else
+                {
+                    Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+                    Model.Player.Play();
+                }
             }
         });
     }

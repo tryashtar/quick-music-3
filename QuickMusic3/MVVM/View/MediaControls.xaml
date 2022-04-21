@@ -18,6 +18,25 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="Button"
+                   TargetType="local:CustomButton">
+                <Setter Property="Width"
+                        Value="{Binding ButtonSize.Width, ElementName=ThisControl}" />
+                <Setter Property="Height"
+                        Value="{Binding ButtonSize.Height, ElementName=ThisControl}" />
+                <Setter Property="Focusable"
+                        Value="False" />
+                <Setter Property="Foreground"
+                        Value="{Binding Theme.Text, ElementName=ThisControl}" />
+                <Setter Property="NoHover"
+                        Value="{Binding Theme.Button, ElementName=ThisControl}" />
+                <Setter Property="Hover"
+                        Value="{Binding Theme.ButtonHover, ElementName=ThisControl}" />
+                <Setter Property="BorderBrush"
+                        Value="{Binding Theme.ButtonOutline, ElementName=ThisControl}" />
+                <Setter Property="BorderThickness"
+                        Value="1" />
+            </Style>
             <Style x:Key="ProgressBar"
                    TargetType="RepeatButton">
                 <Setter Property="Template">
@@ -134,13 +153,9 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Left">
-                        <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Margin="0,0,6,0"
-                                Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                Command="{Binding PlayPauseCommand}">
+                        <local:CustomButton Style="{StaticResource Button}"
+                                            Margin="0,0,6,0"
+                                            Command="{Binding PlayPauseCommand}">
                             <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Margin="1"
                                   Stretch="Uniform">
@@ -166,14 +181,10 @@
                                     </Style>
                                 </Path.Style>
                             </Path>
-                        </Button >
-                        <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Margin="0,0,6,0"
-                                Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                Command="{Binding ChangeRepeatCommand}">
+                        </local:CustomButton >
+                        <local:CustomButton Style="{StaticResource Button}"
+                                            Margin="0,0,6,0"
+                                            Command="{Binding ChangeRepeatCommand}">
                             <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Margin="2"
                                   Stretch="Uniform">
@@ -199,14 +210,10 @@
                                     </Style>
                                 </Path.Style>
                             </Path>
-                        </Button>
-                        <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Margin="0,0,6,0"
-                                Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                Command="{Binding ChangeShuffleCommand}">
+                        </local:CustomButton>
+                        <local:CustomButton Style="{StaticResource Button}"
+                                            Margin="0,0,6,0"
+                                            Command="{Binding ChangeShuffleCommand}">
                             <Path  Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                    Data="{StaticResource ShuffleIcon}"
                                    Margin="2"
@@ -223,23 +230,23 @@
                                     </Style>
                                 </Path.Style>
                             </Path>
-                        </Button>
-                        <Button Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Margin="0,0,6,0"
-                                Command="{Binding ChangeMuteCommand}"
-                                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                        </local:CustomButton>
+                        <local:CustomButton Style="{StaticResource Button}"
+                                            Margin="0,0,6,0"
+                                            NoHover="Transparent"
+                                            BorderThickness="0"
+                                            Command="{Binding ChangeMuteCommand}">
                             <Button.Width>
                                 <Binding Path="ButtonSize.Width"
                                          ElementName="ThisControl"
                                          Converter="{StaticResource MultiplyBy}">
                                     <Binding.ConverterParameter>
-                                        <sys:Double>0.75</sys:Double>
+                                        <sys:Double>0.7</sys:Double>
                                     </Binding.ConverterParameter>
                                 </Binding>
                             </Button.Width>
                             <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
-                                  Margin="-4"
+                                  Margin="0"
                                   Stretch="Uniform">
                                 <Path.Style>
                                     <Style>
@@ -258,7 +265,7 @@
                                     </Style>
                                 </Path.Style>
                             </Path>
-                        </Button>
+                        </local:CustomButton>
                         <local:CustomSlider Width="{Binding VolumeWidth, ElementName=ThisControl}"
                                             InvisibleHeight="40"
                                             BarHeight="4"
@@ -288,30 +295,22 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
-                        <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Margin="0,0,6,0"
-                                Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                Command="{Binding PrevCommand}">
+                        <local:CustomButton Style="{StaticResource Button}"
+                                            Margin="0,0,6,0"
+                                            Command="{Binding PrevCommand}">
                             <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Data="{StaticResource PreviousIcon}"
                                   Margin="1"
                                   Stretch="Uniform" />
-                        </Button>
-                        <Button Width="{Binding ButtonSize.Width, ElementName=ThisControl}"
-                                Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Focusable="False"
-                                Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                Command="{Binding NextCommand}">
+                        </local:CustomButton>
+                        <local:CustomButton Command="{Binding NextCommand}">
                             <Path Fill="{Binding Theme.Icon, ElementName=ThisControl}"
                                   Data="{StaticResource NextIcon}"
                                   Margin="1"
                                   Stretch="Uniform" />
                             <Button.Style>
-                                <Style>
+                                <Style TargetType="local:CustomButton"
+                                       BasedOn="{StaticResource Button}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding BrowseVisibility, ElementName=ThisControl}"
                                                      Value="Visible">
@@ -321,17 +320,12 @@
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
-                        </Button>
-                        <Button Height="{Binding ButtonSize.Height, ElementName=ThisControl}"
-                                Margin="0"
-                                Focusable="False"
-                                Content="Browse"
-                                FontSize="18"
-                                Foreground="{Binding Theme.Text, ElementName=ThisControl}"
-                                Background="{Binding Theme.Button, ElementName=ThisControl}"
-                                BorderBrush="{Binding Theme.ButtonOutline, ElementName=ThisControl}"
-                                Visibility="{Binding BrowseVisibility, ElementName=ThisControl}"
-                                Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        </local:CustomButton>
+                        <local:CustomButton Style="{StaticResource Button}"
+                                            Content="Browse"
+                                            FontSize="18"
+                                            Visibility="{Binding BrowseVisibility, ElementName=ThisControl}"
+                                            Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                             <Button.Width>
                                 <Binding Path="ButtonSize.Width"
                                          ElementName="ThisControl"
@@ -341,7 +335,7 @@
                                     </Binding.ConverterParameter>
                                 </Binding>
                             </Button.Width>
-                        </Button>
+                        </local:CustomButton>
                     </StackPanel>
                 </Grid>
             </StackPanel>
