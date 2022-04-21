@@ -70,6 +70,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]);
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
+        ((FrameworkElement)NotifyIcon.TrayPopup).Tag = this;
         NotifyIcon.LeftClickCommand = ShowWindowCommand;
         var top_right = (Panel)FindResource("IconTopRight");
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "ShowButton")).Command = ShowWindowCommand;

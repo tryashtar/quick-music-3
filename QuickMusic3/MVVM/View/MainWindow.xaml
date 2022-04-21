@@ -188,7 +188,8 @@
                                             VolumeWidth="50"
                                             MetadataFontSize="18"
                                             BrowseVisibility="Collapsed"
-                                            TopRight="{StaticResource IconTopRight}" />
+                                            TopRight="{StaticResource IconTopRight}"
+                                            Theme="{Binding Tag.ActiveTheme, RelativeSource={RelativeSource AncestorType=Border}}" />
                     </Border>
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
@@ -201,7 +202,6 @@
                         ButtonSize="42,42"
                         VolumeWidth="100"
                         MetadataFontSize="36"
-                        Focusable="True"
                         Theme="{Binding ActiveTheme, ElementName=ThisWindow}">
         <view:MediaControls.TopRight>
             <Button Height="40"
