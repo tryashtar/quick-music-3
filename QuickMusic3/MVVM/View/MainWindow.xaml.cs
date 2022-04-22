@@ -45,6 +45,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ICommand HideWindowCommand { get; }
     public ICommand ShowWindowCommand { get; }
     public ICommand CloseWindowCommand { get; }
+    public ICommand MaximizeWindowCommand { get; }
+    public ICommand MinimizeWindowCommand { get; }
     public ICommand ChangeThemeCommand { get; }
 
     public Visibility TrayIconVisibility
@@ -60,6 +62,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         HideWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Collapsed; });
         ShowWindowCommand = new RelayCommand(() => { this.Visibility = Visibility.Visible; this.Activate(); NotifyIcon.TrayPopupResolved.IsOpen = false; });
         CloseWindowCommand = new RelayCommand(() => { this.Close(); NotifyIcon.TrayPopupResolved.IsOpen = false; });
+        MaximizeWindowCommand = new RelayCommand(() =>
+        {
+            if (this.WindowState == WindowState.Maximized)
+                this.WindowState = WindowState.Normal;
+            else
+                this.WindowState = WindowState.Maximized;
+        });
+        MinimizeWindowCommand = new RelayCommand(() => { this.WindowState = WindowState.Minimized; });
         ChangeThemeCommand = new RelayCommand(() =>
         {
             Properties.Settings.Default.ThemeIndex++;

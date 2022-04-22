@@ -14,4 +14,9 @@
     <Geometry x:Key="ListIcon">F1 M24,24z M0,0z M3,13L5,13 5,11 3,11 3,13z M3,17L5,17 5,15 3,15 3,17z M3,9L5,9 5,7 3,7 3,9z M7,13L21,13 21,11 7,11 7,13z M7,17L21,17 21,15 7,15 7,17z M7,7L7,9 21,9 21,7 7,7z M3,13L5,13 5,11 3,11 3,13z M3,17L5,17 5,15 3,15 3,17z M3,9L5,9 5,7 3,7 3,9z M7,13L21,13 21,11 7,11 7,13z M7,17L21,17 21,15 7,15 7,17z M7,7L7,9 21,9 21,7 7,7z</Geometry>
     <Geometry x:Key="RepeatNoneIcon">F1 M24,24z M0,0z M12,4L10.59,5.41 16.17,11 4,11 4,13 16.17,13 10.59,18.59 12,20 20,12z</Geometry>
     <Geometry x:Key="CloseIcon">F1 M24,24z M0,0z M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z</Geometry>
+    <RectangleGeometry x:Key="SquareIcon"
+                       RadiusX="2"
+                       RadiusY="2"
+                       Rect="3,3,18,18" />
+    <Geometry x:Key="MinimizeIcon">F1 M48,48z M0,0z M8,25.5L8,22.5 40,22.5 40,25.5z</Geometry>
 </ResourceDictionary>

@@ -28,4 +28,5 @@ public class Theme : DependencyObject
     public Brush ButtonOutline { get; set; }
     public Brush ButtonHover { get; set; }
     public Brush Icon { get; set; }
+    public Brush Header { get; set; }
 }
