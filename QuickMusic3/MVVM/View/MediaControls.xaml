@@ -137,6 +137,9 @@
                         </Path.Style>
                     </Path>
                 </local:CustomButton>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Left">
                 <local:CustomButton Style="{StaticResource Button}"
                                     Margin="0,0,6,0"
                                     NoHover="Transparent"
@@ -205,8 +208,16 @@
                         <Setter Property="HorizontalAlignment"
                                 Value="Right" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Rows, RelativeSource={RelativeSource AncestorType=local:AlignableWrapPanel}}"
-                                         Value="2">
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <Binding Path="Rows"
+                                             RelativeSource="{RelativeSource AncestorType=local:AlignableWrapPanel}"
+                                             Converter="{StaticResource GreaterThanConverter}">
+                                        <Binding.ConverterParameter>
+                                            <sys:Int32>1</sys:Int32>
+                                        </Binding.ConverterParameter>
+                                    </Binding>
+                                </DataTrigger.Binding>
                                 <Setter Property="HorizontalAlignment"
                                         Value="Left" />
                             </DataTrigger>

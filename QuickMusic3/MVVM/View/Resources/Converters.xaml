@@ -5,4 +5,5 @@
     <converters:TimeConverter x:Key="TimeConverter" />
     <converters:TimeStringConverter x:Key="TimeStringConverter" />
     <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
+    <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
 </ResourceDictionary>

@@ -14,25 +14,18 @@ using TryashtarUtils.Utility;
 
 namespace QuickMusic3.Converters;
 
-public abstract class MathConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        return Convert((double)value, (double)parameter);
-    }
-
-    public abstract double Convert(double value, double parameter);
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new InvalidOperationException();
-    }
-}
-
-public class MultiplyConverter : MathConverter
+public class MultiplyConverter : ParameterConverter<double, double, double>
 {
     public override double Convert(double value, double parameter)
     {
         return value * parameter;
+    }
+}
+
+public class GreaterThanConverter : ParameterConverter<int, bool, int>
+{
+    public override bool Convert(int value, int parameter)
+    {
+        return value > parameter;
     }
 }
