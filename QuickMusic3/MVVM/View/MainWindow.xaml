@@ -14,8 +14,8 @@
         MinWidth="690"
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
-        Background="{Binding ActiveTheme.AlbumBackground}"
-        Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
+        Background="{Binding Shared.ActiveTheme.AlbumBackground}"
+        Title="{Binding Shared.Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
         Closed="Window_Closed"
         IsVisibleChanged="Window_IsVisibleChanged">
     <WindowChrome.WindowChrome>
@@ -24,111 +24,111 @@
     </WindowChrome.WindowChrome>
     <Window.InputBindings>
         <KeyBinding Key="Space"
-                    Command="{Binding PlayPauseCommand}" />
+                    Command="{Binding Shared.PlayPauseCommand}" />
         <KeyBinding Key="K"
-                    Command="{Binding PlayPauseCommand}" />
+                    Command="{Binding Shared.PlayPauseCommand}" />
         <KeyBinding Key="MediaPlayPause"
-                    Command="{Binding PlayPauseCommand}" />
+                    Command="{Binding Shared.PlayPauseCommand}" />
         <KeyBinding Modifiers="Ctrl"
                     Key="Left"
-                    Command="{Binding PrevCommand}" />
+                    Command="{Binding Shared.PrevCommand}" />
         <KeyBinding Modifiers="Ctrl"
                     Key="Right"
-                    Command="{Binding NextCommand}" />
+                    Command="{Binding Shared.NextCommand}" />
         <KeyBinding Key="MediaPreviousTrack"
-                    Command="{Binding PrevCommand}" />
+                    Command="{Binding Shared.PrevCommand}" />
         <KeyBinding Key="MediaNextTrack"
-                    Command="{Binding NextCommand}" />
+                    Command="{Binding Shared.NextCommand}" />
         <KeyBinding Key="Up"
-                    Command="{Binding ChangeVolumeCommand}">
+                    Command="{Binding Shared.ChangeVolumeCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Single>0.05</sys:Single>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="VolumeUp"
-                    Command="{Binding ChangeVolumeCommand}">
+                    Command="{Binding Shared.ChangeVolumeCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Single>0.05</sys:Single>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="Down"
-                    Command="{Binding ChangeVolumeCommand}">
+                    Command="{Binding Shared.ChangeVolumeCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Single>-0.05</sys:Single>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="VolumeDown"
-                    Command="{Binding ChangeVolumeCommand}">
+                    Command="{Binding Shared.ChangeVolumeCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Single>-0.05</sys:Single>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="R"
-                    Command="{Binding ChangeRepeatCommand}" />
+                    Command="{Binding Shared.ChangeRepeatCommand}" />
         <KeyBinding Key="M"
-                    Command="{Binding ChangeMuteCommand}" />
+                    Command="{Binding Shared.ChangeMuteCommand}" />
         <KeyBinding Key="VolumeMute"
-                    Command="{Binding ChangeMuteCommand}" />
+                    Command="{Binding Shared.ChangeMuteCommand}" />
         <KeyBinding Key="Left"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-2</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="Right"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>2</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Modifiers="Shift"
                     Key="Left"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-5</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Modifiers="Shift"
                     Key="Right"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>5</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="J"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-10</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="L"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>10</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Modifiers="Shift"
                     Key="J"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-60</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Modifiers="Shift"
                     Key="L"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>60</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="OemComma"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>-0.1</sys:Double>
             </KeyBinding.CommandParameter>
         </KeyBinding>
         <KeyBinding Key="OemPeriod"
-                    Command="{Binding SeekCommand}">
+                    Command="{Binding Shared.SeekCommand}">
             <KeyBinding.CommandParameter>
                 <sys:Double>0.1</sys:Double>
             </KeyBinding.CommandParameter>
@@ -141,7 +141,7 @@
                     Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
         <KeyBinding Modifiers="Alt"
                     Key="D"
-                    Command="{Binding ChangeThemeCommand}" />
+                    Command="{Binding Shared.ChangeThemeCommand}" />
     </Window.InputBindings>
     <Window.Resources>
         <ResourceDictionary>
@@ -227,7 +227,7 @@
                 <RowDefinition Height="30" />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Border Background="{Binding ActiveTheme.Header}">
+            <Border Background="{Binding Shared.ActiveTheme.Header}">
                 <Grid>
                     <StackPanel Orientation="Horizontal"
                                 Margin="7,7,7,7"
@@ -237,7 +237,7 @@
                                Margin="0,0,7,0" />
                         <TextBlock VerticalAlignment="Center"
                                    Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   Foreground="{Binding ActiveTheme.Text}" />
+                                   Foreground="{Binding Shared.ActiveTheme.Text}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
@@ -284,7 +284,7 @@
                                         <Setter Property="Opacity"
                                                 Value="0.4" />
                                         <Setter Property="Fill"
-                                                Value="{Binding ActiveTheme.Icon}" />
+                                                Value="{Binding Shared.ActiveTheme.Icon}" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}"
                                                          Value="True">
@@ -303,37 +303,43 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <view:MediaDisplay Grid.Row="1"
-                               MetadataFontSize="36">
-                <view:MediaDisplay.MediaControls>
-                    <view:MediaControls VolumeWidth="100">
-                        <view:MediaControls.BottomRight>
-                            <view:CustomButton Width="84"
-                                               Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                               Style="{StaticResource Button}"
-                                               FontSize="18"
-                                               Margin="6,0,0,0"
-                                               Content="Browse">
-                            </view:CustomButton>
-                        </view:MediaControls.BottomRight>
-                    </view:MediaControls>
-                </view:MediaDisplay.MediaControls>
-                <view:MediaDisplay.TopRight>
-                    <view:CustomButton Height="40"
-                                       Width="40"
-                                       Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       Style="{StaticResource Button}"
-                                       NoHover="Transparent"
-                                       BorderThickness="0"
-                                       VerticalAlignment="Top">
-                        <Path Style="{StaticResource FillPath}"
-                              Margin="-6"
-                              Stretch="Uniform"
-                              Data="{StaticResource DownIcon}"
-                              Opacity="0.3" />
-                    </view:CustomButton>
-                </view:MediaDisplay.TopRight>
-            </view:MediaDisplay>
+            <ContentControl Content="{Binding ActiveViewModel}"
+                            Grid.Row="1">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type viewmodel:NowPlayingViewModel}">
+                        <view:MediaDisplay MetadataFontSize="36">
+                            <view:MediaDisplay.MediaControls>
+                                <view:MediaControls VolumeWidth="100">
+                                    <view:MediaControls.BottomRight>
+                                        <view:CustomButton Width="84"
+                                                           Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                           Style="{StaticResource Button}"
+                                                           FontSize="18"
+                                                           Margin="6,0,0,0"
+                                                           Content="Browse">
+                                        </view:CustomButton>
+                                    </view:MediaControls.BottomRight>
+                                </view:MediaControls>
+                            </view:MediaDisplay.MediaControls>
+                            <view:MediaDisplay.TopRight>
+                                <view:CustomButton Height="40"
+                                                   Width="40"
+                                                   Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   Style="{StaticResource Button}"
+                                                   NoHover="Transparent"
+                                                   BorderThickness="0"
+                                                   VerticalAlignment="Top">
+                                    <Path Style="{StaticResource FillPath}"
+                                          Margin="-6"
+                                          Stretch="Uniform"
+                                          Data="{StaticResource DownIcon}"
+                                          Opacity="0.3" />
+                                </view:CustomButton>
+                            </view:MediaDisplay.TopRight>
+                        </view:MediaDisplay>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
         </Grid>
     </view:SizeHost>
 </Window>

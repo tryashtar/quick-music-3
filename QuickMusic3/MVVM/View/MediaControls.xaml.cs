@@ -41,7 +41,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-    private MainViewModel Model => (MainViewModel)DataContext;
+    private BaseViewModel Model => (BaseViewModel)DataContext;
 
     private bool playdragging;
     public bool PlayDragging
@@ -59,23 +59,23 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
 
     private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        PlayDragging = Model.Player.PlayState == PlaybackState.Playing;
-        Model.Player.Pause();
+        PlayDragging = Model.Shared.Player.PlayState == PlaybackState.Playing;
+        Model.Shared.Player.Pause();
     }
 
     private void TimeBar_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (PlayDragging)
-            Model.Player.Play();
+            Model.Shared.Player.Play();
         PlayDragging = false;
     }
 
     private void Volume_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        if (e.Delta != 0 && !Model.Player.Muted)
+        if (e.Delta != 0 && !Model.Shared.Player.Muted)
         {
-            float volume = Model.Player.Volume + (1 / ((float)e.Delta / 3));
-            Model.Player.Volume = Math.Clamp(volume, 0, 1);
+            float volume = Model.Shared.Player.Volume + (1 / ((float)e.Delta / 3));
+            Model.Shared.Player.Volume = Math.Clamp(volume, 0, 1);
         }
     }
 }

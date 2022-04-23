@@ -8,7 +8,7 @@
              xmlns:converters="clr-namespace:QuickMusic3.Converters"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
-             Background="{Binding ActiveTheme.Background}"
+             Background="{Binding Shared.ActiveTheme.Background}"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
@@ -23,10 +23,10 @@
     <StackPanel Orientation="Vertical"
                 Margin="20,5,10,5">
         <Grid>
-            <TextBlock Text="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeStringConverter}}"
+            <TextBlock Text="{Binding Shared.Player.CurrentTime, Converter={StaticResource TimeStringConverter}}"
                        FontSize="18"
                        HorizontalAlignment="Left" />
-            <TextBlock Text="{Binding Path=Player.TotalTime, Converter={StaticResource TimeStringConverter}}"
+            <TextBlock Text="{Binding Shared.Player.TotalTime, Converter={StaticResource TimeStringConverter}}"
                        FontSize="18"
                        HorizontalAlignment="Right" />
         </Grid>
@@ -36,8 +36,8 @@
                             ProgressBarStyle="{StaticResource ProgressBar}"
                             RemainingBarStyle="{StaticResource RemainingBar}"
                             Margin="0,0,0,0"
-                            Maximum="{Binding Path=Player.TotalTime, Converter={StaticResource TimeConverter}}"
-                            Value="{Binding Path=Player.CurrentTime, Converter={StaticResource TimeConverter}}">
+                            Maximum="{Binding Shared.Player.TotalTime, Converter={StaticResource TimeConverter}}"
+                            Value="{Binding Shared.Player.CurrentTime, Converter={StaticResource TimeConverter}}">
             <local:CustomSlider.ThumbButtonStyle>
                 <Style TargetType="Thumb">
                     <Setter Property="Height"
@@ -47,7 +47,7 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate>
-                                <Rectangle Fill="{Binding ActiveTheme.BarButton}" />
+                                <Rectangle Fill="{Binding Shared.ActiveTheme.BarButton}" />
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
@@ -59,19 +59,19 @@
                         HorizontalAlignment="Left">
                 <local:CustomButton Style="{StaticResource Button}"
                                     Margin="0,0,6,0"
-                                    Command="{Binding PlayPauseCommand}">
-                    <Path Fill="{Binding ActiveTheme.Icon}"
+                                    Command="{Binding Shared.PlayPauseCommand}">
+                    <Path Fill="{Binding Shared.ActiveTheme.Icon}"
                           Margin="1"
                           Stretch="Uniform">
                         <Path.Style>
                             <Style>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Player.PlayState}"
+                                    <DataTrigger Binding="{Binding Shared.Player.PlayState}"
                                                  Value="Playing">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource PauseIcon}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Player.PlayState}"
+                                    <DataTrigger Binding="{Binding Shared.Player.PlayState}"
                                                  Value="Paused">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource PlayIcon}" />
@@ -88,24 +88,24 @@
                 </local:CustomButton >
                 <local:CustomButton Style="{StaticResource Button}"
                                     Margin="0,0,6,0"
-                                    Command="{Binding ChangeRepeatCommand}">
-                    <Path Fill="{Binding ActiveTheme.Icon}"
+                                    Command="{Binding Shared.ChangeRepeatCommand}">
+                    <Path Fill="{Binding Shared.ActiveTheme.Icon}"
                           Margin="2"
                           Stretch="Uniform">
                         <Path.Style>
                             <Style>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Player.RepeatMode}"
+                                    <DataTrigger Binding="{Binding Shared.Player.RepeatMode}"
                                                  Value="RepeatAll">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource RepeatAllIcon}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Player.RepeatMode}"
+                                    <DataTrigger Binding="{Binding Shared.Player.RepeatMode}"
                                                  Value="RepeatOne">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource RepeatOneIcon}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Player.RepeatMode}"
+                                    <DataTrigger Binding="{Binding Shared.Player.RepeatMode}"
                                                  Value="PlayAll">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource RepeatNoneIcon}" />
@@ -117,15 +117,15 @@
                 </local:CustomButton>
                 <local:CustomButton Style="{StaticResource Button}"
                                     Margin="0,0,6,0"
-                                    Command="{Binding ChangeShuffleCommand}">
-                    <Path Fill="{Binding ActiveTheme.Icon}"
+                                    Command="{Binding Shared.ChangeShuffleCommand}">
+                    <Path Fill="{Binding Shared.ActiveTheme.Icon}"
                           Data="{StaticResource ShuffleIcon}"
                           Margin="2"
                           Stretch="Uniform">
                         <Path.Style>
                             <Style>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Player.Shuffle}"
+                                    <DataTrigger Binding="{Binding Shared.Player.Shuffle}"
                                                  Value="false">
                                         <Setter Property="Path.Opacity"
                                                 Value="0.2" />
@@ -139,7 +139,7 @@
                                     Margin="0,0,6,0"
                                     NoHover="Transparent"
                                     BorderThickness="0"
-                                    Command="{Binding ChangeMuteCommand}">
+                                    Command="{Binding Shared.ChangeMuteCommand}">
                     <Button.Width>
                         <Binding Path="ButtonSize.Width"
                                  RelativeSource="{RelativeSource AncestorType=local:SizeHost}"
@@ -149,18 +149,18 @@
                             </Binding.ConverterParameter>
                         </Binding>
                     </Button.Width>
-                    <Path Fill="{Binding ActiveTheme.Icon}"
+                    <Path Fill="{Binding Shared.ActiveTheme.Icon}"
                           Margin="0"
                           Stretch="Uniform">
                         <Path.Style>
                             <Style>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Player.Muted}"
+                                    <DataTrigger Binding="{Binding Shared.Player.Muted}"
                                                  Value="true">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource MuteIcon}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Player.Muted}"
+                                    <DataTrigger Binding="{Binding Shared.Player.Muted}"
                                                  Value="false">
                                         <Setter Property="Path.Data"
                                                 Value="{StaticResource VolumeIcon}" />
@@ -176,7 +176,7 @@
                                     ProgressBarStyle="{StaticResource ProgressBar}"
                                     RemainingBarStyle="{StaticResource RemainingBar}"
                                     VerticalAlignment="Center"
-                                    Value="{Binding Player.Volume}"
+                                    Value="{Binding Shared.Player.Volume}"
                                     Minimum="0"
                                     Maximum="1"
                                     PreviewMouseWheel="Volume_PreviewMouseWheel">
@@ -189,7 +189,7 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate>
-                                        <Ellipse Fill="{Binding ActiveTheme.BarButton}" />
+                                        <Ellipse Fill="{Binding Shared.ActiveTheme.BarButton}" />
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
@@ -201,14 +201,14 @@
                         HorizontalAlignment="Right">
                 <local:CustomButton Style="{StaticResource Button}"
                                     Margin="0,0,6,0"
-                                    Command="{Binding PrevCommand}">
+                                    Command="{Binding Shared.PrevCommand}">
                     <Path Style="{StaticResource FillPath}"
                           Data="{StaticResource PreviousIcon}"
                           Margin="1"
                           Stretch="Uniform" />
                 </local:CustomButton>
                 <local:CustomButton Style="{StaticResource Button}"
-                                    Command="{Binding NextCommand}">
+                                    Command="{Binding Shared.NextCommand}">
                     <Path Style="{StaticResource FillPath}"
                           Data="{StaticResource NextIcon}"
                           Margin="1"

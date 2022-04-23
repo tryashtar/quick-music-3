@@ -28,93 +28,24 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - themes (data driven!)
 // - fallback album art
 
-public class MainViewModel : ObservableObject
+public class MainViewModel : BaseViewModel
 {
-    public Player Player { get; } = new();
-    private Theme active_theme;
-    public Theme ActiveTheme
+    private readonly NowPlayingViewModel NowPlayingVM;
+    private readonly PlaylistViewModel PlaylistVM;
+    private BaseViewModel active_view_model;
+    public BaseViewModel ActiveViewModel
     {
-        get { return active_theme; }
-        private set { active_theme = value; OnPropertyChanged(); }
+        get { return active_view_model; }
+        set { active_view_model = value; OnPropertyChanged(); }
     }
 
-    public ICommand PlayPauseCommand { get; }
-    public ICommand NextCommand { get; }
-    public ICommand PrevCommand { get; }
-    public ICommand ChangeRepeatCommand { get; }
-    public ICommand ChangeMuteCommand { get; }
-    public ICommand ChangeShuffleCommand { get; }
-    public ICommand ChangeVolumeCommand { get; }
-    public ICommand SeekCommand { get; }
-    public ICommand ChangeThemeCommand { get; }
+    public override SharedState Shared { get; }
 
     public MainViewModel()
     {
-        PlayPauseCommand = new RelayCommand(() =>
-        {
-            if (Player.PlayState == PlaybackState.Playing)
-                Player.Pause();
-            else
-                Player.Play();
-        });
-        NextCommand = new RelayCommand(() => Player.Next());
-        PrevCommand = new RelayCommand(() =>
-        {
-            if (Player.CurrentTime > TimeSpan.FromSeconds(2))
-                Player.CurrentTime = TimeSpan.Zero;
-            else
-                Player.Prev();
-        });
-        ChangeRepeatCommand = new RelayCommand(() =>
-        {
-            if (Player.RepeatMode == RepeatMode.RepeatAll)
-                Player.RepeatMode = RepeatMode.RepeatOne;
-            else if (Player.RepeatMode == RepeatMode.RepeatOne)
-                Player.RepeatMode = RepeatMode.PlayAll;
-            else
-                Player.RepeatMode = RepeatMode.RepeatAll;
-        });
-        ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
-        ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
-        ChangeVolumeCommand = new RelayCommand<float>(n => { Player.Volume = Math.Clamp(Player.Volume + n, 0, 1); });
-        SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));
-        ChangeThemeCommand = new RelayCommand(() =>
-        {
-            var all_themes = Theme.DefaultThemes.Keys.Concat(Properties.Settings.Default.ImportedThemes).ToList();
-            int index = all_themes.IndexOf(Properties.Settings.Default.SelectedTheme);
-            index++;
-            if (index >= all_themes.Count)
-                index = 0;
-            OpenTheme(all_themes[index]);
-        });
-        if (Properties.Settings.Default.ImportedThemes == null)
-            Properties.Settings.Default.ImportedThemes = new();
-        if (String.IsNullOrEmpty(Properties.Settings.Default.SelectedTheme))
-            Properties.Settings.Default.SelectedTheme = Theme.DefaultThemes.Keys.First();
-        OpenTheme(Properties.Settings.Default.SelectedTheme);
-    }
-
-    public void OpenTheme(string theme)
-    {
-        Properties.Settings.Default.SelectedTheme = theme;
-        if (Theme.DefaultThemes.TryGetValue(theme, out var def))
-        {
-            ActiveTheme = def;
-            return;
-        }
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
-            .Build();
-        try
-        {
-            using var file = File.OpenText(theme);
-            ActiveTheme = deserializer.Deserialize<Theme>(file);
-        }
-        catch (FileNotFoundException ex)
-        {
-            Properties.Settings.Default.ImportedThemes.Remove(theme);
-        }
-        catch
-        { }
+        Shared = new();
+        NowPlayingVM = new(Shared);
+        PlaylistVM = new(Shared);
+        active_view_model = NowPlayingVM;
     }
 }

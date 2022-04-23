@@ -30,15 +30,16 @@
                                               Style="{TemplateBinding ProgressBarStyle}"
                                               Focusable="False" />
                             </Track.DecreaseRepeatButton>
-                            <Track.Thumb>
-                                <Thumb Style="{TemplateBinding ThumbButtonStyle}" />
-                            </Track.Thumb>
                             <Track.IncreaseRepeatButton>
                                 <RepeatButton Command="Slider.IncreaseLarge"
                                               Height="{TemplateBinding BarHeight}"
                                               Style="{TemplateBinding RemainingBarStyle}"
                                               Focusable="False" />
                             </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{TemplateBinding ThumbButtonStyle}"
+                                       Margin="-1" />
+                            </Track.Thumb>
                         </Track>
                         <Rectangle Fill="Transparent"
                                    Grid.Row="0"

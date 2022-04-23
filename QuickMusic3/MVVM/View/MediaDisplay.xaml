@@ -9,8 +9,8 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              FontFamily="Arial"
-             Background="{Binding ActiveTheme.AlbumBackground}"
-             Foreground="{Binding ActiveTheme.Text}"
+             Background="{Binding Shared.ActiveTheme.AlbumBackground}"
+             Foreground="{Binding Shared.ActiveTheme.Text}"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
@@ -37,7 +37,7 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Image x:Name="AlbumArt"
-                   Source="{Binding Player.CurrentTrack.Metadata.HighResImage}"
+                   Source="{Binding Shared.Player.CurrentTrack.Metadata.HighResImage}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    VerticalAlignment="Center">
             </Image>
@@ -48,7 +48,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0"
-                  Background="{Binding ActiveTheme.Background}">
+                  Background="{Binding Shared.ActiveTheme.Background}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -59,16 +59,16 @@
                          VerticalAlignment="Top"
                          HorizontalAlignment="Left">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
+                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
                                    FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                    TextWrapping="WrapWithOverflow" />
-                        <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
+                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
                                    FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                                   Foreground="{Binding ActiveTheme.SubtleText}"
+                                   Foreground="{Binding Shared.ActiveTheme.SubtleText}"
                                    TextWrapping="WrapWithOverflow" />
-                        <TextBlock Text="{Binding Path=Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
+                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
                                    FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                                   Foreground="{Binding ActiveTheme.SubtleText}"
+                                   Foreground="{Binding Shared.ActiveTheme.SubtleText}"
                                    TextWrapping="WrapWithOverflow" />
                     </StackPanel>
                 </Viewbox>

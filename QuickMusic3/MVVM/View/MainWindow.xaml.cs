@@ -45,7 +45,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         get => this.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private MainViewModel Model => (MainViewModel)DataContext;
+    private BaseViewModel Model => (BaseViewModel)DataContext;
 
     public MainWindow()
     {
@@ -70,12 +70,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 if (Path.GetExtension(dialog.FileName) == ".yaml")
                 {
                     Properties.Settings.Default.ImportedThemes.Add(dialog.FileName);
-                    Model.OpenTheme(dialog.FileName);
+                    Model.Shared.OpenTheme(dialog.FileName);
                 }
                 else
                 {
-                    Model.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
-                    Model.Player.Play();
+                    Model.Shared.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+                    Model.Shared.Player.Play();
                 }
             }
         });
