@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:QuickMusic3.Converters">
+    <converters:MultiplyConverter x:Key="MultiplyBy" />
+    <converters:TimeConverter x:Key="TimeConverter" />
+    <converters:TimeStringConverter x:Key="TimeStringConverter" />
+    <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
+</ResourceDictionary>

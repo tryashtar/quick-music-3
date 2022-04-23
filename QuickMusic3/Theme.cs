@@ -13,9 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace QuickMusic3.MVVM.View;
+namespace QuickMusic3;
 
-public class Theme : DependencyObject
+public class Theme
 {
     public Brush Background { get; set; }
     public Brush AlbumBackground { get; set; }

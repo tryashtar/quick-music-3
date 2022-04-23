@@ -1,12 +1,9 @@
 <Window x:Class="QuickMusic3.MVVM.View.MainWindow"
-        x:Name="ThisWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:QuickMusic3"
-        xmlns:converters="clr-namespace:QuickMusic3.Converters"
         xmlns:viewmodel="clr-namespace:QuickMusic3.MVVM.ViewModel"
         xmlns:view="clr-namespace:QuickMusic3.MVVM.View"
         xmlns:tb="http://www.hardcodet.net/taskbar"
@@ -17,8 +14,8 @@
         MinWidth="690"
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
-        Background="{Binding ActiveTheme.AlbumBackground, ElementName=ThisWindow}"
-        Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}}"
+        Background="{Binding ActiveTheme.AlbumBackground}"
+        Title="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
         Closed="Window_Closed"
         IsVisibleChanged="Window_IsVisibleChanged">
     <WindowChrome.WindowChrome>
@@ -144,50 +141,21 @@
                     Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
         <KeyBinding Modifiers="Alt"
                     Key="D"
-                    Command="{Binding ChangeThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                    Command="{Binding ChangeThemeCommand}" />
     </Window.InputBindings>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Icons.xaml" />
+                <ResourceDictionary Source="Resources/Icons.xaml" />
+                <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <viewmodel:MainViewModel x:Key="ViewModel" />
-            <Style x:Key="MediaButton"
-                   TargetType="view:CustomButton">
-                <Setter Property="Focusable"
-                        Value="False" />
-                <Setter Property="Foreground"
-                        Value="{Binding Theme.Text, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
-                <Setter Property="NoHover"
-                        Value="{Binding Theme.Button, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
-                <Setter Property="Hover"
-                        Value="{Binding Theme.ButtonHover, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
-                <Setter Property="BorderBrush"
-                        Value="{Binding Theme.ButtonOutline, RelativeSource={RelativeSource AncestorType=view:MediaControls}}" />
-                <Setter Property="BorderThickness"
-                        Value="1" />
-            </Style>
-            <Style x:Key="LocalButton"
-                   TargetType="view:CustomButton">
-                <Setter Property="Focusable"
-                        Value="False" />
-                <Setter Property="Foreground"
-                        Value="{Binding ActiveTheme.Text, ElementName=ThisWindow}" />
-                <Setter Property="NoHover"
-                        Value="{Binding ActiveTheme.Button, ElementName=ThisWindow}" />
-                <Setter Property="Hover"
-                        Value="{Binding ActiveTheme.ButtonHover, ElementName=ThisWindow}" />
-                <Setter Property="BorderBrush"
-                        Value="{Binding ActiveTheme.ButtonOutline, ElementName=ThisWindow}" />
-                <Setter Property="BorderThickness"
-                        Value="1" />
-            </Style>
-            <StackPanel x:Key="IconTopRight"
+            <StackPanel x:Key="PopupTopRight"
                         Orientation="Horizontal">
-                <view:CustomButton x:Name="CloseButton"
+                <view:CustomButton x:Name="PopupCloseButton"
                                    Height="32"
                                    Width="32"
-                                   Style="{StaticResource MediaButton}"
+                                   Style="{StaticResource Button}"
                                    NoHover="Transparent"
                                    BorderThickness="0"
                                    VerticalAlignment="Top"
@@ -197,14 +165,14 @@
                           Stretch="Uniform"
                           Data="{StaticResource CloseIcon}" />
                 </view:CustomButton>
-                <view:CustomButton x:Name="ShowButton"
+                <view:CustomButton x:Name="PopupRestoreButton"
                                    Height="32"
                                    Width="32"
-                                   Style="{StaticResource MediaButton}"
+                                   Style="{StaticResource Button}"
                                    NoHover="Transparent"
                                    BorderThickness="0"
                                    VerticalAlignment="Top">
-                    <Path Fill="{Binding Theme.Icon, RelativeSource={RelativeSource AncestorType=view:MediaControls}}"
+                    <Path Style="{StaticResource FillPath}"
                           Margin="-6"
                           Stretch="Uniform"
                           Data="{StaticResource UpIcon}"
@@ -220,13 +188,16 @@
                             Visibility="{Binding Tag.TrayIconVisibility, RelativeSource={RelativeSource Self}}">
                 <tb:TaskbarIcon.TrayPopup>
                     <Border BorderBrush="Black"
+                            Width="410"
                             BorderThickness="2">
-                        <view:MediaControls Width="410"
-                                            ButtonSize="32,32"
-                                            VolumeWidth="50"
-                                            MetadataFontSize="18"
-                                            TopRight="{StaticResource IconTopRight}"
-                                            Theme="{Binding Tag.ActiveTheme, RelativeSource={RelativeSource AncestorType=Border}}" />
+                        <view:SizeHost ButtonSize="32,32">
+                            <view:MediaDisplay MetadataFontSize="18"
+                                               TopRight="{StaticResource PopupTopRight}">
+                                <view:MediaDisplay.MediaControls>
+                                    <view:MediaControls VolumeWidth="50" />
+                                </view:MediaDisplay.MediaControls>
+                            </view:MediaDisplay>
+                        </view:SizeHost>
                     </Border>
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
@@ -235,127 +206,134 @@
     <Window.DataContext>
         <StaticResource ResourceKey="ViewModel" />
     </Window.DataContext>
-    <Grid>
-        <Grid.Style>
-            <Style TargetType="Grid">
-                <Setter Property="Margin"
-                        Value="0" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}"
-                                 Value="Maximized">
-                        <DataTrigger.Setters>
-                            <Setter Property="Margin"
-                                    Value="7" />
-                        </DataTrigger.Setters>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Style>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <Border Background="{Binding ActiveTheme.Header, ElementName=ThisWindow}">
-            <Grid>
-                <StackPanel Orientation="Horizontal"
-                            Margin="7,7,7,7"
-                            HorizontalAlignment="Left">
-                    <Image Source="/Resources/quick_music.ico"
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           Margin="0,0,7,0" />
-                    <TextBlock VerticalAlignment="Center"
-                               Text="{Binding Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}}"
-                               Foreground="{Binding ActiveTheme.Text, ElementName=ThisWindow}" />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right">
-                    <view:CustomButton Style="{StaticResource LocalButton}"
-                                       WindowChrome.IsHitTestVisibleInChrome="True"
-                                       Command="{Binding MinimizeWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+    <view:SizeHost ButtonSize="42,42">
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Margin"
+                            Value="0" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}"
+                                     Value="Maximized">
+                            <DataTrigger.Setters>
+                                <Setter Property="Margin"
+                                        Value="7" />
+                            </DataTrigger.Setters>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Border Background="{Binding ActiveTheme.Header}">
+                <Grid>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="7,7,7,7"
+                                HorizontalAlignment="Left">
+                        <Image Source="/Resources/quick_music.ico"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Margin="0,0,7,0" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Foreground="{Binding ActiveTheme.Text}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <view:CustomButton Style="{StaticResource Button}"
+                                           Width="50"
+                                           Height="Auto"
+                                           WindowChrome.IsHitTestVisibleInChrome="True"
+                                           Command="{Binding MinimizeWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           NoHover="Transparent"
+                                           BorderThickness="0">
+                            <Path Style="{StaticResource FillPath}"
+                                  Margin="15,5,15,5"
+                                  Stretch="Uniform"
+                                  Data="{StaticResource MinimizeIcon}"
+                                  Opacity="0.5" />
+                        </view:CustomButton>
+                        <view:CustomButton Style="{StaticResource Button}"
+                                           Width="50"
+                                           Height="Auto"
+                                           WindowChrome.IsHitTestVisibleInChrome="True"
+                                           Command="{Binding MaximizeWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           NoHover="Transparent"
+                                           BorderThickness="0">
+                            <Path Style="{StaticResource StrokePath}"
+                                  StrokeThickness="2"
+                                  Margin="17,8,17,8"
+                                  Stretch="Uniform"
+                                  Data="{StaticResource SquareIcon}"
+                                  Opacity="0.3" />
+                        </view:CustomButton>
+                        <view:CustomButton Style="{StaticResource Button}"
+                                           Width="50"
+                                           Height="Auto"
+                                           WindowChrome.IsHitTestVisibleInChrome="True"
+                                           Command="{Binding CloseWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           NoHover="Transparent"
+                                           Hover="#c42b1c"
+                                           BorderThickness="0">
+                            <Path Margin="13,0,13,0"
+                                  Stretch="Uniform"
+                                  Data="{StaticResource CloseIcon}">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Setter Property="Opacity"
+                                                Value="0.4" />
+                                        <Setter Property="Fill"
+                                                Value="{Binding ActiveTheme.Icon}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}"
+                                                         Value="True">
+                                                <DataTrigger.Setters>
+                                                    <Setter Property="Opacity"
+                                                            Value="1" />
+                                                    <Setter Property="Fill"
+                                                            Value="White" />
+                                                </DataTrigger.Setters>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </view:CustomButton>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <view:MediaDisplay Grid.Row="1"
+                               MetadataFontSize="36">
+                <view:MediaDisplay.MediaControls>
+                    <view:MediaControls VolumeWidth="100">
+                        <view:MediaControls.BottomRight>
+                            <view:CustomButton Width="84"
+                                               Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               Style="{StaticResource Button}"
+                                               FontSize="18"
+                                               Margin="6,0,0,0"
+                                               Content="Browse">
+                            </view:CustomButton>
+                        </view:MediaControls.BottomRight>
+                    </view:MediaControls>
+                </view:MediaDisplay.MediaControls>
+                <view:MediaDisplay.TopRight>
+                    <view:CustomButton Height="40"
+                                       Width="40"
+                                       Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       Style="{StaticResource Button}"
                                        NoHover="Transparent"
-                                       BorderThickness="0">
-                        <Path Fill="{Binding ActiveTheme.Icon, ElementName=ThisWindow}"
-                              Margin="15,5,15,5"
+                                       BorderThickness="0"
+                                       VerticalAlignment="Top">
+                        <Path Style="{StaticResource FillPath}"
+                              Margin="-6"
                               Stretch="Uniform"
-                              Data="{StaticResource MinimizeIcon}"
-                              Opacity="0.5" />
-                    </view:CustomButton>
-                    <view:CustomButton Style="{StaticResource LocalButton}"
-                                       WindowChrome.IsHitTestVisibleInChrome="True"
-                                       Command="{Binding MaximizeWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       NoHover="Transparent"
-                                       BorderThickness="0">
-                        <Path Stroke="{Binding ActiveTheme.Icon, ElementName=ThisWindow}"
-                              StrokeThickness="2"
-                              Margin="17,8,17,8"
-                              Stretch="Uniform"
-                              Data="{StaticResource SquareIcon}"
+                              Data="{StaticResource DownIcon}"
                               Opacity="0.3" />
                     </view:CustomButton>
-                    <view:CustomButton Style="{StaticResource LocalButton}"
-                                       WindowChrome.IsHitTestVisibleInChrome="True"
-                                       Command="{Binding CloseWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       NoHover="Transparent"
-                                       Hover="#c42b1c"
-                                       BorderThickness="0">
-                        <Path Margin="15,0,15,0"
-                              Stretch="Uniform"
-                              Data="{StaticResource CloseIcon}">
-                            <Path.Style>
-                                <Style TargetType="Path">
-                                    <Setter Property="Opacity"
-                                            Value="0.4" />
-                                    <Setter Property="Fill"
-                                            Value="{Binding ActiveTheme.Icon, ElementName=ThisWindow}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}"
-                                                     Value="True">
-                                            <DataTrigger.Setters>
-                                                <Setter Property="Opacity"
-                                                        Value="1" />
-                                                <Setter Property="Fill"
-                                                        Value="White" />
-                                            </DataTrigger.Setters>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Path.Style>
-                        </Path>
-                    </view:CustomButton>
-                </StackPanel>
-            </Grid>
-        </Border>
-        <view:MediaControls x:Name="MediaControls"
-                            Grid.Row="1"
-                            ButtonSize="42,42"
-                            VolumeWidth="100"
-                            MetadataFontSize="36"
-                            Theme="{Binding ActiveTheme, ElementName=ThisWindow}">
-            <view:MediaControls.TopRight>
-                <view:CustomButton Height="40"
-                                   Width="40"
-                                   Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   Style="{StaticResource MediaButton}"
-                                   NoHover="Transparent"
-                                   BorderThickness="0"
-                                   VerticalAlignment="Top">
-                    <Path Fill="{Binding ActiveTheme.Icon, RelativeSource={RelativeSource AncestorType=Window}}"
-                          Margin="-6"
-                          Stretch="Uniform"
-                          Data="{StaticResource DownIcon}"
-                          Opacity="0.3" />
-                </view:CustomButton>
-            </view:MediaControls.TopRight>
-            <view:MediaControls.BottomRight>
-                <view:CustomButton Height="42"
-                                   Width="84"
-                                   Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   Style="{StaticResource Button}"
-                                   FontSize="18"
-                                   Margin="6,0,0,0"
-                                   Content="Browse">
-                </view:CustomButton>
-            </view:MediaControls.BottomRight>
-        </view:MediaControls>
-    </Grid>
+                </view:MediaDisplay.TopRight>
+            </view:MediaDisplay>
+        </Grid>
+    </view:SizeHost>
 </Window>

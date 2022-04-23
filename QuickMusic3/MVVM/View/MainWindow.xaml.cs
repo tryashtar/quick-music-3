@@ -32,14 +32,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private readonly TaskbarIcon NotifyIcon;
     public event PropertyChangedEventHandler PropertyChanged;
-    private readonly FileSystemWatcher ThemeWatcher;
-
-    private Theme active_theme;
-    public Theme ActiveTheme
-    {
-        get { return active_theme; }
-        private set { active_theme = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActiveTheme))); }
-    }
 
     public ICommand BrowseCommand { get; }
     public ICommand HideWindowCommand { get; }
@@ -47,7 +39,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ICommand CloseWindowCommand { get; }
     public ICommand MaximizeWindowCommand { get; }
     public ICommand MinimizeWindowCommand { get; }
-    public ICommand ChangeThemeCommand { get; }
 
     public Visibility TrayIconVisibility
     {
@@ -70,15 +61,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 this.WindowState = WindowState.Maximized;
         });
         MinimizeWindowCommand = new RelayCommand(() => { this.WindowState = WindowState.Minimized; });
-        ChangeThemeCommand = new RelayCommand(() =>
-        {
-            var all_themes = Theme.DefaultThemes.Keys.Concat(Properties.Settings.Default.ImportedThemes).ToList();
-            int index = all_themes.IndexOf(Properties.Settings.Default.SelectedTheme);
-            index++;
-            if (index >= all_themes.Count)
-                index = 0;
-            OpenTheme(all_themes[index]);
-        });
         BrowseCommand = new RelayCommand(() =>
         {
             var dialog = new OpenFileDialog();
@@ -88,6 +70,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 if (Path.GetExtension(dialog.FileName) == ".yaml")
                 {
                     Properties.Settings.Default.ImportedThemes.Add(dialog.FileName);
+                    Model.OpenTheme(dialog.FileName);
                 }
                 else
                 {
@@ -96,20 +79,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 }
             }
         });
-        ThemeWatcher = new();
-        ThemeWatcher.Changed += (s, e) => Dispatcher.Invoke(() => OpenTheme(Properties.Settings.Default.SelectedTheme));
-        if (Properties.Settings.Default.ImportedThemes == null)
-            Properties.Settings.Default.ImportedThemes = new();
-        if (String.IsNullOrEmpty(Properties.Settings.Default.SelectedTheme))
-            Properties.Settings.Default.SelectedTheme = Theme.DefaultThemes.Keys.First();
-        OpenTheme(Properties.Settings.Default.SelectedTheme);
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
-        ((FrameworkElement)NotifyIcon.TrayPopup).Tag = this;
         NotifyIcon.LeftClickCommand = ShowWindowCommand;
-        var top_right = (Panel)FindResource("IconTopRight");
-        ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "ShowButton")).Command = ShowWindowCommand;
-        ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "CloseButton")).Command = CloseWindowCommand;
+        var top_right = (Panel)FindResource("PopupTopRight");
+        ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupRestoreButton")).Command = ShowWindowCommand;
+        ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupCloseButton")).Command = CloseWindowCommand;
     }
 
     private void Window_Closed(object sender, EventArgs e)
@@ -121,38 +96,5 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
-    }
-
-    private void OpenTheme(string theme)
-    {
-        Properties.Settings.Default.SelectedTheme = theme;
-        if (Theme.DefaultThemes.TryGetValue(theme, out var def))
-        {
-            ActiveTheme = def;
-            ThemeWatcher.EnableRaisingEvents = false;
-            return;
-        }
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
-            .Build();
-        try
-        {
-            using var file = File.OpenText(theme);
-            ActiveTheme = deserializer.Deserialize<Theme>(file);
-        }
-        catch (FileNotFoundException ex)
-        {
-            ThemeWatcher.EnableRaisingEvents = false;
-            Properties.Settings.Default.ImportedThemes.Remove(theme);
-            return;
-        }
-        catch
-        {
-            ThemeWatcher.EnableRaisingEvents = false;
-            return;
-        }
-        ThemeWatcher.Path = Path.GetDirectoryName(theme);
-        ThemeWatcher.Filter = Path.GetFileName(theme);
-        ThemeWatcher.EnableRaisingEvents = true;
     }
 }

@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace QuickMusic3.MVVM.ViewModel;
 
@@ -25,9 +28,15 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - themes (data driven!)
 // - fallback album art
 
-public class MainViewModel
+public class MainViewModel : ObservableObject
 {
     public Player Player { get; } = new();
+    private Theme active_theme;
+    public Theme ActiveTheme
+    {
+        get { return active_theme; }
+        private set { active_theme = value; OnPropertyChanged(); }
+    }
 
     public ICommand PlayPauseCommand { get; }
     public ICommand NextCommand { get; }
@@ -37,6 +46,7 @@ public class MainViewModel
     public ICommand ChangeShuffleCommand { get; }
     public ICommand ChangeVolumeCommand { get; }
     public ICommand SeekCommand { get; }
+    public ICommand ChangeThemeCommand { get; }
 
     public MainViewModel()
     {
@@ -68,5 +78,43 @@ public class MainViewModel
         ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
         ChangeVolumeCommand = new RelayCommand<float>(n => { Player.Volume = Math.Clamp(Player.Volume + n, 0, 1); });
         SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));
+        ChangeThemeCommand = new RelayCommand(() =>
+        {
+            var all_themes = Theme.DefaultThemes.Keys.Concat(Properties.Settings.Default.ImportedThemes).ToList();
+            int index = all_themes.IndexOf(Properties.Settings.Default.SelectedTheme);
+            index++;
+            if (index >= all_themes.Count)
+                index = 0;
+            OpenTheme(all_themes[index]);
+        });
+        if (Properties.Settings.Default.ImportedThemes == null)
+            Properties.Settings.Default.ImportedThemes = new();
+        if (String.IsNullOrEmpty(Properties.Settings.Default.SelectedTheme))
+            Properties.Settings.Default.SelectedTheme = Theme.DefaultThemes.Keys.First();
+        OpenTheme(Properties.Settings.Default.SelectedTheme);
+    }
+
+    public void OpenTheme(string theme)
+    {
+        Properties.Settings.Default.SelectedTheme = theme;
+        if (Theme.DefaultThemes.TryGetValue(theme, out var def))
+        {
+            ActiveTheme = def;
+            return;
+        }
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .Build();
+        try
+        {
+            using var file = File.OpenText(theme);
+            ActiveTheme = deserializer.Deserialize<Theme>(file);
+        }
+        catch (FileNotFoundException ex)
+        {
+            Properties.Settings.Default.ImportedThemes.Remove(theme);
+        }
+        catch
+        { }
     }
 }

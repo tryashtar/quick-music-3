@@ -20,58 +20,24 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace QuickMusic3.MVVM.View;
-/// <summary>
-/// Interaction logic for MediaControls.xaml
-/// </summary>
+
 public partial class MediaControls : UserControl, INotifyPropertyChanged
 {
-    public static readonly DependencyProperty ButtonSizeProperty =
-            DependencyProperty.Register("ButtonSize", typeof(Size),
-            typeof(MediaControls), new FrameworkPropertyMetadata(new Size(40, 40)));
     public static readonly DependencyProperty VolumeWidthProperty =
             DependencyProperty.Register("VolumeWidth", typeof(double),
             typeof(MediaControls), new FrameworkPropertyMetadata(100d));
-    public static readonly DependencyProperty MetadataFontSizeProperty =
-            DependencyProperty.Register("MetadataFontSize", typeof(double),
-            typeof(MediaControls), new FrameworkPropertyMetadata(30d));
-    public static readonly DependencyProperty TopRightProperty =
-            DependencyProperty.Register("TopRight", typeof(FrameworkElement),
-            typeof(MediaControls), new FrameworkPropertyMetadata());
     public static readonly DependencyProperty BottomRightProperty =
             DependencyProperty.Register("BottomRight", typeof(FrameworkElement),
             typeof(MediaControls), new FrameworkPropertyMetadata());
-    public static readonly DependencyProperty ThemeProperty =
-            DependencyProperty.Register("Theme", typeof(Theme),
-            typeof(MediaControls), new FrameworkPropertyMetadata());
-    public Size ButtonSize
-    {
-        get { return (Size)GetValue(ButtonSizeProperty); }
-        set { SetValue(ButtonSizeProperty, value); }
-    }
     public double VolumeWidth
     {
         get { return (double)GetValue(VolumeWidthProperty); }
         set { SetValue(VolumeWidthProperty, value); }
     }
-    public double MetadataFontSize
-    {
-        get { return (double)GetValue(MetadataFontSizeProperty); }
-        set { SetValue(MetadataFontSizeProperty, value); }
-    }
-    public FrameworkElement TopRight
-    {
-        get { return (FrameworkElement)GetValue(TopRightProperty); }
-        set { SetValue(TopRightProperty, value); }
-    }
     public FrameworkElement BottomRight
     {
         get { return (FrameworkElement)GetValue(BottomRightProperty); }
         set { SetValue(BottomRightProperty, value); }
-    }
-    public Theme Theme
-    {
-        get { return (Theme)GetValue(ThemeProperty); }
-        set { SetValue(ThemeProperty, value); }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
