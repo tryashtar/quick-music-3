@@ -38,6 +38,7 @@ public class MainViewModel : BaseViewModel
         get { return active_view_model; }
         set { active_view_model = value; OnPropertyChanged(); }
     }
+    public ICommand ChangeViewCommand { get; }
 
     public override SharedState Shared { get; }
 
@@ -47,5 +48,12 @@ public class MainViewModel : BaseViewModel
         NowPlayingVM = new(Shared);
         PlaylistVM = new(Shared);
         active_view_model = NowPlayingVM;
+        ChangeViewCommand = new RelayCommand(() =>
+        {
+            if (ActiveViewModel == NowPlayingVM)
+                ActiveViewModel = PlaylistVM;
+            else
+                ActiveViewModel = NowPlayingVM;
+        });
     }
 }

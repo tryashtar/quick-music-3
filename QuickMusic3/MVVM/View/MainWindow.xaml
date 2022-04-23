@@ -11,7 +11,6 @@
         Height="340"
         Width="1300"
         MinHeight="200"
-        MinWidth="690"
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
         Background="{Binding Shared.ActiveTheme.AlbumBackground}"
@@ -142,6 +141,8 @@
         <KeyBinding Modifiers="Alt"
                     Key="D"
                     Command="{Binding Shared.ChangeThemeCommand}" />
+        <KeyBinding Key="Tab"
+                    Command="{Binding ChangeViewCommand}" />
     </Window.InputBindings>
     <Window.Resources>
         <ResourceDictionary>
@@ -201,6 +202,18 @@
                     </Border>
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
+            <view:MediaControls x:Key="MediaControls"
+                                VolumeWidth="100">
+                <view:MediaControls.BottomRight>
+                    <view:CustomButton Width="84"
+                                       Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       Style="{StaticResource Button}"
+                                       FontSize="18"
+                                       Margin="6,0,0,0"
+                                       Content="Browse">
+                    </view:CustomButton>
+                </view:MediaControls.BottomRight>
+            </view:MediaControls>
         </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>
@@ -213,12 +226,10 @@
                     <Setter Property="Margin"
                             Value="0" />
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}"
+                        <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
                                      Value="Maximized">
-                            <DataTrigger.Setters>
-                                <Setter Property="Margin"
-                                        Value="7" />
-                            </DataTrigger.Setters>
+                            <Setter Property="Margin"
+                                    Value="7" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -307,20 +318,8 @@
                             Grid.Row="1">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type viewmodel:NowPlayingViewModel}">
-                        <view:MediaDisplay MetadataFontSize="36">
-                            <view:MediaDisplay.MediaControls>
-                                <view:MediaControls VolumeWidth="100">
-                                    <view:MediaControls.BottomRight>
-                                        <view:CustomButton Width="84"
-                                                           Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                           Style="{StaticResource Button}"
-                                                           FontSize="18"
-                                                           Margin="6,0,0,0"
-                                                           Content="Browse">
-                                        </view:CustomButton>
-                                    </view:MediaControls.BottomRight>
-                                </view:MediaControls>
-                            </view:MediaDisplay.MediaControls>
+                        <view:MediaDisplay MetadataFontSize="36"
+                                           MediaControls="{StaticResource MediaControls}">
                             <view:MediaDisplay.TopRight>
                                 <view:CustomButton Height="40"
                                                    Width="40"
@@ -337,6 +336,9 @@
                                 </view:CustomButton>
                             </view:MediaDisplay.TopRight>
                         </view:MediaDisplay>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodel:PlaylistViewModel}">
+                        <ContentControl Content="{StaticResource MediaControls}" />
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>
