@@ -72,10 +72,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         MinimizeWindowCommand = new RelayCommand(() => { this.WindowState = WindowState.Minimized; });
         ChangeThemeCommand = new RelayCommand(() =>
         {
-            Properties.Settings.Default.ThemeIndex++;
-            if (Properties.Settings.Default.ThemeIndex >= Properties.Settings.Default.ImportedThemes.Count)
-                Properties.Settings.Default.ThemeIndex = 0;
-            OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]);
+            var all_themes = Theme.DefaultThemes.Keys.Concat(Properties.Settings.Default.ImportedThemes).ToList();
+            int index = all_themes.IndexOf(Properties.Settings.Default.SelectedTheme);
+            index++;
+            if (index >= all_themes.Count)
+                index = 0;
+            OpenTheme(all_themes[index]);
         });
         BrowseCommand = new RelayCommand(() =>
         {
@@ -95,11 +97,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             }
         });
         ThemeWatcher = new();
-        ThemeWatcher.Changed += (s, e) => Dispatcher.Invoke(() => OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]));
+        ThemeWatcher.Changed += (s, e) => Dispatcher.Invoke(() => OpenTheme(Properties.Settings.Default.SelectedTheme));
         if (Properties.Settings.Default.ImportedThemes == null)
             Properties.Settings.Default.ImportedThemes = new();
-        if (Properties.Settings.Default.ImportedThemes.Count > 0)
-            OpenTheme(Properties.Settings.Default.ImportedThemes[Properties.Settings.Default.ThemeIndex]);
+        if (String.IsNullOrEmpty(Properties.Settings.Default.SelectedTheme))
+            Properties.Settings.Default.SelectedTheme = Theme.DefaultThemes.Keys.First();
+        OpenTheme(Properties.Settings.Default.SelectedTheme);
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
         ((FrameworkElement)NotifyIcon.TrayPopup).Tag = this;
@@ -120,19 +123,36 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
     }
 
-    private void OpenTheme(string path)
+    private void OpenTheme(string theme)
     {
+        Properties.Settings.Default.SelectedTheme = theme;
+        if (Theme.DefaultThemes.TryGetValue(theme, out var def))
+        {
+            ActiveTheme = def;
+            ThemeWatcher.EnableRaisingEvents = false;
+            return;
+        }
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .Build();
         try
         {
-            using var file = File.OpenText(path);
+            using var file = File.OpenText(theme);
             ActiveTheme = deserializer.Deserialize<Theme>(file);
         }
-        catch { }
-        ThemeWatcher.Path = Path.GetDirectoryName(path);
-        ThemeWatcher.Filter = Path.GetFileName(path);
+        catch (FileNotFoundException ex)
+        {
+            ThemeWatcher.EnableRaisingEvents = false;
+            Properties.Settings.Default.ImportedThemes.Remove(theme);
+            return;
+        }
+        catch
+        {
+            ThemeWatcher.EnableRaisingEvents = false;
+            return;
+        }
+        ThemeWatcher.Path = Path.GetDirectoryName(theme);
+        ThemeWatcher.Filter = Path.GetFileName(theme);
         ThemeWatcher.EnableRaisingEvents = true;
     }
 }

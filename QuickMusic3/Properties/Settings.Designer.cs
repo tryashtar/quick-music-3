@@ -73,9 +73,9 @@ namespace QuickMusic3.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Generic.List<string> ImportedThemes {
+        public global::System.Collections.Generic.List<System.String> ImportedThemes {
             get {
-                return ((global::System.Collections.Generic.List<string>)(this["ImportedThemes"]));
+                return ((global::System.Collections.Generic.List<System.String>)(this["ImportedThemes"]));
             }
             set {
                 this["ImportedThemes"] = value;
@@ -84,13 +84,13 @@ namespace QuickMusic3.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int ThemeIndex {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectedTheme {
             get {
-                return ((int)(this["ThemeIndex"]));
+                return ((string)(this["SelectedTheme"]));
             }
             set {
-                this["ThemeIndex"] = value;
+                this["SelectedTheme"] = value;
             }
         }
     }

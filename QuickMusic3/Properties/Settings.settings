@@ -17,8 +17,8 @@
     <Setting Name="ImportedThemes" Type="System.Collections.Generic.List&lt;System.String&gt;" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="ThemeIndex" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="SelectedTheme" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>
