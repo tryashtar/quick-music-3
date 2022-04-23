@@ -202,6 +202,61 @@
                     </Border>
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
+            <ListView x:Key="PlaylistList"
+                      ItemsSource="{Binding Shared.Player.Playlist}"
+                      Focusable="False"
+                      BorderThickness="0"
+                      Background="{Binding Shared.ActiveTheme.Background}"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Background"
+                                Value="{Binding DataContext.Shared.ActiveTheme.Background, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        <Setter Property="Foreground"
+                                Value="{Binding DataContext.Shared.ActiveTheme.Text, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        <Setter Property="Focusable"
+                                Value="False" />
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <ItemContainerTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding Metadata.Title}"
+                                       FontSize="20" />
+                            <TextBlock Grid.Column="1"
+                                       FontSize="20"
+                                       Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text"
+                                                Value="{Binding Metadata.Artist}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Metadata.IsLoaded}"
+                                                         Value="False">
+                                                <Setter Property="Text"
+                                                        Value="Loading..." />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding Metadata.Album}"
+                                       FontSize="20"
+                                       Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        </Grid>
+                    </ItemContainerTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
             <view:MediaControls x:Key="MediaControls"
                                 VolumeWidth="100">
                 <view:MediaControls.BottomRight>
@@ -338,7 +393,16 @@
                         </view:MediaDisplay>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodel:PlaylistViewModel}">
-                        <ContentControl Content="{StaticResource MediaControls}" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ContentControl Grid.Row="0"
+                                            Content="{StaticResource PlaylistList}" />
+                            <ContentControl Grid.Row="1"
+                                            Content="{StaticResource MediaControls}" />
+                        </Grid>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

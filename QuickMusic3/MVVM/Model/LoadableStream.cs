@@ -1,6 +1,8 @@
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
@@ -9,13 +11,12 @@ public class LoadableStream : IDisposable
 {
     public readonly string Path;
     public bool IsStreamLoaded => base_stream != null;
-    public bool IsMetadataLoaded => metadata != null;
     private Task StreamLoadingTask;
     private WaveStream? base_stream;
     private IWaveProvider playable_stream;
-    private Metadata metadata;
+    public Metadata Metadata { get; }
     private readonly WaveFormat? RequiredFormat;
-    private object loading_lock = new();
+    private readonly object loading_lock = new();
     public WaveStream BaseStream
     {
         get
@@ -34,18 +35,11 @@ public class LoadableStream : IDisposable
             return playable_stream;
         }
     }
-    public Metadata Metadata
-    {
-        get
-        {
-            if (metadata == null)
-                LoadMetadataNow();
-            return metadata;
-        }
-    }
+
     public LoadableStream(string path, WaveFormat? format = null)
     {
         Path = path;
+        Metadata = new(Path);
         RequiredFormat = format;
     }
 
@@ -53,32 +47,27 @@ public class LoadableStream : IDisposable
     {
         base_stream = new AudioFileReader(Path);
         playable_stream = base_stream;
+        List<Func<ISampleProvider, ISampleProvider>> sample_transforms = new();
         if (RequiredFormat != null)
         {
-            if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate || base_stream.WaveFormat.Channels != RequiredFormat.Channels)
-            {
-                ISampleProvider sample = playable_stream.ToSampleProvider();
-                if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
-                    sample = new WdlResamplingSampleProvider(sample, RequiredFormat.SampleRate);
-                if (base_stream.WaveFormat.Channels != RequiredFormat.Channels)
-                    sample = new MonoToStereoSampleProvider(sample);
-                playable_stream = sample.ToWaveProvider();
-            }
+            if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
+                sample_transforms.Add(x => new WdlResamplingSampleProvider(x, RequiredFormat.SampleRate));
+            if (base_stream.WaveFormat.Channels != RequiredFormat.Channels)
+                sample_transforms.Add(x => new MonoToStereoSampleProvider(x));
         }
-        ApplyReplayGain();
+        Metadata.LoadNow();
+        if (Metadata.ReplayGain != 0)
+            sample_transforms.Add(x => new DecibalOffsetProvider(x, Metadata.ReplayGain));
+        if (sample_transforms.Count > 0)
+        {
+            var sample = playable_stream.ToSampleProvider();
+            foreach (var transform in sample_transforms)
+            {
+                sample = transform(sample);
+            }
+            playable_stream = sample.ToWaveProvider();
+        }
         System.Diagnostics.Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate} / {base_stream.WaveFormat.Channels}");
-    }
-
-    private void LoadMetadata()
-    {
-        metadata = new Metadata(Path);
-        ApplyReplayGain();
-    }
-
-    private void ApplyReplayGain()
-    {
-        if (base_stream != null && metadata != null && metadata.ReplayGain != 0)
-            playable_stream = new DecibalOffsetProvider(playable_stream.ToSampleProvider(), metadata.ReplayGain).ToWaveProvider();
     }
 
     public void LoadStreamBackground()
@@ -99,12 +88,6 @@ public class LoadableStream : IDisposable
             else if (base_stream == null)
                 LoadStream();
         }
-    }
-
-    public void LoadMetadataNow()
-    {
-        if (metadata == null)
-            LoadMetadata();
     }
 
     public void Close()

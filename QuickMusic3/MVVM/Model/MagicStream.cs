@@ -12,7 +12,7 @@ public class MagicStream : IWaveProvider, IDisposable
     public event EventHandler CurrentChanged;
     public event EventHandler Seeked;
 
-    private readonly LoadableStream[] Sources;
+    public readonly LoadableStream[] Sources;
     private int current_index;
     public int CurrentIndex
     {

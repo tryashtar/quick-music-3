@@ -1,18 +1,28 @@
 ﻿using NAudio.Wave;
+using QuickMusic3.Core;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class Metadata
+public class Metadata : ObservableObject
 {
-    public string Title { get; }
-    public string Artist { get; }
-    public string Album { get; }
-    public BitmapSource Thumbnail { get; }
-    public decimal ReplayGain { get; }
+    private string title;
+    private string artist;
+    private string album;
+    private BitmapSource thumbnail;
+    private decimal replay_gain;
+    public bool IsLoaded { get; private set; } = false;
+    private Task LoadingTask;
+    private readonly object loading_lock = new();
+    public string Title { get { LoadBackground(); if (!IsLoaded) return Path.GetFileName(FilePath); return title; } }
+    public string Artist { get { LoadBackground(); return artist; } }
+    public string Album { get { LoadBackground(); return album; } }
+    public BitmapSource Thumbnail { get { LoadBackground(); return thumbnail; } }
+    public decimal ReplayGain { get { LoadBackground(); return replay_gain; } }
     public BitmapSource HighResImage
     {
         get
@@ -26,12 +36,51 @@ public class Metadata
     public Metadata(string path)
     {
         FilePath = path;
-        using var file = TagLib.File.Create(path);
-        Title = file.Tag.Title ?? Path.GetFileName(path);
-        Artist = file.Tag.FirstPerformer;
-        Album = file.Tag.Album;
-        Thumbnail = ArtCache.GetEmbeddedImage(file.Tag);
-        ReplayGain = LoadReplayGain(file);
+    }
+
+    public void LoadBackground()
+    {
+        lock (loading_lock)
+        {
+            if (!IsLoaded && (LoadingTask == null || LoadingTask.IsCompleted))
+                LoadingTask = Task.Run(Load).ContinueWith(x => SignalChanges(), TaskContinuationOptions.ExecuteSynchronously);
+        }
+    }
+
+    public void LoadNow()
+    {
+        lock (loading_lock)
+        {
+            if (LoadingTask != null && !LoadingTask.IsCompleted)
+                LoadingTask.Wait();
+            else if (!IsLoaded)
+            {
+                Load();
+                SignalChanges();
+            }
+        }
+    }
+
+    private void Load()
+    {
+        using var file = TagLib.File.Create(FilePath);
+        title = file.Tag.Title ?? Path.GetFileName(FilePath);
+        artist = file.Tag.FirstPerformer;
+        album = file.Tag.Album;
+        thumbnail = ArtCache.GetEmbeddedImage(file.Tag);
+        replay_gain = LoadReplayGain(file);
+        IsLoaded = true;
+    }
+
+    private void SignalChanges()
+    {
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Artist));
+        OnPropertyChanged(nameof(Album));
+        OnPropertyChanged(nameof(Thumbnail));
+        OnPropertyChanged(nameof(ReplayGain));
+        OnPropertyChanged(nameof(IsLoaded));
+        Debug.WriteLine($"Loaded metadata for {Path.GetFileName(FilePath)}");
     }
 
     private static decimal LoadReplayGain(TagLib.File file)
