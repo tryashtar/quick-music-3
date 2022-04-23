@@ -60,15 +60,20 @@ public class MagicStream : IWaveProvider, IDisposable
         set
         {
             long position = (long)(value.TotalSeconds * CurrentBase.WaveFormat.AverageBytesPerSecond);
-            while (position < 0)
+            if (position < 0)
             {
-                CurrentIndex = UpcomingIndex(-1);
-                position = CurrentBase.Length + position;
+                if (CurrentTime < TimeSpan.FromSeconds(1))
+                {
+                    CurrentIndex = UpcomingIndex(-1);
+                    position = CurrentBase.Length;
+                }
+                else
+                    position = 0;
             }
-            while (position > CurrentBase.Length)
+            else if (position > CurrentBase.Length)
             {
-                position -= CurrentBase.Length;
                 CurrentIndex = UpcomingIndex(1);
+                position = 0;
             }
             CurrentBase.Position = position;
             Seeked?.Invoke(this, EventArgs.Empty);
