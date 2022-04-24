@@ -148,6 +148,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Icons.xaml" />
+                <ResourceDictionary Source="Resources/Converters.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <viewmodel:MainViewModel x:Key="ViewModel" />
@@ -206,56 +207,185 @@
                       ItemsSource="{Binding Shared.Player.Playlist}"
                       Focusable="False"
                       BorderThickness="0"
-                      Background="{Binding Shared.ActiveTheme.Background}"
+                      Background="{Binding Shared.ActiveTheme.PlaylistBackground}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <Border x:Name="Bd"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}"
+                                            SnapsToDevicePixels="true">
+                                        <GridViewRowPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                         <Setter Property="Background"
-                                Value="{Binding DataContext.Shared.ActiveTheme.Background, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                Value="{Binding DataContext.Shared.ActiveTheme.PlaylistBackground, RelativeSource={RelativeSource AncestorType=Window}}" />
                         <Setter Property="Foreground"
                                 Value="{Binding DataContext.Shared.ActiveTheme.Text, RelativeSource={RelativeSource AncestorType=Window}}" />
                         <Setter Property="Focusable"
                                 Value="False" />
                         <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch" />
+                        <Setter Property="MinHeight"
+                                Value="32" />
+                        <Setter Property="BorderThickness"
+                                Value="0" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter Property="Background"
+                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistHighlight, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </Trigger>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource EqualityCheck}">
+                                        <Binding />
+                                        <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                                 RelativeSource="{RelativeSource AncestorType=Window}" />
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter Property="Background"
+                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>
-                <ListView.ItemTemplate>
-                    <ItemContainerTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
-                                       Text="{Binding Metadata.Title}"
-                                       FontSize="20" />
-                            <TextBlock Grid.Column="1"
-                                       FontSize="20"
-                                       Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Text"
-                                                Value="{Binding Metadata.Artist}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Metadata.IsLoaded}"
-                                                         Value="False">
-                                                <Setter Property="Text"
-                                                        Value="Loading..." />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBlock Grid.Column="2"
-                                       Text="{Binding Metadata.Album}"
-                                       FontSize="20"
-                                       Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
-                        </Grid>
-                    </ItemContainerTemplate>
-                </ListView.ItemTemplate>
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn Width="40">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Image Source="{Binding Metadata.Thumbnail}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource EqualityCheck}">
+                                                                    <Binding />
+                                                                    <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                                                             RelativeSource="{RelativeSource AncestorType=Window}" />
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter Property="Visibility"
+                                                                    Value="Hidden" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                        <Path Data="{StaticResource PlayIcon}"
+                                              Stretch="Uniform"
+                                              Fill="{Binding DataContext.Shared.ActiveTheme.Icon, RelativeSource={RelativeSource AncestorType=Window}}">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Visibility"
+                                                            Value="Hidden" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource EqualityCheck}">
+                                                                    <Binding />
+                                                                    <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                                                             RelativeSource="{RelativeSource AncestorType=Window}" />
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                    </Grid>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.Width>
+                                <Binding Path="ActualWidth"
+                                         Converter="{StaticResource MultiplyBy}"
+                                         RelativeSource="{RelativeSource AncestorType=ListView}">
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>0.48</sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </GridViewColumn.Width>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Metadata.Title}"
+                                               FontSize="16"
+                                               TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.Width>
+                                <Binding Path="ActualWidth"
+                                         Converter="{StaticResource MultiplyBy}"
+                                         RelativeSource="{RelativeSource AncestorType=ListView}">
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>0.22</sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </GridViewColumn.Width>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Metadata.Artist}"
+                                               FontSize="16"
+                                               Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.Width>
+                                <Binding Path="ActualWidth"
+                                         Converter="{StaticResource MultiplyBy}"
+                                         RelativeSource="{RelativeSource AncestorType=ListView}">
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>0.22</sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </GridViewColumn.Width>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Metadata.Album}"
+                                               FontSize="16"
+                                               Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding GuessDuration, Converter={StaticResource TimeStringConverter}}"
+                                               FontSize="16"
+                                               Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
             </ListView>
             <view:MediaControls x:Key="MediaControls"
                                 VolumeWidth="100">

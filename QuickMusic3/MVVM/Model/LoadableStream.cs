@@ -17,6 +17,15 @@ public class LoadableStream : IDisposable
     public Metadata Metadata { get; }
     private readonly WaveFormat? RequiredFormat;
     private readonly object loading_lock = new();
+    public TimeSpan GuessDuration
+    {
+        get
+        {
+            if (IsStreamLoaded)
+                return BaseStream.TotalTime;
+            return Metadata.Duration;
+        }
+    }
     public WaveStream BaseStream
     {
         get

@@ -13,6 +13,7 @@ public class Metadata : ObservableObject
     private string title;
     private string artist;
     private string album;
+    private TimeSpan duration;
     private BitmapSource thumbnail;
     private decimal replay_gain;
     public bool IsLoaded { get; private set; } = false;
@@ -21,6 +22,7 @@ public class Metadata : ObservableObject
     public string Title { get { LoadBackground(); if (!IsLoaded) return Path.GetFileName(FilePath); return title; } }
     public string Artist { get { LoadBackground(); return artist; } }
     public string Album { get { LoadBackground(); return album; } }
+    public TimeSpan Duration { get { LoadBackground(); return duration; } }
     public BitmapSource Thumbnail { get { LoadBackground(); return thumbnail; } }
     public decimal ReplayGain { get { LoadBackground(); return replay_gain; } }
     public BitmapSource HighResImage
@@ -67,6 +69,7 @@ public class Metadata : ObservableObject
         title = file.Tag.Title ?? Path.GetFileName(FilePath);
         artist = file.Tag.FirstPerformer;
         album = file.Tag.Album;
+        duration = file.Properties.Duration;
         thumbnail = ArtCache.GetEmbeddedImage(file.Tag);
         replay_gain = LoadReplayGain(file);
         IsLoaded = true;
@@ -78,6 +81,7 @@ public class Metadata : ObservableObject
         OnPropertyChanged(nameof(Artist));
         OnPropertyChanged(nameof(Album));
         OnPropertyChanged(nameof(Thumbnail));
+        OnPropertyChanged(nameof(Duration));
         OnPropertyChanged(nameof(ReplayGain));
         OnPropertyChanged(nameof(IsLoaded));
         Debug.WriteLine($"Loaded metadata for {Path.GetFileName(FilePath)}");

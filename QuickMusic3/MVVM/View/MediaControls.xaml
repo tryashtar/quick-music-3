@@ -213,7 +213,7 @@
                                 <DataTrigger.Binding>
                                     <Binding Path="Rows"
                                              RelativeSource="{RelativeSource AncestorType=local:AlignableWrapPanel}"
-                                             Converter="{StaticResource GreaterThanConverter}">
+                                             Converter="{StaticResource GreaterThan}">
                                         <Binding.ConverterParameter>
                                             <sys:Int32>1</sys:Int32>
                                         </Binding.ConverterParameter>
