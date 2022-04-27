@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -7,86 +8,98 @@ using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class Playlist
+public class Playlist : ISongSource
 {
-    public ObservableCollection<LoadableStream> ActiveList { get; } = new();
-    private readonly object ListLock = new();
+    private readonly List<ISongSource> Sources = new();
+
+    public LoadableStream this[int index]
+    {
+        get
+        {
+            foreach (var item in Sources)
+            {
+                if (index < item.Count)
+                    return item[index];
+                index -= item.Count;
+            }
+            throw new IndexOutOfRangeException();
+        }
+    }
+    public int Count => Sources.Sum(x => x.Count);
+    public event EventHandler Changed;
+
     public void AddSource(ISongSource source)
     {
-        IEnumerable<LoadableStream> songs;
-        if (source.DoesSorting && source.IsSorted)
-            songs = source.GetSorted();
-        else
-            songs = source.GetSongs();
-        int first_index = ActiveList.Count;
-        if (source.DoesSorting && !source.IsSorted)
-            source.SortingDone += (s, e) =>
-            {
-                var sorted = source.GetSorted().ToArray();
-                lock (ListLock)
-                {
-                    for (int i = 0; i < sorted.Length; i++)
-                    {
-                        ActiveList[first_index + i] = sorted[i];
-                    }
-                }
-            };
-        lock (ListLock)
-        {
-            foreach (var item in songs)
-            {
-                ActiveList.Add(item);
-            }
-        }
+        Sources.Add(source);
+    }
+
+    public IEnumerator<LoadableStream> GetEnumerator()
+    {
+        return Sources.SelectMany(x => x).GetEnumerator();
     }
 }
 
-public interface ISongSource
+public interface ISongSource : IReadOnlyList<LoadableStream>
 {
-    public bool DoesSorting { get; }
-    public bool IsSorted { get; }
-    public IEnumerable<LoadableStream> GetSorted();
-    public IEnumerable<LoadableStream> GetSongs();
-    public event EventHandler SortingDone;
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public event EventHandler Changed;
 }
 
 public class FolderSource : ISongSource
 {
-    private readonly LoadableStream[] OriginalOrder;
+    private readonly List<LoadableStream> OriginalOrder;
     private readonly SortedList<Metadata, LoadableStream> SortedOrder = new(MetadataOrderer.Instance);
-    private readonly object SortedLock = new();
-    public FolderSource(string path, SearchOption search)
+    public event EventHandler Changed;
+
+    public bool IsSorted { get; private set; } = false;
+
+    public int Count => OriginalOrder.Count;
+    public LoadableStream this[int index]
     {
-        OriginalOrder = Directory.GetFiles(path, "*", search).Select(x => new LoadableStream(x)).ToArray();
-        foreach (var item in OriginalOrder)
+        get
         {
-            item.Metadata.Loaded += (s, e) =>
-              {
-                  lock (SortedLock)
-                  {
-                      SortedOrder.Add(item.Metadata, item);
-                  }
-                  if (SortedOrder.Count == OriginalOrder.Length)
-                  {
-                      IsSorted = true;
-                      SortingDone?.Invoke(this, EventArgs.Empty);
-                  }
-              };
+            if (SortedOrder.Count == OriginalOrder.Count)
+                return SortedOrder.Values[index];
+            return OriginalOrder[index];
         }
     }
 
-    public bool DoesSorting => true;
-    public bool IsSorted { get; private set; } = false;
-    public event EventHandler SortingDone;
-
-    public IEnumerable<LoadableStream> GetSongs()
+    public IEnumerator<LoadableStream> GetEnumerator()
     {
-        return OriginalOrder;
+        if (SortedOrder.Count == OriginalOrder.Count)
+            return SortedOrder.Values.GetEnumerator();
+        return OriginalOrder.GetEnumerator();
     }
 
-    public IEnumerable<LoadableStream> GetSorted()
+    public FolderSource(string path, SearchOption search)
     {
-        return SortedOrder.Values;
+        OriginalOrder = Directory.GetFiles(path, "*", search).Select(x => new LoadableStream(x)).ToList();
+        foreach (var item in OriginalOrder)
+        {
+            item.Metadata.Failed += (s, e) =>
+              {
+                  lock (OriginalOrder)
+                  {
+                      OriginalOrder.Remove(item);
+                  }
+              };
+            item.StreamFailed += (s, e) =>
+            {
+                lock (OriginalOrder)
+                {
+                    OriginalOrder.Remove(item);
+                }
+            };
+            item.Metadata.Loaded += (s, e) =>
+              {
+                  lock (SortedOrder)
+                  {
+                      SortedOrder.Add(item.Metadata, item);
+                      if (SortedOrder.Count == OriginalOrder.Count)
+                          Changed?.Invoke(this, EventArgs.Empty);
+                  }
+              };
+        }
     }
 }
 

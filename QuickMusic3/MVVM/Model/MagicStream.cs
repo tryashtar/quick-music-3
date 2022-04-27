@@ -13,40 +13,40 @@ public class MagicStream : IWaveProvider, IDisposable
     public event EventHandler CurrentChanged;
     public event EventHandler Seeked;
 
-    public readonly LoadableStream[] Sources;
+    public readonly Playlist Playlist;
     private int current_index;
     public int CurrentIndex
     {
         get => current_index;
         set
         {
+            int count = Playlist.Count;
             int destination = WrapIndex(value);
-            current_index = Math.Clamp(destination, 0, Sources.Length - 1);
-            if (destination >= Sources.Length)
+            current_index = Math.Clamp(destination, 0, count - 1);
+            if (destination >= count)
                 CurrentBase.CurrentTime = CurrentBase.TotalTime;
             else
                 CurrentBase.CurrentTime = TimeSpan.Zero;
             int next = UpcomingIndex();
-            for (int i = 0; i < Sources.Length; i++)
+            for (int i = 0; i < count; i++)
             {
                 if (i == next)
-                    Sources[i].LoadStreamBackground();
+                    Playlist[i].LoadStreamBackground();
                 else if (i != current_index)
-                    Sources[i].Close();
+                    Playlist[i].Close();
             }
             CurrentChanged?.Invoke(this, EventArgs.Empty);
         }
     }
     public RepeatMode RepeatMode { get; set; }
-    public int SourceCount => Sources.Length;
-    public LoadableStream CurrentTrack => Sources[current_index];
+    public LoadableStream CurrentTrack => Playlist[current_index];
     private WaveStream CurrentBase => CurrentTrack.BaseStream;
     private IWaveProvider CurrentPlayable => CurrentTrack.PlayableStream;
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
     public MagicStream(Playlist playlist)
     {
-        this.Sources = playlist.ActiveList.ToArray();
+        this.Playlist = playlist;
         CurrentIndex = 0;
     }
 
@@ -92,7 +92,7 @@ public class MagicStream : IWaveProvider, IDisposable
             if (readThisTime == 0)
             {
                 int next = UpcomingIndex();
-                if (next < 0 || next >= Sources.Length)
+                if (next < 0 || next >= Playlist.Count)
                     break;
                 else
                     CurrentIndex = next;
@@ -103,9 +103,10 @@ public class MagicStream : IWaveProvider, IDisposable
 
     private int WrapIndex(int index)
     {
+        int count = Playlist.Count;
         if (RepeatMode == RepeatMode.RepeatAll || RepeatMode == RepeatMode.RepeatOne)
-            return (index % Sources.Length + Sources.Length) % Sources.Length;
-        return Math.Clamp(index, -1, Sources.Length);
+            return (index % count + count) % count;
+        return Math.Clamp(index, -1, count);
     }
 
     private int UpcomingIndex(int direction = 1)
@@ -118,7 +119,7 @@ public class MagicStream : IWaveProvider, IDisposable
     public void Dispose()
     {
         System.Diagnostics.Debug.WriteLine("Disposing MagicStream start");
-        foreach (var item in Sources)
+        foreach (var item in Playlist)
         {
             item.Dispose();
         }

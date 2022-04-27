@@ -2,6 +2,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,6 +18,8 @@ public class LoadableStream : IDisposable
     public Metadata Metadata { get; }
     private readonly WaveFormat? RequiredFormat;
     private readonly object loading_lock = new();
+    public event EventHandler StreamLoaded;
+    public event EventHandler StreamFailed;
     public TimeSpan GuessDuration
     {
         get
@@ -54,29 +57,32 @@ public class LoadableStream : IDisposable
 
     private void LoadStream()
     {
-        base_stream = new AudioFileReader(Path);
-        playable_stream = base_stream;
-        List<Func<ISampleProvider, ISampleProvider>> sample_transforms = new();
-        if (RequiredFormat != null)
+        try
         {
-            if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
-                sample_transforms.Add(x => new WdlResamplingSampleProvider(x, RequiredFormat.SampleRate));
-            if (base_stream.WaveFormat.Channels != RequiredFormat.Channels)
-                sample_transforms.Add(x => new MonoToStereoSampleProvider(x));
-        }
-        Metadata.LoadNow();
-        if (Metadata.ReplayGain != 0)
-            sample_transforms.Add(x => new DecibalOffsetProvider(x, Metadata.ReplayGain));
-        if (sample_transforms.Count > 0)
-        {
-            var sample = playable_stream.ToSampleProvider();
-            foreach (var transform in sample_transforms)
+            base_stream = new AudioFileReader(Path);
+            playable_stream = base_stream;
+            List<Func<ISampleProvider, ISampleProvider>> sample_transforms = new();
+            if (RequiredFormat != null)
             {
-                sample = transform(sample);
+                if (base_stream.WaveFormat.SampleRate != RequiredFormat.SampleRate)
+                    sample_transforms.Add(x => new WdlResamplingSampleProvider(x, RequiredFormat.SampleRate));
+                if (base_stream.WaveFormat.Channels != RequiredFormat.Channels)
+                    sample_transforms.Add(x => new MonoToStereoSampleProvider(x));
             }
-            playable_stream = sample.ToWaveProvider();
+            Metadata.LoadNow();
+            if (Metadata.ReplayGain != 0)
+                sample_transforms.Add(x => new DecibalOffsetProvider(x, Metadata.ReplayGain));
+            if (sample_transforms.Count > 0)
+            {
+                var sample = playable_stream.ToSampleProvider();
+                foreach (var transform in sample_transforms)
+                {
+                    sample = transform(sample);
+                }
+                playable_stream = sample.ToWaveProvider();
+            }
         }
-        System.Diagnostics.Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate} / {base_stream.WaveFormat.Channels}");
+        catch { }
     }
 
     public void LoadStreamBackground()
@@ -84,7 +90,21 @@ public class LoadableStream : IDisposable
         lock (loading_lock)
         {
             if (base_stream == null && (StreamLoadingTask == null || StreamLoadingTask.IsCompleted))
-                StreamLoadingTask = Task.Run(LoadStream);
+                StreamLoadingTask = Task.Run(LoadStream).ContinueWith(x => LoadDone(), TaskContinuationOptions.ExecuteSynchronously);
+        }
+    }
+
+    private void LoadDone()
+    {
+        if (IsStreamLoaded)
+        {
+            StreamLoaded?.Invoke(this, EventArgs.Empty);
+            Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: {base_stream.WaveFormat.SampleRate} / {base_stream.WaveFormat.Channels}");
+        }
+        else
+        {
+            StreamFailed?.Invoke(this, EventArgs.Empty);
+            Debug.WriteLine($"{System.IO.Path.GetFileName(Path)}: Failed to load stream");
         }
     }
 
@@ -95,7 +115,10 @@ public class LoadableStream : IDisposable
             if (StreamLoadingTask != null && !StreamLoadingTask.IsCompleted)
                 StreamLoadingTask.Wait();
             else if (base_stream == null)
+            {
                 LoadStream();
+                LoadDone();
+            }
         }
     }
 

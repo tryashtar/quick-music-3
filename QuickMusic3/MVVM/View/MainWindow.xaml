@@ -202,7 +202,7 @@
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
             <ListView x:Key="PlaylistList"
-                      ItemsSource="{Binding Shared.Player.Playlist.ActiveList}"
+                      ItemsSource="{Binding Shared.Player.Playlist}"
                       Focusable="False"
                       BorderThickness="0"
                       Background="{Binding Shared.ActiveTheme.PlaylistBackground}"

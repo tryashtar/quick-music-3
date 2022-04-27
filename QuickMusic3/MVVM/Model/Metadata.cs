@@ -18,6 +18,7 @@ public class Metadata : ObservableObject
     private TimeSpan duration;
     private BitmapSource thumbnail;
     private decimal replay_gain;
+    public event EventHandler Failed;
     public event EventHandler Loaded;
     public bool IsLoaded { get; private set; } = false;
     private Task LoadingTask;
@@ -88,17 +89,25 @@ public class Metadata : ObservableObject
 
     private void SignalChanges()
     {
-        Loaded?.Invoke(this, EventArgs.Empty);
-        OnPropertyChanged(nameof(Title));
-        OnPropertyChanged(nameof(Artist));
-        OnPropertyChanged(nameof(Album));
-        OnPropertyChanged(nameof(Thumbnail));
-        OnPropertyChanged(nameof(DiscNumber));
-        OnPropertyChanged(nameof(TrackNumber));
-        OnPropertyChanged(nameof(Duration));
-        OnPropertyChanged(nameof(ReplayGain));
-        OnPropertyChanged(nameof(IsLoaded));
-        Debug.WriteLine($"Loaded metadata for {Path.GetFileName(FilePath)}");
+        if (IsLoaded)
+        {
+            Loaded?.Invoke(this, EventArgs.Empty);
+            OnPropertyChanged(nameof(Title));
+            OnPropertyChanged(nameof(Artist));
+            OnPropertyChanged(nameof(Album));
+            OnPropertyChanged(nameof(Thumbnail));
+            OnPropertyChanged(nameof(DiscNumber));
+            OnPropertyChanged(nameof(TrackNumber));
+            OnPropertyChanged(nameof(Duration));
+            OnPropertyChanged(nameof(ReplayGain));
+            OnPropertyChanged(nameof(IsLoaded));
+            Debug.WriteLine($"Loaded metadata for {Path.GetFileName(FilePath)}");
+        }
+        else
+        {
+            Failed?.Invoke(this, EventArgs.Empty);
+            Debug.WriteLine($"Failed to load metadata for {Path.GetFileName(FilePath)}");
+        }
     }
 
     private static decimal LoadReplayGain(TagLib.File file)
