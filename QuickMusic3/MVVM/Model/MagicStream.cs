@@ -2,6 +2,7 @@ using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -43,9 +44,9 @@ public class MagicStream : IWaveProvider, IDisposable
     private IWaveProvider CurrentPlayable => CurrentTrack.PlayableStream;
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
-    public MagicStream(IEnumerable<string> files)
+    public MagicStream(Playlist playlist)
     {
-        this.Sources = files.Select(x => new LoadableStream(x, StandardFormat)).ToArray();
+        this.Sources = playlist.ActiveList.ToArray();
         CurrentIndex = 0;
     }
 

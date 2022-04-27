@@ -151,7 +151,6 @@
                 <ResourceDictionary Source="Resources/Converters.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <viewmodel:MainViewModel x:Key="ViewModel" />
             <StackPanel x:Key="PopupTopRight"
                         Orientation="Horizontal">
                 <view:CustomButton x:Name="PopupCloseButton"
@@ -182,7 +181,6 @@
                 </view:CustomButton>
             </StackPanel>
             <tb:TaskbarIcon x:Key="TaskbarIcon"
-                            DataContext="{StaticResource ViewModel}"
                             IconSource="/Resources/quick_music.ico"
                             ToolTipText="Quick Music"
                             PopupActivation="RightClick"
@@ -204,7 +202,7 @@
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
             <ListView x:Key="PlaylistList"
-                      ItemsSource="{Binding Shared.Player.Playlist}"
+                      ItemsSource="{Binding Shared.Player.Playlist.ActiveList}"
                       Focusable="False"
                       BorderThickness="0"
                       Background="{Binding Shared.ActiveTheme.PlaylistBackground}"
@@ -213,6 +211,8 @@
                       VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter Event="MouseDoubleClick"
+                                     Handler="PlaylistItem_MouseDoubleClick" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -402,7 +402,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>
-        <StaticResource ResourceKey="ViewModel" />
+        <viewmodel:MainViewModel />
     </Window.DataContext>
     <view:SizeHost ButtonSize="42,42">
         <Grid>

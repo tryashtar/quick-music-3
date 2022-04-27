@@ -16,7 +16,6 @@ public class Player : ObservableObject, IDisposable
     private MagicStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
-    public IEnumerable<LoadableStream> Playlist => Stream?.Sources;
     public LoadableStream CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState
     {
@@ -104,10 +103,12 @@ public class Player : ObservableObject, IDisposable
         // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
-    public void OpenFiles(string[] files)
+    public Playlist Playlist { get; private set; }
+    public void Open(Playlist playlist)
     {
         Close();
-        Stream = new(files);
+        Playlist = playlist;
+        Stream = new(playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.CurrentChanged += Stream_CurrentChanged;
         Stream.Seeked += Stream_Seeked;

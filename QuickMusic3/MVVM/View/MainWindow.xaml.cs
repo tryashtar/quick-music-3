@@ -74,13 +74,16 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 }
                 else
                 {
-                    Model.Shared.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+                    var playlist = new Playlist();
+                    playlist.AddSource(new FolderSource(Path.GetDirectoryName(dialog.FileName), SearchOption.TopDirectoryOnly));
+                    Model.Shared.Player.Open(playlist);
                     Model.Shared.Player.Play();
                 }
             }
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
+        NotifyIcon.DataContext = this.DataContext;
         NotifyIcon.LeftClickCommand = ShowWindowCommand;
         var top_right = (Panel)FindResource("PopupTopRight");
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupRestoreButton")).Command = ShowWindowCommand;
@@ -96,5 +99,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
+    }
+
+    private void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+
+        }
     }
 }
