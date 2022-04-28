@@ -37,7 +37,7 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Image x:Name="AlbumArt"
-                   Source="{Binding Shared.Player.CurrentTrack.Metadata.HighResImage}"
+                   Source="{Binding Shared.Player.CurrentTrack.Metadata.Item.HighResImage}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    VerticalAlignment="Center">
             </Image>
@@ -59,14 +59,14 @@
                          VerticalAlignment="Top"
                          HorizontalAlignment="Left">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Title, FallbackValue=Title}"
+                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Title, FallbackValue=Title}"
                                    FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                    TextWrapping="WrapWithOverflow" />
-                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Artist, FallbackValue=Artist}"
+                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Artist, FallbackValue=Artist}"
                                    FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                    Foreground="{Binding Shared.ActiveTheme.SubtleText}"
                                    TextWrapping="WrapWithOverflow" />
-                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Album, FallbackValue=Album}"
+                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Album, FallbackValue=Album}"
                                    FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                    Foreground="{Binding Shared.ActiveTheme.SubtleText}"
                                    TextWrapping="WrapWithOverflow" />

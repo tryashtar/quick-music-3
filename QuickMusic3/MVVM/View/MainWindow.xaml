@@ -14,9 +14,17 @@
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
         Background="{Binding Shared.ActiveTheme.AlbumBackground}"
-        Title="{Binding Shared.Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
         Closed="Window_Closed"
-        IsVisibleChanged="Window_IsVisibleChanged">
+        IsVisibleChanged="Window_IsVisibleChanged"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragOver="Window_DragOver">
+    <Window.Title>
+        <MultiBinding StringFormat="Quick Music – {0}"
+                      FallbackValue="Quick Music">
+            <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Title" />
+        </MultiBinding>
+    </Window.Title>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="30"
                       ResizeBorderThickness="5" />
@@ -151,7 +159,6 @@
                 <ResourceDictionary Source="Resources/Converters.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <viewmodel:MainViewModel x:Key="ViewModel" />
             <StackPanel x:Key="PopupTopRight"
                         Orientation="Horizontal">
                 <view:CustomButton x:Name="PopupCloseButton"
@@ -182,7 +189,6 @@
                 </view:CustomButton>
             </StackPanel>
             <tb:TaskbarIcon x:Key="TaskbarIcon"
-                            DataContext="{StaticResource ViewModel}"
                             IconSource="/Resources/quick_music.ico"
                             ToolTipText="Quick Music"
                             PopupActivation="RightClick"
@@ -213,6 +219,8 @@
                       VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter Event="MouseDoubleClick"
+                                     Handler="PlaylistItem_MouseDoubleClick" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -242,11 +250,6 @@
                         <Setter Property="BorderThickness"
                                 Value="0" />
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter Property="Background"
-                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistHighlight, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            </Trigger>
                             <DataTrigger Value="True">
                                 <DataTrigger.Binding>
                                     <MultiBinding Converter="{StaticResource EqualityCheck}">
@@ -258,6 +261,11 @@
                                 <Setter Property="Background"
                                         Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </DataTrigger>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter Property="Background"
+                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistHighlight, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>
@@ -272,8 +280,8 @@
                         <GridViewColumn Width="40">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Image Source="{Binding Metadata.Thumbnail}">
+                                    <Grid Height="35">
+                                        <Image Source="{Binding Metadata.Item.Thumbnail}">
                                             <Image.Style>
                                                 <Style TargetType="Image">
                                                     <Setter Property="Visibility"
@@ -333,7 +341,7 @@
                             </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Title}"
+                                    <TextBlock Text="{Binding Metadata.Item.Title}"
                                                FontSize="16"
                                                TextWrapping="Wrap" />
                                 </DataTemplate>
@@ -351,7 +359,7 @@
                             </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Artist}"
+                                    <TextBlock Text="{Binding Metadata.Item.Artist}"
                                                FontSize="16"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
@@ -369,7 +377,7 @@
                             </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Album}"
+                                    <TextBlock Text="{Binding Metadata.Item.Album}"
                                                FontSize="16"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
@@ -402,7 +410,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>
-        <StaticResource ResourceKey="ViewModel" />
+        <viewmodel:MainViewModel />
     </Window.DataContext>
     <view:SizeHost ButtonSize="42,42">
         <Grid>

@@ -74,13 +74,24 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 }
                 else
                 {
-                    Model.Shared.Player.OpenFiles(Playlist.LoadFiles(dialog.FileNames));
+                    var playlist = new DispatcherPlaylist(Application.Current.Dispatcher);
+                    if (dialog.FileNames.Length == 1 && Path.GetExtension(dialog.FileName)!=".m3u")
+                        playlist.AddSource(new FolderSource(Path.GetDirectoryName(dialog.FileName), SearchOption.TopDirectoryOnly, dialog.FileName));
+                    else
+                    {
+                        foreach (var item in SongSourceExtensions.FromFileList(dialog.FileNames, SearchOption.TopDirectoryOnly))
+                        {
+                            playlist.AddSource(item);
+                        }
+                    }
+                    Model.Shared.Player.Open(playlist);
                     Model.Shared.Player.Play();
                 }
             }
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
+        NotifyIcon.DataContext = this.DataContext;
         NotifyIcon.LeftClickCommand = ShowWindowCommand;
         var top_right = (Panel)FindResource("PopupTopRight");
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupRestoreButton")).Command = ShowWindowCommand;
@@ -96,5 +107,40 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
+    }
+
+    private void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+
+        }
+    }
+
+    private void Window_Drop(object sender, DragEventArgs e)
+    {
+        string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+        bool holding_shift = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
+        var search = holding_shift ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+        var playlist = new DispatcherPlaylist(Application.Current.Dispatcher);
+        if (files.Length == 1 && File.Exists(files[0]) && Path.GetExtension(files[0]) != ".m3u")
+            playlist.AddSource(new FolderSource(Path.GetDirectoryName(files[0]), search, files[0]));
+        else
+        {
+            foreach (var item in SongSourceExtensions.FromFileList(files, search))
+            {
+                playlist.AddSource(item);
+            }
+        }
+        Model.Shared.Player.Open(playlist);
+        Model.Shared.Player.Play();
+    }
+
+    private void Window_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = DragDropEffects.None;
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            e.Effects = DragDropEffects.Copy;
+        e.Handled = true;
     }
 }

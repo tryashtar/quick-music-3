@@ -13,11 +13,10 @@ namespace QuickMusic3.MVVM.Model;
 
 public class Player : ObservableObject, IDisposable
 {
-    private MagicStream Stream;
+    private PlaylistStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
-    public IEnumerable<LoadableStream> Playlist => Stream?.Sources;
-    public LoadableStream CurrentTrack => Stream?.CurrentTrack;
+    public SongFile CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState
     {
         get
@@ -104,10 +103,13 @@ public class Player : ObservableObject, IDisposable
         // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
-    public void OpenFiles(string[] files)
+    public ISongSource Playlist { get; private set; }
+    public void Open(ISongSource playlist)
     {
         Close();
-        Stream = new(files);
+        Playlist = playlist;
+        OnPropertyChanged(nameof(Playlist));
+        Stream = new(playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.CurrentChanged += Stream_CurrentChanged;
         Stream.Seeked += Stream_Seeked;
