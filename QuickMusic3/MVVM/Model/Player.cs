@@ -103,8 +103,8 @@ public class Player : ObservableObject, IDisposable
         // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
-    public Playlist Playlist { get; private set; }
-    public void Open(Playlist playlist)
+    public ISongSource Playlist { get; private set; }
+    public void Open(ISongSource playlist)
     {
         Close();
         Playlist = playlist;

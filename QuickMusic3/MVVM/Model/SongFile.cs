@@ -35,7 +35,11 @@ public class SongFile : ObservableObject, IDisposable
             () => new Metadata(path),
             new Metadata() { Title = Path.GetFileName(path) }
         );
-        Metadata.Loaded += (s, e) => OnPropertyChanged(nameof(Metadata));
+        Metadata.Loaded += (s, e) =>
+        {
+            OnPropertyChanged(nameof(Metadata));
+            OnPropertyChanged(nameof(GuessDuration));
+        };
 
 #if DEBUG
         Metadata.Failed += (s, e) => Debug.WriteLine($"{Path.GetFileName(FilePath)}: Metadata load failed ({Metadata.Exception.Message})");
@@ -56,6 +60,7 @@ public class SongFile : ObservableObject, IDisposable
         {
             Debug.WriteLine($"{Path.GetFileName(FilePath)}: {Stream.Item.BaseStream.WaveFormat.SampleRate} / {Stream.Item.BaseStream.WaveFormat.Channels}");
             OnPropertyChanged(nameof(Stream));
+            OnPropertyChanged(nameof(GuessDuration));
             Metadata.LoadNow();
             if (Metadata.Item.ReplayGain != 0)
                 Stream.Item.AddTransform(x => new DecibalOffsetProvider(x, Metadata.Item.ReplayGain));

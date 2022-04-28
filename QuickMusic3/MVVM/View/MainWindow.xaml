@@ -15,7 +15,10 @@
         ResizeMode="CanResize"
         Background="{Binding Shared.ActiveTheme.AlbumBackground}"
         Closed="Window_Closed"
-        IsVisibleChanged="Window_IsVisibleChanged">
+        IsVisibleChanged="Window_IsVisibleChanged"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragOver="Window_DragOver">
     <Window.Title>
         <MultiBinding StringFormat="Quick Music – {0}"
                       FallbackValue="Quick Music">
@@ -247,11 +250,6 @@
                         <Setter Property="BorderThickness"
                                 Value="0" />
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter Property="Background"
-                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistHighlight, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            </Trigger>
                             <DataTrigger Value="True">
                                 <DataTrigger.Binding>
                                     <MultiBinding Converter="{StaticResource EqualityCheck}">
@@ -263,6 +261,11 @@
                                 <Setter Property="Background"
                                         Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </DataTrigger>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter Property="Background"
+                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistHighlight, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>

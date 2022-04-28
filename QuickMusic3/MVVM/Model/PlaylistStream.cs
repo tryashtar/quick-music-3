@@ -15,7 +15,7 @@ public class PlaylistStream : IWaveProvider, IDisposable
     public event EventHandler CurrentChanged;
     public event EventHandler Seeked;
 
-    public readonly Playlist Playlist;
+    public readonly ISongSource Playlist;
     private int current_index;
     public int CurrentIndex
     {
@@ -43,7 +43,7 @@ public class PlaylistStream : IWaveProvider, IDisposable
     private IWaveProvider CurrentPlayable => CurrentStream.PlayableStream;
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
-    public PlaylistStream(Playlist playlist)
+    public PlaylistStream(ISongSource playlist)
     {
         this.Playlist = playlist;
         CurrentIndex = 0;
@@ -102,7 +102,7 @@ public class PlaylistStream : IWaveProvider, IDisposable
             current_index += e.OldItems.Count;
             Debug.WriteLine($"Move: Current index increased to {current_index}");
         }
-        else if (e.Action == NotifyCollectionChangedAction.Add && e.OldStartingIndex < current_index)
+        else if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex < current_index)
         {
             current_index += e.NewItems.Count;
             Debug.WriteLine($"Add: Current index moved from {current_index - e.NewItems.Count} to {current_index}");
