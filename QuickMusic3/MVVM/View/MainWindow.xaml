@@ -14,9 +14,14 @@
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
         Background="{Binding Shared.ActiveTheme.AlbumBackground}"
-        Title="{Binding Shared.Player.CurrentTrack.Metadata.Item.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
         Closed="Window_Closed"
         IsVisibleChanged="Window_IsVisibleChanged">
+    <Window.Title>
+        <MultiBinding StringFormat="Quick Music – {0}"
+                      FallbackValue="Quick Music">
+            <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Title" />
+        </MultiBinding>
+    </Window.Title>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="30"
                       ResizeBorderThickness="5" />
@@ -272,7 +277,7 @@
                         <GridViewColumn Width="40">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Grid>
+                                    <Grid Height="35">
                                         <Image Source="{Binding Metadata.Item.Thumbnail}">
                                             <Image.Style>
                                                 <Style TargetType="Image">

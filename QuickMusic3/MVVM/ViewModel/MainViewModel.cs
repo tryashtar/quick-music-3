@@ -17,6 +17,7 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace QuickMusic3.MVVM.ViewModel;
 
 // current bugs:
+// - we need to fully sort the folder before Upcoming can be truly accurate
 
 // features to port:
 // - real-time lyrics
@@ -27,6 +28,10 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - more intelligent playlist building
 // - themes (data driven!)
 // - fallback album art
+// - change size when ActiveViewModel changes, save to properties
+// - show index and total in titlebar
+// - ensure row visible when item changes
+// - double-click to change tracks
 
 public class MainViewModel : BaseViewModel
 {

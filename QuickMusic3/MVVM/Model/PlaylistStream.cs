@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,40 +24,21 @@ public class PlaylistStream : IWaveProvider, IDisposable
         {
             int count = Playlist.Count;
             int destination = WrapIndex(value);
+            int previous_index = current_index;
             current_index = Math.Clamp(destination, 0, count - 1);
+            SetCurrentTrack();
+            if (current_index != previous_index && previous_index < count)
+                Playlist[previous_index].CloseStream();
             if (destination >= count)
                 CurrentBase.CurrentTime = CurrentBase.TotalTime;
             else
                 CurrentBase.CurrentTime = TimeSpan.Zero;
-            int next = UpcomingIndex();
-            for (int i = 0; i < count; i++)
-            {
-                if (i == next)
-                    Playlist[i].Stream.LoadBackground();
-                else if (i != current_index && Playlist[i].Stream.IsLoaded)
-                    Playlist[i].Stream.Item.Close();
-            }
             CurrentChanged?.Invoke(this, EventArgs.Empty);
         }
     }
     public RepeatMode RepeatMode { get; set; }
-    public SongFile CurrentTrack => Playlist[current_index];
-    private MutableStream CurrentStream
-    {
-        get
-        {
-            // if LoadNow errors, it will be removed from the playlist,
-            // calling Playlist_CollectionChanged which will change current_index,
-            // ultimately changing CurrentTrack so we try again
-            while (true)
-            {
-                var stream = CurrentTrack.Stream;
-                stream.LoadNow();
-                if (stream.IsLoaded)
-                    return stream.Item;
-            }
-        }
-    }
+    public SongFile CurrentTrack { get; private set; }
+    private MutableStream CurrentStream => CurrentTrack.Stream.Item;
     private WaveStream CurrentBase => CurrentStream.BaseStream;
     private IWaveProvider CurrentPlayable => CurrentStream.PlayableStream;
 
@@ -66,18 +48,76 @@ public class PlaylistStream : IWaveProvider, IDisposable
         this.Playlist = playlist;
         CurrentIndex = 0;
         playlist.CollectionChanged += Playlist_CollectionChanged;
+        AddResamples(playlist);
+    }
+
+    private void SetCurrentTrack()
+    {
+        do
+        {
+            CurrentTrack = Playlist[current_index];
+            CurrentTrack.Stream.LoadNow();
+            if (CurrentTrack.Stream.IsFailed)
+                current_index++;
+        }
+        while (CurrentTrack.Stream.IsFailed);
+        int next = UpcomingIndex();
+        Playlist[next].Stream.LoadBackground();
+    }
+
+    private void AddResamples(IEnumerable<SongFile> songs)
+    {
+        foreach (var item in songs)
+        {
+            if (item.Stream.IsLoaded)
+                AddResample(item.Stream.Item);
+            item.Stream.Loaded += (s, e) => AddResample(item.Stream.Item);
+        }
+    }
+
+    private void AddResample(MutableStream stream)
+    {
+        if (stream.BaseStream.WaveFormat.SampleRate != StandardFormat.SampleRate)
+            stream.AddTransform(x => new WdlResamplingSampleProvider(x, StandardFormat.SampleRate));
+        if (stream.BaseStream.WaveFormat.Channels != StandardFormat.Channels)
+            stream.AddTransform(x => new MonoToStereoSampleProvider(x));
     }
 
     private void Playlist_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+        if (e.Action == NotifyCollectionChangedAction.Add)
+            AddResamples(e.NewItems.Cast<SongFile>());
         if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex == current_index)
+        {
             current_index = e.NewStartingIndex;
-        else if (e.Action == NotifyCollectionChangedAction.Add && e.OldStartingIndex < current_index)
-            current_index += e.NewItems.Count;
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex < current_index)
+            Debug.WriteLine($"Move: Current track moved from {e.OldStartingIndex} to {current_index}");
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex < current_index && e.NewStartingIndex >= current_index)
+        {
             current_index -= e.OldItems.Count;
+            Debug.WriteLine($"Move: Current index decreased to {current_index}");
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex > current_index && e.NewStartingIndex < current_index)
+        {
+            current_index += e.OldItems.Count;
+            Debug.WriteLine($"Move: Current index increased to {current_index}");
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Add && e.OldStartingIndex < current_index)
+        {
+            current_index += e.NewItems.Count;
+            Debug.WriteLine($"Add: Current index moved from {current_index - e.NewItems.Count} to {current_index}");
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex < current_index)
+        {
+            current_index -= e.OldItems.Count;
+            Debug.WriteLine($"Remove: Current index moved from {current_index + e.OldItems.Count} to {current_index}");
+        }
         else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex == current_index)
-            current_index++;
+        {
+            CurrentIndex += e.OldItems.Count;
+            Debug.WriteLine($"Currently playing track removed, current index advanced to {current_index}");
+        }
+        SetCurrentTrack();
     }
 
     // we have to use CurrentBase.WaveFormat, not CurrentPlayable.WaveFormat

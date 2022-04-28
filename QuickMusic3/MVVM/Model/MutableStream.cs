@@ -10,7 +10,7 @@ namespace QuickMusic3.MVVM.Model;
 
 public class MutableStream : IDisposable
 {
-    public readonly string Path;
+    public readonly string FilePath;
     public WaveStream BaseStream { get; private set; }
     public IWaveProvider PlayableStream { get; private set; }
     public delegate ISampleProvider Transform(ISampleProvider provider);
@@ -18,6 +18,7 @@ public class MutableStream : IDisposable
 
     public MutableStream(string path)
     {
+        FilePath = path;
         BaseStream = new AudioFileReader(path);
         PlayableStream = BaseStream;
     }
@@ -33,7 +34,7 @@ public class MutableStream : IDisposable
         PlayableStream = sample.ToWaveProvider();
     }
 
-    public void Close()
+    public void Dispose()
     {
         if (BaseStream != null)
         {
@@ -46,10 +47,5 @@ public class MutableStream : IDisposable
                 d.Dispose();
             PlayableStream = null;
         }
-    }
-
-    public void Dispose()
-    {
-        Close();
     }
 }

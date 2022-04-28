@@ -23,6 +23,8 @@ public class Metadata : ObservableObject
     {
         get
         {
+            if (FilePath == null)
+                return null;
             using var file = TagLib.File.Create(FilePath);
             return ArtCache.GetHighResEmbeddedImage(file.Tag);
         }

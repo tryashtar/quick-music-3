@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,11 +27,6 @@ public class Playlist : ISongSource
         Dispatcher = event_dispatcher;
     }
 
-    private void SendEvent(NotifyCollectionChangedEventArgs args)
-    {
-        Dispatcher.Invoke(() => CollectionChanged?.Invoke(this, args));
-    }
-
     public void AddSource(ISongSource source)
     {
         int index;
@@ -40,39 +36,40 @@ public class Playlist : ISongSource
             SourcePositions[source] = index;
             FlatList.AddRange(source);
         }
-        SendEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, source.ToList(), index));
+        Dispatcher.Invoke(() => CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, source.ToList(), index)));
 
         source.CollectionChanged += (s, e) =>
         {
-            NotifyCollectionChangedEventArgs args;
-            lock (FlatList)
+            Dispatcher.BeginInvoke(() =>
             {
-                int old_index = SourcePositions[source];
-                if (e.Action == NotifyCollectionChangedAction.Remove)
+                lock (FlatList)
                 {
-                    var items = FlatList.GetRange(old_index + e.OldStartingIndex, e.OldItems.Count);
-                    FlatList.RemoveRange(old_index + e.OldStartingIndex, e.OldItems.Count);
-                    foreach (var item in SourcePositions.ToList())
+                    int old_index = SourcePositions[source];
+                    if (e.Action == NotifyCollectionChangedAction.Remove)
                     {
-                        if (item.Value > old_index)
-                            SourcePositions[item.Key] = item.Value - e.OldItems.Count;
+                        var items = FlatList.GetRange(old_index + e.OldStartingIndex, e.OldItems.Count);
+                        FlatList.RemoveRange(old_index + e.OldStartingIndex, e.OldItems.Count);
+                        foreach (var item in SourcePositions.ToList())
+                        {
+                            if (item.Value > old_index)
+                                SourcePositions[item.Key] = item.Value - e.OldItems.Count;
+                        }
+                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items, old_index + e.OldStartingIndex));
+                        //Debug.WriteLine("R " + String.Join(' ', FlatList.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : "-")));
                     }
-                    args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items, old_index + e.OldStartingIndex);
+                    else if (e.Action == NotifyCollectionChangedAction.Move)
+                    {
+                        var item = FlatList[old_index + e.OldStartingIndex];
+                        int destination = old_index + e.NewStartingIndex;
+                        FlatList.RemoveAt(old_index + e.OldStartingIndex);
+                        FlatList.Insert(destination, item);
+                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index + e.OldStartingIndex));
+                        //Debug.WriteLine("M " + String.Join(' ', FlatList.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : "-")));
+                    }
+                    else
+                        throw new NotSupportedException();
                 }
-                else if (e.Action == NotifyCollectionChangedAction.Move)
-                {
-                    var item = FlatList[old_index + e.OldStartingIndex];
-                    FlatList.RemoveAt(old_index + e.OldStartingIndex);
-                    int destination = old_index + e.NewStartingIndex;
-                    if (e.NewStartingIndex > e.OldStartingIndex)
-                        destination--;
-                    FlatList.Insert(destination, item);
-                    args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index + e.OldStartingIndex);
-                }
-                else
-                    throw new NotSupportedException();
-            }
-            SendEvent(args);
+            });
         };
     }
 }
@@ -91,9 +88,22 @@ public class FolderSource : ISongSource
     public SongFile this[int index] => Streams[index];
     public IEnumerator<SongFile> GetEnumerator() => Streams.GetEnumerator();
 
-    public FolderSource(string path, SearchOption search)
+    public FolderSource(string path, SearchOption search, string first = null)
     {
-        Streams = Directory.GetFiles(path, "*", search).Select(x => new SongFile(x)).ToList();
+        var directory = new DirectoryInfo(path);
+        Streams = directory.GetFiles("*", search)
+            .Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
+            .Select(x => new SongFile(x.FullName)).ToList();
+        if (first != null)
+        {
+            var index = Streams.FindIndex(x => x.FilePath == first);
+            if (index != -1)
+            {
+                var item = Streams[index];
+                Streams.RemoveAt(index);
+                Streams.Insert(0, item);
+            }
+        }
         foreach (var item in Streams)
         {
             item.Metadata.Failed += (s, e) => MoveIntoPlace(item);
@@ -111,6 +121,7 @@ public class FolderSource : ISongSource
             Streams.RemoveAt(old_index);
             destination = ~Streams.BinarySearch(item, SongSorter.Instance);
             Streams.Insert(destination, item);
+            //Debug.WriteLine("M " + String.Join(' ', Streams.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index));
     }
@@ -122,6 +133,7 @@ public class FolderSource : ISongSource
         {
             old_index = Streams.IndexOf(item);
             Streams.RemoveAt(old_index);
+            //Debug.WriteLine("R " + String.Join(' ', Streams.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, old_index));
     }

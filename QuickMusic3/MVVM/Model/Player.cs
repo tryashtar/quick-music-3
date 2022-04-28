@@ -108,6 +108,7 @@ public class Player : ObservableObject, IDisposable
     {
         Close();
         Playlist = playlist;
+        OnPropertyChanged(nameof(Playlist));
         Stream = new(playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.CurrentChanged += Stream_CurrentChanged;

@@ -75,7 +75,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 else
                 {
                     var playlist = new Playlist(Application.Current.Dispatcher);
-                    playlist.AddSource(new FolderSource(Path.GetDirectoryName(dialog.FileName), SearchOption.TopDirectoryOnly));
+                    playlist.AddSource(new FolderSource(Path.GetDirectoryName(dialog.FileName), SearchOption.TopDirectoryOnly, dialog.FileName));
                     Model.Shared.Player.Open(playlist);
                     Model.Shared.Player.Play();
                 }

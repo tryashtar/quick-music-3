@@ -15,6 +15,7 @@ public abstract class Loadable<T>
     public LoadStatus LoadStatus { get; private set; } = LoadStatus.NotLoaded;
     public Exception Exception { get; private set; }
     public bool IsLoaded => LoadStatus == LoadStatus.Loaded;
+    public bool IsFailed => LoadStatus == LoadStatus.Failed;
     private Task LoadingTask;
     private readonly object LoadingLock = new();
     private T item;
@@ -25,7 +26,7 @@ public abstract class Loadable<T>
             if (LoadStatus == LoadStatus.Loaded)
                 return item;
             else if (LoadStatus == LoadStatus.Failed)
-                throw new InvalidOperationException("Loading failed", Exception);
+                return ItemFailed();
             else
                 return ItemRequested();
         }
@@ -88,6 +89,10 @@ public abstract class Loadable<T>
     protected abstract T Load();
     protected virtual void AfterLoad() { }
     protected abstract T ItemRequested();
+    protected virtual T ItemFailed()
+    {
+        throw new InvalidOperationException("Loading failed", Exception);
+    }
 }
 
 public enum LoadStatus
@@ -131,6 +136,11 @@ public class PlaceholderLoadable<T> : Loadable<T>
     protected override T ItemRequested()
     {
         LoadBackground();
+        return Placeholder;
+    }
+
+    protected override T ItemFailed()
+    {
         return Placeholder;
     }
 
