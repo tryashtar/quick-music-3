@@ -13,10 +13,10 @@ namespace QuickMusic3.MVVM.Model;
 
 public class Player : ObservableObject, IDisposable
 {
-    private MagicStream Stream;
+    private PlaylistStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
-    public MutableStream CurrentTrack => Stream?.CurrentTrack;
+    public SongFile CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState
     {
         get

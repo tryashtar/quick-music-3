@@ -13,11 +13,24 @@ public class MutableStream : IDisposable
     public readonly string Path;
     public WaveStream BaseStream { get; private set; }
     public IWaveProvider PlayableStream { get; private set; }
+    public delegate ISampleProvider Transform(ISampleProvider provider);
+    private readonly List<Transform> Transforms = new();
 
     public MutableStream(string path)
     {
         BaseStream = new AudioFileReader(path);
         PlayableStream = BaseStream;
+    }
+
+    public void AddTransform(Transform transform)
+    {
+        Transforms.Add(transform);
+        var sample = BaseStream.ToSampleProvider();
+        foreach (var next in Transforms)
+        {
+            sample = next(sample);
+        }
+        PlayableStream = sample.ToWaveProvider();
     }
 
     public void Close()

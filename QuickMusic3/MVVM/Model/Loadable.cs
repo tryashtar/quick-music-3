@@ -13,6 +13,7 @@ public abstract class Loadable<T>
     public event EventHandler Loaded;
     public event EventHandler Failed;
     public LoadStatus LoadStatus { get; private set; } = LoadStatus.NotLoaded;
+    public Exception Exception { get; private set; }
     public bool IsLoaded => LoadStatus == LoadStatus.Loaded;
     private Task LoadingTask;
     private readonly object LoadingLock = new();
@@ -24,7 +25,7 @@ public abstract class Loadable<T>
             if (LoadStatus == LoadStatus.Loaded)
                 return item;
             else if (LoadStatus == LoadStatus.Failed)
-                throw new InvalidOperationException("Loading failed");
+                throw new InvalidOperationException("Loading failed", Exception);
             else
                 return ItemRequested();
         }
@@ -66,9 +67,10 @@ public abstract class Loadable<T>
             item = Load();
             LoadStatus = LoadStatus.Loaded;
         }
-        catch
+        catch (Exception ex)
         {
             LoadStatus = LoadStatus.Failed;
+            Exception = ex;
         }
     }
 
@@ -85,7 +87,7 @@ public abstract class Loadable<T>
 
     protected abstract T Load();
     protected virtual void AfterLoad() { }
-    protected abstract T GetRequested();
+    protected abstract T ItemRequested();
 }
 
 public enum LoadStatus
@@ -104,7 +106,7 @@ public class NeedyLoadable<T> : Loadable<T>
         Getter = getter;
     }
 
-    protected override T GetRequested()
+    protected override T ItemRequested()
     {
         LoadNow();
         return Item;
@@ -116,20 +118,20 @@ public class NeedyLoadable<T> : Loadable<T>
     }
 }
 
-public class FakerLoadable<T> : Loadable<T>
+public class PlaceholderLoadable<T> : Loadable<T>
 {
     private readonly Func<T> RealGetter;
-    private readonly Func<T> FakeGetter;
-    public FakerLoadable(Func<T> real, Func<T> fake)
+    private readonly T Placeholder;
+    public PlaceholderLoadable(Func<T> real, T placeholder)
     {
         RealGetter = real;
-        FakeGetter = fake;
+        Placeholder = placeholder;
     }
 
-    protected override T GetRequested()
+    protected override T ItemRequested()
     {
         LoadBackground();
-        return FakeGetter();
+        return Placeholder;
     }
 
     protected override T Load()

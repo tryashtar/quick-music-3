@@ -2,13 +2,14 @@ using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class MagicStream : IWaveProvider, IDisposable
+public class PlaylistStream : IWaveProvider, IDisposable
 {
     public event EventHandler CurrentChanged;
     public event EventHandler Seeked;
@@ -31,29 +32,57 @@ public class MagicStream : IWaveProvider, IDisposable
             for (int i = 0; i < count; i++)
             {
                 if (i == next)
-                    Playlist[i].LoadStreamBackground();
-                else if (i != current_index)
-                    Playlist[i].Close();
+                    Playlist[i].Stream.LoadBackground();
+                else if (i != current_index && Playlist[i].Stream.IsLoaded)
+                    Playlist[i].Stream.Item.Close();
             }
             CurrentChanged?.Invoke(this, EventArgs.Empty);
         }
     }
     public RepeatMode RepeatMode { get; set; }
-    public MutableStream CurrentTrack => Playlist[current_index];
-    private WaveStream CurrentBase => CurrentTrack.BaseStream;
-    private IWaveProvider CurrentPlayable => CurrentTrack.PlayableStream;
+    public SongFile CurrentTrack => Playlist[current_index];
+    private MutableStream CurrentStream
+    {
+        get
+        {
+            // if LoadNow errors, it will be removed from the playlist,
+            // calling Playlist_CollectionChanged which will change current_index,
+            // ultimately changing CurrentTrack so we try again
+            while (true)
+            {
+                var stream = CurrentTrack.Stream;
+                stream.LoadNow();
+                if (stream.IsLoaded)
+                    return stream.Item;
+            }
+        }
+    }
+    private WaveStream CurrentBase => CurrentStream.BaseStream;
+    private IWaveProvider CurrentPlayable => CurrentStream.PlayableStream;
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
-    public MagicStream(Playlist playlist)
+    public PlaylistStream(Playlist playlist)
     {
         this.Playlist = playlist;
         CurrentIndex = 0;
+        playlist.CollectionChanged += Playlist_CollectionChanged;
     }
 
-    public WaveFormat WaveFormat => CurrentPlayable.WaveFormat;
+    private void Playlist_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex == current_index)
+            current_index = e.NewStartingIndex;
+        else if (e.Action == NotifyCollectionChangedAction.Add && e.OldStartingIndex < current_index)
+            current_index += e.NewItems.Count;
+        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex < current_index)
+            current_index -= e.OldItems.Count;
+        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex == current_index)
+            current_index++;
+    }
 
     // we have to use CurrentBase.WaveFormat, not CurrentPlayable.WaveFormat
-    // I promise
+    // otherwise it calculates length wrong and stuff
+    public WaveFormat WaveFormat => CurrentPlayable.WaveFormat;
     public TimeSpan TotalTime => CurrentBase.TotalTime;
     public TimeSpan CurrentTime
     {
@@ -118,12 +147,12 @@ public class MagicStream : IWaveProvider, IDisposable
 
     public void Dispose()
     {
-        System.Diagnostics.Debug.WriteLine("Disposing MagicStream start");
+        Debug.WriteLine("Disposing PlaylistStream start");
         foreach (var item in Playlist)
         {
             item.Dispose();
         }
-        System.Diagnostics.Debug.WriteLine("Disposing MagicStream complete");
+        Debug.WriteLine("Disposing PlaylistStream complete");
     }
 }
 

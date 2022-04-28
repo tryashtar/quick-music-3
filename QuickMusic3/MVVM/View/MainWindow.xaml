@@ -14,7 +14,7 @@
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
         Background="{Binding Shared.ActiveTheme.AlbumBackground}"
-        Title="{Binding Shared.Player.CurrentTrack.Metadata.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
+        Title="{Binding Shared.Player.CurrentTrack.Metadata.Item.Title, StringFormat=Quick Music – {0}, FallbackValue=Quick Music}"
         Closed="Window_Closed"
         IsVisibleChanged="Window_IsVisibleChanged">
     <WindowChrome.WindowChrome>
@@ -273,7 +273,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <Image Source="{Binding Metadata.Thumbnail}">
+                                        <Image Source="{Binding Metadata.Item.Thumbnail}">
                                             <Image.Style>
                                                 <Style TargetType="Image">
                                                     <Setter Property="Visibility"
@@ -333,7 +333,7 @@
                             </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Title}"
+                                    <TextBlock Text="{Binding Metadata.Item.Title}"
                                                FontSize="16"
                                                TextWrapping="Wrap" />
                                 </DataTemplate>
@@ -351,7 +351,7 @@
                             </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Artist}"
+                                    <TextBlock Text="{Binding Metadata.Item.Artist}"
                                                FontSize="16"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
@@ -369,7 +369,7 @@
                             </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Album}"
+                                    <TextBlock Text="{Binding Metadata.Item.Album}"
                                                FontSize="16"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>

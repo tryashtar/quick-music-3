@@ -6,37 +6,74 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace QuickMusic3.MVVM.Model;
 
 public class Playlist : ISongSource
 {
-    private readonly List<ISongSource> Sources = new();
+    private readonly List<SongFile> FlatList = new();
+    private readonly Dictionary<ISongSource, int> SourcePositions = new();
 
-    public SongFile this[int index]
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public SongFile this[int index] => FlatList[index];
+    public int Count => FlatList.Count;
+    public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
+
+    private readonly Dispatcher Dispatcher;
+    public Playlist(Dispatcher event_dispatcher)
     {
-        get
-        {
-            foreach (var item in Sources)
-            {
-                if (index < item.Count)
-                    return item[index];
-                index -= item.Count;
-            }
-            throw new IndexOutOfRangeException();
-        }
+        Dispatcher = event_dispatcher;
     }
-    public int Count => Sources.Sum(x => x.Count);
-    public event EventHandler Changed;
+
+    private void SendEvent(NotifyCollectionChangedEventArgs args)
+    {
+        Dispatcher.Invoke(() => CollectionChanged?.Invoke(this, args));
+    }
 
     public void AddSource(ISongSource source)
     {
-        Sources.Add(source);
-    }
+        int index;
+        lock (FlatList)
+        {
+            index = FlatList.Count;
+            SourcePositions[source] = index;
+            FlatList.AddRange(source);
+        }
+        SendEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, source.ToList(), index));
 
-    public IEnumerator<SongFile> GetEnumerator()
-    {
-        return Sources.SelectMany(x => x).GetEnumerator();
+        source.CollectionChanged += (s, e) =>
+        {
+            NotifyCollectionChangedEventArgs args;
+            lock (FlatList)
+            {
+                int old_index = SourcePositions[source];
+                if (e.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    var items = FlatList.GetRange(old_index + e.OldStartingIndex, e.OldItems.Count);
+                    FlatList.RemoveRange(old_index + e.OldStartingIndex, e.OldItems.Count);
+                    foreach (var item in SourcePositions.ToList())
+                    {
+                        if (item.Value > old_index)
+                            SourcePositions[item.Key] = item.Value - e.OldItems.Count;
+                    }
+                    args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items, old_index + e.OldStartingIndex);
+                }
+                else if (e.Action == NotifyCollectionChangedAction.Move)
+                {
+                    var item = FlatList[old_index + e.OldStartingIndex];
+                    FlatList.RemoveAt(old_index + e.OldStartingIndex);
+                    int destination = old_index + e.NewStartingIndex;
+                    if (e.NewStartingIndex > e.OldStartingIndex)
+                        destination--;
+                    FlatList.Insert(destination, item);
+                    args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index + e.OldStartingIndex);
+                }
+                else
+                    throw new NotSupportedException();
+            }
+            SendEvent(args);
+        };
     }
 }
 
@@ -67,12 +104,26 @@ public class FolderSource : ISongSource
 
     private void MoveIntoPlace(SongFile item)
     {
-        int destination = Streams.BinarySearch(item, SongSorter.Instance)
+        int old_index, destination;
+        lock (Streams)
+        {
+            old_index = Streams.IndexOf(item);
+            Streams.RemoveAt(old_index);
+            destination = ~Streams.BinarySearch(item, SongSorter.Instance);
+            Streams.Insert(destination, item);
+        }
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index));
     }
 
     private void Remove(SongFile item)
     {
-
+        int old_index;
+        lock (Streams)
+        {
+            old_index = Streams.IndexOf(item);
+            Streams.RemoveAt(old_index);
+        }
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, old_index));
     }
 }
 
@@ -81,19 +132,34 @@ public class SongSorter : IComparer<SongFile>
     public static readonly SongSorter Instance = new();
     public int Compare(SongFile x, SongFile y)
     {
-        if (x.Metadata.LoadStatus )
-        int album = (x.Album ?? "").CompareTo(y.Album ?? "");
+        int status = LoadStatusOrder(x.Metadata.LoadStatus).CompareTo(LoadStatusOrder(y.Metadata.LoadStatus));
+        if (status != 0)
+            return status;
+        if (x.Metadata.LoadStatus != LoadStatus.Loaded)
+            return x.FilePath.CompareTo(y.FilePath);
+        var xm = x.Metadata.Item;
+        var ym = y.Metadata.Item;
+        int album = (xm.Album ?? "").CompareTo(ym.Album ?? "");
         if (album != 0)
             return album;
-        int disc = x.DiscNumber.CompareTo(y.DiscNumber);
+        int disc = xm.DiscNumber.CompareTo(ym.DiscNumber);
         if (disc != 0)
             return disc;
-        int track = x.TrackNumber.CompareTo(y.TrackNumber);
+        int track = xm.TrackNumber.CompareTo(ym.TrackNumber);
         if (track != 0)
             return track;
-        int num = (x.Title ?? "").CompareTo(y.Title ?? "");
-        if (num == 0)
-            return 1;
-        return num;
+        return (xm.Title ?? "").CompareTo(ym.Title ?? "");
+    }
+
+    private static int LoadStatusOrder(LoadStatus status)
+    {
+        return status switch
+        {
+            LoadStatus.Loading => 0,
+            LoadStatus.NotLoaded => 0,
+            LoadStatus.Loaded => 1,
+            LoadStatus.Failed => 2,
+            _ => 3
+        };
     }
 }
