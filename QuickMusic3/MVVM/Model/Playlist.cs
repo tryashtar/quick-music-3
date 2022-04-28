@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ public class Playlist : ISongSource
 {
     private readonly List<ISongSource> Sources = new();
 
-    public LoadableStream this[int index]
+    public SongFile this[int index]
     {
         get
         {
@@ -33,81 +34,54 @@ public class Playlist : ISongSource
         Sources.Add(source);
     }
 
-    public IEnumerator<LoadableStream> GetEnumerator()
+    public IEnumerator<SongFile> GetEnumerator()
     {
         return Sources.SelectMany(x => x).GetEnumerator();
     }
 }
 
-public interface ISongSource : IReadOnlyList<LoadableStream>
+public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    public event EventHandler Changed;
 }
 
 public class FolderSource : ISongSource
 {
-    private readonly List<LoadableStream> OriginalOrder;
-    private readonly SortedList<Metadata, LoadableStream> SortedOrder = new(MetadataOrderer.Instance);
-    public event EventHandler Changed;
+    private readonly List<SongFile> Streams;
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-    public bool IsSorted { get; private set; } = false;
-
-    public int Count => OriginalOrder.Count;
-    public LoadableStream this[int index]
-    {
-        get
-        {
-            if (SortedOrder.Count == OriginalOrder.Count)
-                return SortedOrder.Values[index];
-            return OriginalOrder[index];
-        }
-    }
-
-    public IEnumerator<LoadableStream> GetEnumerator()
-    {
-        if (SortedOrder.Count == OriginalOrder.Count)
-            return SortedOrder.Values.GetEnumerator();
-        return OriginalOrder.GetEnumerator();
-    }
+    public int Count => Streams.Count;
+    public SongFile this[int index] => Streams[index];
+    public IEnumerator<SongFile> GetEnumerator() => Streams.GetEnumerator();
 
     public FolderSource(string path, SearchOption search)
     {
-        OriginalOrder = Directory.GetFiles(path, "*", search).Select(x => new LoadableStream(x)).ToList();
-        foreach (var item in OriginalOrder)
+        Streams = Directory.GetFiles(path, "*", search).Select(x => new SongFile(x)).ToList();
+        foreach (var item in Streams)
         {
-            item.Metadata.Failed += (s, e) =>
-              {
-                  lock (OriginalOrder)
-                  {
-                      OriginalOrder.Remove(item);
-                  }
-              };
-            item.StreamFailed += (s, e) =>
-            {
-                lock (OriginalOrder)
-                {
-                    OriginalOrder.Remove(item);
-                }
-            };
-            item.Metadata.Loaded += (s, e) =>
-              {
-                  lock (SortedOrder)
-                  {
-                      SortedOrder.Add(item.Metadata, item);
-                      if (SortedOrder.Count == OriginalOrder.Count)
-                          Changed?.Invoke(this, EventArgs.Empty);
-                  }
-              };
+            item.Metadata.Failed += (s, e) => MoveIntoPlace(item);
+            item.Metadata.Loaded += (s, e) => MoveIntoPlace(item);
+            item.Stream.Failed += (s, e) => Remove(item);
         }
+    }
+
+    private void MoveIntoPlace(SongFile item)
+    {
+        int destination = Streams.BinarySearch(item, SongSorter.Instance)
+    }
+
+    private void Remove(SongFile item)
+    {
+
     }
 }
 
-public class MetadataOrderer : IComparer<Metadata>
+public class SongSorter : IComparer<SongFile>
 {
-    public static readonly MetadataOrderer Instance = new();
-    public int Compare(Metadata x, Metadata y)
+    public static readonly SongSorter Instance = new();
+    public int Compare(SongFile x, SongFile y)
     {
+        if (x.Metadata.LoadStatus )
         int album = (x.Album ?? "").CompareTo(y.Album ?? "");
         if (album != 0)
             return album;

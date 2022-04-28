@@ -39,7 +39,7 @@ public class MagicStream : IWaveProvider, IDisposable
         }
     }
     public RepeatMode RepeatMode { get; set; }
-    public LoadableStream CurrentTrack => Playlist[current_index];
+    public MutableStream CurrentTrack => Playlist[current_index];
     private WaveStream CurrentBase => CurrentTrack.BaseStream;
     private IWaveProvider CurrentPlayable => CurrentTrack.PlayableStream;
 

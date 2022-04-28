@@ -16,7 +16,7 @@ public class Player : ObservableObject, IDisposable
     private MagicStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
-    public LoadableStream CurrentTrack => Stream?.CurrentTrack;
+    public MutableStream CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState
     {
         get
