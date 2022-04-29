@@ -68,9 +68,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
     {
         foreach (var item in songs)
         {
-            if (item.Stream.IsLoaded)
-                AddResample(item.Stream.Item);
-            item.Stream.Loaded += (s, e) => AddResample(item.Stream.Item);
+            item.OnStreamLoaded(x => AddResample(x));
         }
     }
 

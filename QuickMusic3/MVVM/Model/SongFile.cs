@@ -46,6 +46,14 @@ public class SongFile : ObservableObject, IDisposable
 #endif
     }
 
+    private readonly List<Action<MutableStream>> StreamLoadActions = new();
+    public void OnStreamLoaded(Action<MutableStream> action)
+    {
+        StreamLoadActions.Add(action);
+        if (Stream.IsLoaded)
+            action(Stream.Item);
+    }
+
     public void CloseStream()
     {
         if (Stream.IsLoaded)
@@ -66,6 +74,10 @@ public class SongFile : ObservableObject, IDisposable
             Metadata.LoadNow();
             if (Metadata.Item.ReplayGain != 0)
                 Stream.Item.AddTransform(x => new DecibalOffsetProvider(x, Metadata.Item.ReplayGain));
+            foreach (var action in StreamLoadActions)
+            {
+                action(Stream.Item);
+            }
         };
 #if DEBUG
         Stream.Failed += (s, e) => Debug.WriteLine($"{Path.GetFileName(FilePath)}: Stream load failed ({((Loadable<MutableStream>)s).Exception.Message})");
