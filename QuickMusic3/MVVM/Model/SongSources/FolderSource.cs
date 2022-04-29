@@ -11,6 +11,7 @@ public class FolderSource : ISongSource
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     public int Count => Streams.Count;
+    public int IndexOf(SongFile song) => Streams.IndexOf(song);
     public SongFile this[int index] => Streams[index];
     public IEnumerator<SongFile> GetEnumerator() => Streams.GetEnumerator();
 

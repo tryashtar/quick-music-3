@@ -103,6 +103,13 @@ public class Player : ObservableObject, IDisposable
         // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
+    public void SwitchTo(SongFile song)
+    {
+        int index = Playlist.IndexOf(song);
+        if (index != -1)
+            Stream.CurrentIndex = index;
+    }
+
     public ISongSource Playlist { get; private set; }
     public void Open(ISongSource playlist)
     {

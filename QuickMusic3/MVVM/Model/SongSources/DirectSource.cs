@@ -9,6 +9,7 @@ public class DirectSource : ISongSource
     private readonly List<SongFile> Streams;
     public SongFile this[int index] => Streams[index];
     public int Count => Streams.Count;
+    public int IndexOf(SongFile song) => Streams.IndexOf(song);
     public event NotifyCollectionChangedEventHandler CollectionChanged;
     public IEnumerator<SongFile> GetEnumerator() => Streams.GetEnumerator();
 

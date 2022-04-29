@@ -1,4 +1,5 @@
 ﻿using QuickMusic3.Core;
+using System.ComponentModel;
 
 namespace QuickMusic3.MVVM.ViewModel;
 

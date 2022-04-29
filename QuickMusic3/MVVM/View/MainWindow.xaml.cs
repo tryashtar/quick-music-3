@@ -75,14 +75,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 else
                 {
                     var playlist = new DispatcherPlaylist(Application.Current.Dispatcher);
-                    if (dialog.FileNames.Length == 1 && Path.GetExtension(dialog.FileName)!=".m3u")
-                        playlist.AddSource(new FolderSource(Path.GetDirectoryName(dialog.FileName), SearchOption.TopDirectoryOnly, dialog.FileName));
-                    else
+                    foreach (var item in SongSourceExtensions.FromFileList(dialog.FileNames, SearchOption.TopDirectoryOnly, true))
                     {
-                        foreach (var item in SongSourceExtensions.FromFileList(dialog.FileNames, SearchOption.TopDirectoryOnly))
-                        {
-                            playlist.AddSource(item);
-                        }
+                        playlist.AddSource(item);
                     }
                     Model.Shared.Player.Open(playlist);
                     Model.Shared.Player.Play();
@@ -96,6 +91,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var top_right = (Panel)FindResource("PopupTopRight");
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupRestoreButton")).Command = ShowWindowCommand;
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupCloseButton")).Command = CloseWindowCommand;
+        PlaylistList = (ListView)FindResource("PlaylistList");
+        Model.Shared.Player.PropertyChanged += Player_PropertyChanged;
+    }
+    private readonly ListView PlaylistList;
+
+    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Model.Shared.Player.CurrentTrack))
+            PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
     }
 
     private void Window_Closed(object sender, EventArgs e)
@@ -112,9 +116,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left)
-        {
-
-        }
+            Model.Shared.Player.SwitchTo((SongFile)((ListViewItem)sender).Content);
     }
 
     private void Window_Drop(object sender, DragEventArgs e)
@@ -123,14 +125,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         bool holding_shift = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
         var search = holding_shift ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
         var playlist = new DispatcherPlaylist(Application.Current.Dispatcher);
-        if (files.Length == 1 && File.Exists(files[0]) && Path.GetExtension(files[0]) != ".m3u")
-            playlist.AddSource(new FolderSource(Path.GetDirectoryName(files[0]), search, files[0]));
-        else
+        foreach (var item in SongSourceExtensions.FromFileList(files, search, true))
         {
-            foreach (var item in SongSourceExtensions.FromFileList(files, search))
-            {
-                playlist.AddSource(item);
-            }
+            playlist.AddSource(item);
         }
         Model.Shared.Player.Open(playlist);
         Model.Shared.Player.Play();

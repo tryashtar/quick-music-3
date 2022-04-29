@@ -210,6 +210,7 @@
                 </tb:TaskbarIcon.TrayPopup>
             </tb:TaskbarIcon>
             <ListView x:Key="PlaylistList"
+                      x:Name="PlaylistList"
                       ItemsSource="{Binding Shared.Player.Playlist}"
                       Focusable="False"
                       BorderThickness="0"

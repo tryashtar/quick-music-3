@@ -17,6 +17,7 @@ public abstract class SourceAggregator : ISongSource
     public event NotifyCollectionChangedEventHandler CollectionChanged;
     public SongFile this[int index] => FlatList[index];
     public int Count => FlatList.Count;
+    public int IndexOf(SongFile song) => FlatList.IndexOf(song);
     public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
 
     protected void SendEvent(NotifyCollectionChangedEventArgs e)

@@ -7,12 +7,13 @@ namespace QuickMusic3.MVVM.Model;
 
 public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 {
+    int IndexOf(SongFile file);
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public static class SongSourceExtensions
 {
-    public static List<ISongSource> FromFileList(IEnumerable<string> files, SearchOption search)
+    public static List<ISongSource> FromFileList(IEnumerable<string> files, SearchOption search, bool expand_single)
     {
         var results = new List<ISongSource>();
         var batch = new List<string>();
@@ -37,6 +38,11 @@ public static class SongSourceExtensions
                 process_batch();
                 results.Add(new FolderSource(file, search));
             }
+        }
+        if (expand_single && results.Count == 0 && batch.Count == 1)
+        {
+            results.Add(new FolderSource(Path.GetDirectoryName(batch[0]), search, batch[0]));
+            return results;
         }
         process_batch();
         return results;
