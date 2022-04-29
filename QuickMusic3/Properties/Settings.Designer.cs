@@ -93,5 +93,53 @@ namespace QuickMusic3.Properties {
                 this["SelectedTheme"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1300")]
+        public double NowPlayingWidth {
+            get {
+                return ((double)(this["NowPlayingWidth"]));
+            }
+            set {
+                this["NowPlayingWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("340")]
+        public double NowPlayingHeight {
+            get {
+                return ((double)(this["NowPlayingHeight"]));
+            }
+            set {
+                this["NowPlayingHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1300")]
+        public double PlaylistWidth {
+            get {
+                return ((double)(this["PlaylistWidth"]));
+            }
+            set {
+                this["PlaylistWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("700")]
+        public double PlaylistHeight {
+            get {
+                return ((double)(this["PlaylistHeight"]));
+            }
+            set {
+                this["PlaylistHeight"] = value;
+            }
+        }
     }
 }

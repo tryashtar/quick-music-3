@@ -120,7 +120,8 @@
                 </local:CustomButton>
                 <local:CustomButton Style="{StaticResource Button}"
                                     Margin="0,0,6,0"
-                                    Command="{Binding Shared.ChangeShuffleCommand}">
+                                    Command="{Binding Shared.ChangeShuffleCommand}"
+                                    MouseRightButtonDown="Shuffle_MouseRightButtonDown">
                     <Path Fill="{Binding Shared.ActiveTheme.Icon}"
                           Data="{StaticResource ShuffleIcon}"
                           Margin="2"

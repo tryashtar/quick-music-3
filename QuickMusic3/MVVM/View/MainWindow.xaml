@@ -18,11 +18,14 @@
         IsVisibleChanged="Window_IsVisibleChanged"
         AllowDrop="True"
         Drop="Window_Drop"
-        DragOver="Window_DragOver">
+        DragOver="Window_DragOver"
+        SizeChanged="Window_SizeChanged">
     <Window.Title>
-        <MultiBinding StringFormat="Quick Music – {0}"
+        <MultiBinding StringFormat="Quick Music – {0} ({1} / {2})"
                       FallbackValue="Quick Music">
             <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Title" />
+            <Binding Path="Shared.Player.PlaylistPosition" />
+            <Binding Path="Shared.Player.PlaylistTotal" />
         </MultiBinding>
     </Window.Title>
     <WindowChrome.WindowChrome>
@@ -72,6 +75,9 @@
         </KeyBinding>
         <KeyBinding Key="R"
                     Command="{Binding Shared.ChangeRepeatCommand}" />
+        <KeyBinding Modifiers="Alt"
+                    Key="S"
+                    Command="{Binding Shared.ChangeShuffleCommand}" />
         <KeyBinding Key="M"
                     Command="{Binding Shared.ChangeMuteCommand}" />
         <KeyBinding Key="VolumeMute"

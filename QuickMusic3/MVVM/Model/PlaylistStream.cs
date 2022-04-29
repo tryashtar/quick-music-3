@@ -7,14 +7,12 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using QuickMusic3.Core;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class PlaylistStream : IWaveProvider, IDisposable
+public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
 {
-    public event EventHandler CurrentChanged;
-    public event EventHandler Seeked;
-
     public readonly ISongSource Playlist;
     private int current_index;
     public int CurrentIndex
@@ -33,7 +31,6 @@ public class PlaylistStream : IWaveProvider, IDisposable
                 CurrentBase.CurrentTime = CurrentBase.TotalTime;
             else
                 CurrentBase.CurrentTime = TimeSpan.Zero;
-            CurrentChanged?.Invoke(this, EventArgs.Empty);
         }
     }
     public RepeatMode RepeatMode { get; set; }
@@ -63,6 +60,8 @@ public class PlaylistStream : IWaveProvider, IDisposable
         while (CurrentTrack.Stream.IsFailed);
         int next = UpcomingIndex();
         Playlist[next].Stream.LoadBackground();
+        OnPropertyChanged(nameof(CurrentIndex));
+        OnPropertyChanged(nameof(CurrentTrack));
     }
 
     private void AddResamples(IEnumerable<SongFile> songs)
@@ -117,6 +116,11 @@ public class PlaylistStream : IWaveProvider, IDisposable
             CurrentIndex += e.OldItems.Count;
             Debug.WriteLine($"Currently playing track removed, current index advanced to {current_index}");
         }
+        else if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            current_index = Playlist.IndexOf(CurrentTrack);
+            Debug.WriteLine($"Reset: Current index relocated to {current_index}");
+        }
         SetCurrentTrack();
     }
 
@@ -146,7 +150,7 @@ public class PlaylistStream : IWaveProvider, IDisposable
                 position = 0;
             }
             CurrentBase.Position = position;
-            Seeked?.Invoke(this, EventArgs.Empty);
+            OnPropertyChanged();
         }
     }
 

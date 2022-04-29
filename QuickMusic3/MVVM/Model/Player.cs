@@ -3,6 +3,7 @@ using QuickMusic3.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -66,6 +67,10 @@ public class Player : ObservableObject, IDisposable
         set
         {
             Properties.Settings.Default.Shuffle = value;
+            if (value)
+                Playlist.Shuffle(CurrentTrack);
+            else
+                Playlist.Unshuffle();
             OnPropertyChanged();
         }
     }
@@ -80,6 +85,8 @@ public class Player : ObservableObject, IDisposable
         }
     }
     public TimeSpan TotalTime => Stream?.TotalTime ?? TimeSpan.Zero;
+    public int PlaylistPosition => (Stream?.CurrentIndex ?? 0) + 1;
+    public int PlaylistTotal => Stream?.Playlist.Count ?? 1;
 
     public Player()
     {
@@ -110,21 +117,48 @@ public class Player : ObservableObject, IDisposable
             Stream.CurrentIndex = index;
     }
 
-    public ISongSource Playlist { get; private set; }
+    public ShufflableSource Playlist { get; private set; }
     public void Open(ISongSource playlist)
     {
         Close();
-        Playlist = playlist;
-        OnPropertyChanged(nameof(Playlist));
-        Stream = new(playlist);
+        Playlist = new ShufflableSource(playlist);
+        if (Shuffle)
+            Playlist.Shuffle();
+        Stream = new(Playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
-        Stream.CurrentChanged += Stream_CurrentChanged;
-        Stream.Seeked += Stream_Seeked;
+        Stream.PropertyChanged += Stream_PropertyChanged;
         Output = new();
         Output.PlaybackStopped += Output_PlaybackStopped;
         UpdateVolume();
         Output.Init(Stream);
-        Stream_CurrentChanged(this, EventArgs.Empty);
+        OnPropertyChanged(nameof(Playlist));
+        OnPropertyChanged(nameof(PlaylistPosition));
+        OnPropertyChanged(nameof(PlaylistTotal));
+        OnPropertyChanged(nameof(CurrentTrack));
+        OnPropertyChanged(nameof(CurrentTime));
+        OnPropertyChanged(nameof(TotalTime));
+    }
+
+    private void Stream_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Stream.CurrentTrack))
+        {
+            OnPropertyChanged(nameof(CurrentTrack));
+            OnPropertyChanged(nameof(CurrentTime));
+            OnPropertyChanged(nameof(TotalTime));
+        }
+        else if (e.PropertyName == nameof(Stream.CurrentTime))
+            OnPropertyChanged(nameof(CurrentTime));
+        else if (e.PropertyName == nameof(Stream.CurrentIndex))
+            OnPropertyChanged(nameof(PlaylistPosition));
+    }
+
+    public void FreshShuffle()
+    {
+        Properties.Settings.Default.Shuffle = true;
+        Playlist.Shuffle();
+        Stream.CurrentIndex = 0;
+        OnPropertyChanged(nameof(Shuffle));
     }
 
     // if you spam forward a lot, it stops sometimes with an error
@@ -141,18 +175,6 @@ public class Player : ObservableObject, IDisposable
     {
         if (Output != null)
             Output.Volume = Muted ? 0 : Volume * Volume;
-    }
-
-    private void Stream_CurrentChanged(object sender, EventArgs e)
-    {
-        OnPropertyChanged(nameof(CurrentTrack));
-        OnPropertyChanged(nameof(CurrentTime));
-        OnPropertyChanged(nameof(TotalTime));
-    }
-
-    private void Stream_Seeked(object sender, EventArgs e)
-    {
-        OnPropertyChanged(nameof(CurrentTime));
     }
 
     public void Play()
@@ -200,8 +222,7 @@ public class Player : ObservableObject, IDisposable
         }
         if (Stream != null)
         {
-            Stream.CurrentChanged -= Stream_CurrentChanged;
-            Stream.Seeked -= Stream_Seeked;
+            Stream.PropertyChanged -= Stream_PropertyChanged;
             Stream.Dispose();
         }
         Timer.Enabled = false;

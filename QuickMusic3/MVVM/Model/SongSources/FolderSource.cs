@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
@@ -15,11 +15,22 @@ public class FolderSource : ISongSource
     public SongFile this[int index] => Streams[index];
     public IEnumerator<SongFile> GetEnumerator() => Streams.GetEnumerator();
 
+    private bool CheckExtension(FileInfo info)
+    {
+        string ext = info.Extension;
+        return ext switch
+        {
+            ".mp3" or ".aac" or ".aiff" or ".flac" or ".m4a" or ".ogg" or ".wav" or ".wma" => true,
+            _ => false
+        };
+    }
+
     public FolderSource(string path, SearchOption search, string first = null)
     {
         var directory = new DirectoryInfo(path);
         Streams = directory.GetFiles("*", search)
             .Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
+            .Where(CheckExtension)
             .Select(x => new SongFile(x.FullName)).ToList();
         if (first != null)
         {

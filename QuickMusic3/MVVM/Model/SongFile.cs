@@ -49,8 +49,10 @@ public class SongFile : ObservableObject, IDisposable
     public void CloseStream()
     {
         if (Stream.IsLoaded)
+        {
             Stream.Item.Dispose();
-        PrepareStream();
+            PrepareStream();
+        }
     }
 
     private void PrepareStream()

@@ -45,7 +45,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         get => this.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private BaseViewModel Model => (BaseViewModel)DataContext;
+    private MainViewModel Model => (MainViewModel)DataContext;
 
     public MainWindow()
     {
@@ -73,15 +73,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     Model.Shared.OpenTheme(dialog.FileName);
                 }
                 else
-                {
-                    var playlist = new DispatcherPlaylist(Application.Current.Dispatcher);
-                    foreach (var item in SongSourceExtensions.FromFileList(dialog.FileNames, SearchOption.TopDirectoryOnly, true))
-                    {
-                        playlist.AddSource(item);
-                    }
-                    Model.Shared.Player.Open(playlist);
-                    Model.Shared.Player.Play();
-                }
+                    OpenPlaylist(dialog.FileNames, SearchOption.TopDirectoryOnly);
             }
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
@@ -93,13 +85,69 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupCloseButton")).Command = CloseWindowCommand;
         PlaylistList = (ListView)FindResource("PlaylistList");
         Model.Shared.Player.PropertyChanged += Player_PropertyChanged;
+        Model.PropertyChanged += Model_PropertyChanged;
+        UpdateSize();
+        var args = Environment.GetCommandLineArgs();
+        if (args.Length > 1)
+            OpenPlaylist(args.Skip(1), SearchOption.TopDirectoryOnly);
     }
+
+    private void OpenPlaylist(IEnumerable<string> files, SearchOption search)
+    {
+        var playlist = new DispatcherPlaylist(Dispatcher);
+        foreach (var item in SongSourceExtensions.FromFileList(files, search, true))
+        {
+            playlist.AddSource(item);
+        }
+        Model.Shared.Player.Open(playlist);
+        Model.Shared.Player.Play();
+    }
+
+    private bool UpdatingSize = false;
+    private void UpdateSize()
+    {
+        UpdatingSize = true;
+        if (Model.ActiveViewModel is PlaylistViewModel)
+        {
+            this.Width = Properties.Settings.Default.PlaylistWidth;
+            this.Height = Properties.Settings.Default.PlaylistHeight;
+        }
+        else if (Model.ActiveViewModel is NowPlayingViewModel)
+        {
+            this.Width = Properties.Settings.Default.NowPlayingWidth;
+            this.Height = Properties.Settings.Default.NowPlayingHeight;
+        }
+        UpdatingSize = false;
+    }
+
+    private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.ActiveViewModel))
+            UpdateSize();
+    }
+
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (UpdatingSize || this.WindowState == WindowState.Maximized)
+            return;
+        if (Model.ActiveViewModel is PlaylistViewModel)
+        {
+            Properties.Settings.Default.PlaylistWidth = this.Width;
+            Properties.Settings.Default.PlaylistHeight = this.Height;
+        }
+        else if (Model.ActiveViewModel is NowPlayingViewModel)
+        {
+            Properties.Settings.Default.NowPlayingWidth = this.Width;
+            Properties.Settings.Default.NowPlayingHeight = this.Height;
+        }
+    }
+
     private readonly ListView PlaylistList;
 
     private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Model.Shared.Player.CurrentTrack))
-            PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
+        if (e.PropertyName == nameof(Player.CurrentTrack))
+            Dispatcher.BeginInvoke(() => PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack));
     }
 
     private void Window_Closed(object sender, EventArgs e)
@@ -124,13 +172,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
         bool holding_shift = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
         var search = holding_shift ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-        var playlist = new DispatcherPlaylist(Application.Current.Dispatcher);
-        foreach (var item in SongSourceExtensions.FromFileList(files, search, true))
-        {
-            playlist.AddSource(item);
-        }
-        Model.Shared.Player.Open(playlist);
-        Model.Shared.Player.Play();
+        OpenPlaylist(files, search);
     }
 
     private void Window_DragOver(object sender, DragEventArgs e)

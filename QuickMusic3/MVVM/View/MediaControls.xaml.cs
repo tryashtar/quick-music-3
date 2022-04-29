@@ -78,4 +78,9 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
             Model.Shared.Player.Volume = Math.Clamp(volume, 0, 1);
         }
     }
+
+    private void Shuffle_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        Model.Shared.Player.FreshShuffle();
+    }
 }
