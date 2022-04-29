@@ -34,11 +34,11 @@ public abstract class Loadable<T>
 
     public void LoadBackground()
     {
-        if (LoadStatus != LoadStatus.NotLoaded)
-            return;
-        LoadStatus = LoadStatus.Loading;
         lock (LoadingLock)
         {
+            if (LoadStatus != LoadStatus.NotLoaded)
+                return;
+            LoadStatus = LoadStatus.Loading;
             if (LoadingTask == null || LoadingTask.IsCompleted)
                 LoadingTask = Task.Run(TryLoad).ContinueWith(x => SendEvents(), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -46,11 +46,11 @@ public abstract class Loadable<T>
 
     public void LoadNow()
     {
-        if (LoadStatus == LoadStatus.Failed || LoadStatus == LoadStatus.Loaded)
-            return;
-        LoadStatus = LoadStatus.Loading;
         lock (LoadingLock)
         {
+            if (LoadStatus == LoadStatus.Failed || LoadStatus == LoadStatus.Loaded)
+                return;
+            LoadStatus = LoadStatus.Loading;
             if (LoadingTask != null && !LoadingTask.IsCompleted)
                 LoadingTask.Wait();
             else

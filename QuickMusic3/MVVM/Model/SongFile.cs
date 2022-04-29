@@ -56,6 +56,11 @@ public class SongFile : ObservableObject, IDisposable
 
     public void CloseStream()
     {
+        if (Stream.LoadStatus == LoadStatus.Loading)
+        {
+            Debug.WriteLine($"Requested to close {Path.GetFileName(FilePath)} while it was still loading");
+            Stream.LoadNow();
+        }
         if (Stream.IsLoaded)
         {
             Stream.Item.Dispose();
@@ -86,6 +91,11 @@ public class SongFile : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        if (Stream.LoadStatus == LoadStatus.Loading)
+        {
+            Debug.WriteLine($"Requested to dispose {Path.GetFileName(FilePath)} while it was still loading");
+            Stream.LoadNow();
+        }
         if (Stream.IsLoaded)
             Stream.Item.Dispose();
     }
