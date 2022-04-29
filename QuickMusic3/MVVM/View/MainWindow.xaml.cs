@@ -95,13 +95,17 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void OpenPlaylist(IEnumerable<string> files, SearchOption search)
     {
         var playlist = new DispatcherPlaylist(Dispatcher);
-        foreach (var item in SongSourceExtensions.FromFileList(files, search, true))
+        var sources = SongSourceExtensions.FromFileList(files, search, true);
+        foreach (var item in sources)
         {
             playlist.AddSource(item);
         }
+        SongFile first = null;
+        if (sources.Count == 1 && sources[0] is FolderSource f && f.First != null)
+            first = f.First;
         if (playlist.Count > 0)
         {
-            Model.Shared.Player.Open(playlist);
+            Model.Shared.Player.Open(playlist, first);
             Model.Shared.Player.Play();
             Model.GoToDefaultView();
         }

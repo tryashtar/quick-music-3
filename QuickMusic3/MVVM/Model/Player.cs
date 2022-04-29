@@ -118,12 +118,12 @@ public class Player : ObservableObject, IDisposable
     }
 
     public ShufflableSource Playlist { get; private set; }
-    public void Open(ISongSource playlist)
+    public void Open(ISongSource playlist, SongFile first = null)
     {
         Close();
         Playlist = new ShufflableSource(playlist);
         if (Shuffle)
-            Playlist.Shuffle();
+            Playlist.Shuffle(first);
         Stream = new(Playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.PropertyChanged += Stream_PropertyChanged;

@@ -9,6 +9,7 @@ public class FolderSource : ISongSource
 {
     private readonly List<SongFile> Streams;
     public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public readonly SongFile First;
 
     public int Count => Streams.Count;
     public int IndexOf(SongFile song) => Streams.IndexOf(song);
@@ -37,9 +38,9 @@ public class FolderSource : ISongSource
             var index = Streams.FindIndex(x => x.FilePath == first);
             if (index != -1)
             {
-                var item = Streams[index];
+                First = Streams[index];
                 Streams.RemoveAt(index);
-                Streams.Insert(0, item);
+                Streams.Insert(0, First);
             }
         }
         foreach (var item in Streams)
