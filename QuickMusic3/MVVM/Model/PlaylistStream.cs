@@ -82,6 +82,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
 
     private void Playlist_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+        int old_current_index = current_index;
         if (e.Action == NotifyCollectionChangedAction.Add)
             AddResamples(e.NewItems.Cast<SongFile>());
         if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex == current_index)
@@ -119,7 +120,8 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             current_index = Playlist.IndexOf(CurrentTrack);
             Debug.WriteLine($"Reset: Current index relocated to {current_index}");
         }
-        SetCurrentTrack();
+        if (old_current_index != current_index)
+            SetCurrentTrack();
     }
 
     // we have to use CurrentBase.WaveFormat, not CurrentPlayable.WaveFormat
