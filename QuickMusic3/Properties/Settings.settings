@@ -32,5 +32,8 @@
     <Setting Name="PlaylistHeight" Type="System.Double" Scope="User">
       <Value Profile="(Default)">700</Value>
     </Setting>
+    <Setting Name="DefaultView" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

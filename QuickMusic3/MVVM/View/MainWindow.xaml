@@ -8,12 +8,12 @@
         xmlns:view="clr-namespace:QuickMusic3.MVVM.View"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
-        Height="340"
-        Width="1300"
+        Height="300"
+        Width="600"
         MinHeight="200"
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize"
-        Background="{Binding Shared.ActiveTheme.AlbumBackground}"
+        Background="{Binding Shared.ActiveTheme.Background}"
         Closed="Window_Closed"
         IsVisibleChanged="Window_IsVisibleChanged"
         AllowDrop="True"
@@ -517,6 +517,14 @@
             <ContentControl Content="{Binding ActiveViewModel}"
                             Grid.Row="1">
                 <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type viewmodel:HomeViewModel}">
+                        <view:CustomButton Content="Open Song"
+                                Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Style="{StaticResource Button}"
+                                Width="300"
+                                Height="150"
+                                FontSize="48"/>
+                    </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodel:NowPlayingViewModel}">
                         <view:MediaDisplay MetadataFontSize="36"
                                            MediaControls="{StaticResource MediaControls}">

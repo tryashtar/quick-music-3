@@ -99,8 +99,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             playlist.AddSource(item);
         }
-        Model.Shared.Player.Open(playlist);
-        Model.Shared.Player.Play();
+        if (playlist.Count > 0)
+        {
+            Model.Shared.Player.Open(playlist);
+            Model.Shared.Player.Play();
+            Model.GoToDefaultView();
+        }
     }
 
     private bool UpdatingSize = false;

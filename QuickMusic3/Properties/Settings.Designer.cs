@@ -141,5 +141,17 @@ namespace QuickMusic3.Properties {
                 this["PlaylistHeight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DefaultView {
+            get {
+                return ((int)(this["DefaultView"]));
+            }
+            set {
+                this["DefaultView"] = value;
+            }
+        }
     }
 }

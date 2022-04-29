@@ -19,20 +19,19 @@ namespace QuickMusic3.MVVM.ViewModel;
 // current bugs:
 // - we need to fully sort the folder before Upcoming can be truly accurate
 // - error when playlist starts or becomes empty
-// - AddResamples breaks if the stream gets unloaded and reloaded
 // - too much memory usage!
 // - eternal header disposal debug assert
 
 // features to port:
 // - real-time lyrics
 // - remaining shortcuts
-// - blank home view
 // - more intelligent playlist building
 // - fallback album art
-// - show index and total in titlebar
+// - ogg support
 
 public class MainViewModel : BaseViewModel
 {
+    private readonly HomeViewModel HomeVM;
     private readonly NowPlayingViewModel NowPlayingVM;
     private readonly PlaylistViewModel PlaylistVM;
     private BaseViewModel active_view_model;
@@ -48,15 +47,31 @@ public class MainViewModel : BaseViewModel
     public MainViewModel()
     {
         Shared = new();
+        HomeVM = new(Shared);
         NowPlayingVM = new(Shared);
         PlaylistVM = new(Shared);
-        active_view_model = NowPlayingVM;
+        active_view_model = HomeVM;
         ChangeViewCommand = new RelayCommand(() =>
         {
+            // can't change from home
             if (ActiveViewModel == NowPlayingVM)
+            {
                 ActiveViewModel = PlaylistVM;
-            else
+                Properties.Settings.Default.DefaultView = 1;
+            }
+            else if (ActiveViewModel == PlaylistVM)
+            {
                 ActiveViewModel = NowPlayingVM;
+                Properties.Settings.Default.DefaultView = 0;
+            }
         });
+    }
+
+    public void GoToDefaultView()
+    {
+        if (Properties.Settings.Default.DefaultView == 1)
+            ActiveViewModel = PlaylistVM;
+        else
+            ActiveViewModel = NowPlayingVM;
     }
 }

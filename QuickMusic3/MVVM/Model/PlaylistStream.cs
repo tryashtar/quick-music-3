@@ -94,7 +94,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             current_index -= e.OldItems.Count;
             Debug.WriteLine($"Move: Current index decreased to {current_index}");
         }
-        else if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex > current_index && e.NewStartingIndex < current_index)
+        else if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex > current_index && e.NewStartingIndex <= current_index)
         {
             current_index += e.OldItems.Count;
             Debug.WriteLine($"Move: Current index increased to {current_index}");
