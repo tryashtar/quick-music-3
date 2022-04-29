@@ -25,6 +25,11 @@ public class ShufflableSource : ISongSource
     {
         BaseSource = wrapped;
         ShuffledCopy = new();
+        BaseSource.CollectionChanged += (s, e) =>
+        {
+            if (!IsShuffled)
+                CollectionChanged?.Invoke(this, e);
+        };
     }
 
     public void Shuffle(SongFile front = null)
