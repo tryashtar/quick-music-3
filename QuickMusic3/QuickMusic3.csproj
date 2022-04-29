@@ -1,84 +1,87 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon>Resources\quick_music.ico</ApplicationIcon>
-	  <AssemblyTitle>Quick Music 3</AssemblyTitle>
-	  <AssemblyName>QuickMusic3</AssemblyName>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Resources\quick_music.ico</ApplicationIcon>
+		<AssemblyTitle>Quick Music 3</AssemblyTitle>
+		<AssemblyName>QuickMusic3</AssemblyName>
+		<PublishSingleFile>true</PublishSingleFile>
+		<PublishReadyToRun>true</PublishReadyToRun>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Resource Include="Resources\quick_music.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Resources\quick_music.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
-    <PackageReference Include="yamldotnet" Version="11.2.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+		<PackageReference Include="yamldotnet" Version="11.2.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NAudio\NAudio.Core\NAudio.Core.csproj" />
-    <ProjectReference Include="..\NAudio\NAudio\NAudio.csproj" />
-    <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.csproj" />
-    <ProjectReference Include="..\utils.utility\TryashtarUtils.Utility.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NAudio\NAudio.Core\NAudio.Core.csproj" />
+		<ProjectReference Include="..\NAudio\NAudio\NAudio.csproj" />
+		<ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.csproj" />
+		<ProjectReference Include="..\utils.utility\TryashtarUtils.Utility.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="MVVM\View\MediaControls.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="MVVM\View\SizeHost.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="MVVM\View\MediaControls.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="MVVM\View\SizeHost.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Page Update="MVVM\View\SizeHost.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="MVVM\View\Resources\Converters.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="MVVM\View\MainWindow.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="MVVM\View\MediaControls.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="MVVM\View\Resources\Styles.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
+	<ItemGroup>
+		<Page Update="MVVM\View\SizeHost.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="MVVM\View\Resources\Converters.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="MVVM\View\MainWindow.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="MVVM\View\MediaControls.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="MVVM\View\Resources\Styles.xaml">
+			<XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
 
 </Project>
+

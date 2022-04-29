@@ -146,7 +146,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Player.CurrentTrack))
+        if (e.PropertyName == nameof(Player.CurrentTrack) || e.PropertyName == nameof(Player.PlaylistPosition))
             Dispatcher.BeginInvoke(() => PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack));
     }
 
