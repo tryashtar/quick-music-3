@@ -411,21 +411,11 @@
                 </Style>
             </Grid.Style>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Border Background="{Binding Shared.ActiveTheme.Header}">
-                <Grid>
-                    <StackPanel Orientation="Horizontal"
-                                Margin="7,7,7,7"
-                                HorizontalAlignment="Left">
-                        <Image Source="/Resources/quick_music.ico"
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               Margin="0,0,7,0" />
-                        <TextBlock VerticalAlignment="Center"
-                                   Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   Foreground="{Binding Shared.ActiveTheme.Text}" />
-                    </StackPanel>
+                <view:AlignableWrapPanel>
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right">
                         <view:CustomButton Style="{StaticResource Button}"
@@ -488,7 +478,18 @@
                             </Path>
                         </view:CustomButton>
                     </StackPanel>
-                </Grid>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="7,7,7,7"
+                                HorizontalAlignment="Left">
+                        <Image Source="/Resources/quick_music.ico"
+                               Height="16"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Margin="0,0,7,0" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Foreground="{Binding Shared.ActiveTheme.Text}" />
+                    </StackPanel>
+                </view:AlignableWrapPanel>
             </Border>
             <ContentControl Content="{Binding ActiveViewModel}"
                             Grid.Row="1">

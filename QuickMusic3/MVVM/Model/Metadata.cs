@@ -36,7 +36,7 @@ public class Metadata : ObservableObject
         FilePath = path;
         using var file = TagLib.File.Create(path);
         Title = file.Tag.Title ?? Path.GetFileName(path);
-        Artist = file.Tag.FirstPerformer;
+        Artist = String.Join("; ", file.Tag.Performers);
         Album = file.Tag.Album;
         TrackNumber = file.Tag.Track;
         DiscNumber = file.Tag.Disc;

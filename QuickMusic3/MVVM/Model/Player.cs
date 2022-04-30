@@ -124,6 +124,8 @@ public class Player : ObservableObject, IDisposable
         Playlist = new ShufflableSource(playlist);
         if (Shuffle)
             Playlist.Shuffle(first);
+        if (Stream != null)
+            Stream.Dispose();
         Stream = new(Playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.PropertyChanged += Stream_PropertyChanged;
