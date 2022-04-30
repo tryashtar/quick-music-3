@@ -19,6 +19,8 @@
                 <ResourceDictionary Source="Resources/Icons.xaml" />
                 <ResourceDictionary Source="Resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BitmapImage x:Key="DefaultImage"
+                         UriSource="/Resources/default_art.png" />
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid x:Name="MainGrid">
@@ -37,7 +39,7 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Image x:Name="AlbumArt"
-                   Source="{Binding Shared.Player.CurrentTrack.Metadata.Item.HighResImage}"
+                   Source="{Binding Shared.Player.CurrentTrack.Metadata.Item.HighResImage, TargetNullValue={StaticResource DefaultImage}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    VerticalAlignment="Center">
             </Image>

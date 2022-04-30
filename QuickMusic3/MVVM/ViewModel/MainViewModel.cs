@@ -26,8 +26,6 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - real-time lyrics
 // - remaining shortcuts
 // - more intelligent playlist building
-// - fallback album art
-// - ogg support
 
 public class MainViewModel : BaseViewModel
 {
