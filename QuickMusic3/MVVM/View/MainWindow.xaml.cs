@@ -190,4 +190,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             e.Effects = DragDropEffects.Copy;
         e.Handled = true;
     }
+
+    private void PlaylistList_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        ListView listView = sender as ListView;
+        GridView gView = listView.View as GridView;
+
+        var workingWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth - gView.Columns[0].ActualWidth - gView.Columns[4].ActualWidth;
+        gView.Columns[1].Width = workingWidth * 0.5;
+        gView.Columns[2].Width = workingWidth * 0.25;
+        gView.Columns[3].Width = workingWidth * 0.25;
+    }
 }

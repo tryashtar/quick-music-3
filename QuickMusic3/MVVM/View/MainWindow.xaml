@@ -222,6 +222,7 @@
                       BorderThickness="0"
                       Background="{Binding Shared.ActiveTheme.PlaylistBackground}"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      SizeChanged="PlaylistList_SizeChanged"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListView.ItemContainerStyle>
@@ -337,15 +338,6 @@
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn>
-                            <GridViewColumn.Width>
-                                <Binding Path="ActualWidth"
-                                         Converter="{StaticResource MultiplyBy}"
-                                         RelativeSource="{RelativeSource AncestorType=ListView}">
-                                    <Binding.ConverterParameter>
-                                        <sys:Double>0.48</sys:Double>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Metadata.Item.Title}"
@@ -355,42 +347,26 @@
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn>
-                            <GridViewColumn.Width>
-                                <Binding Path="ActualWidth"
-                                         Converter="{StaticResource MultiplyBy}"
-                                         RelativeSource="{RelativeSource AncestorType=ListView}">
-                                    <Binding.ConverterParameter>
-                                        <sys:Double>0.22</sys:Double>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Metadata.Item.Artist}"
                                                FontSize="16"
+                                               TextWrapping="Wrap"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn>
-                            <GridViewColumn.Width>
-                                <Binding Path="ActualWidth"
-                                         Converter="{StaticResource MultiplyBy}"
-                                         RelativeSource="{RelativeSource AncestorType=ListView}">
-                                    <Binding.ConverterParameter>
-                                        <sys:Double>0.22</sys:Double>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </GridViewColumn.Width>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Metadata.Item.Album}"
                                                FontSize="16"
+                                               TextWrapping="Wrap"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn>
+                        <GridViewColumn Width="60">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding GuessDuration, Converter={StaticResource TimeStringConverter}}"
