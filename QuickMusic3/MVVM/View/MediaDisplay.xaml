@@ -55,25 +55,29 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Viewbox Grid.Column="0"
-                         Margin="20,5,10,5"
-                         StretchDirection="DownOnly"
-                         VerticalAlignment="Top"
-                         HorizontalAlignment="Left">
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Title, FallbackValue=Title}"
-                                   FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                                   TextWrapping="WrapWithOverflow" />
-                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Artist, FallbackValue=Artist}"
-                                   FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                                   Foreground="{Binding Shared.ActiveTheme.SubtleText}"
-                                   TextWrapping="WrapWithOverflow" />
-                        <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Album, FallbackValue=Album}"
-                                   FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
-                                   Foreground="{Binding Shared.ActiveTheme.SubtleText}"
-                                   TextWrapping="WrapWithOverflow" />
-                    </StackPanel>
-                </Viewbox>
+                <DockPanel Grid.Column="0"
+                           Margin="20,5,10,5">
+                    <Viewbox StretchDirection="DownOnly"
+                             VerticalAlignment="Top"
+                             HorizontalAlignment="Left">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Title, FallbackValue=Title}"
+                                       FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
+                                       Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Artist, FallbackValue=Artist}"
+                                       FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
+                                       Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}"
+                                       Foreground="{Binding Shared.ActiveTheme.SubtleText}"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Album, FallbackValue=Album}"
+                                       FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
+                                       Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}"
+                                       Foreground="{Binding Shared.ActiveTheme.SubtleText}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Viewbox>
+                </DockPanel>
                 <ContentControl Grid.Column="1"
                                 Margin="0,5,5,5"
                                 Focusable="False"

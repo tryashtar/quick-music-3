@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
@@ -36,7 +37,7 @@ public class Metadata : ObservableObject
         FilePath = path;
         using var file = TagLib.File.Create(path);
         Title = file.Tag.Title ?? Path.GetFileName(path);
-        Artist = String.Join("; ", file.Tag.Performers);
+        Artist = String.Join("; ", file.Tag.Performers.Select(x => x.Trim()));
         Album = file.Tag.Album;
         TrackNumber = file.Tag.Track;
         DiscNumber = file.Tag.Disc;

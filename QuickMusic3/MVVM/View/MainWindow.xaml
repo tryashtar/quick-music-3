@@ -496,11 +496,11 @@
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type viewmodel:HomeViewModel}">
                         <view:CustomButton Content="Open Song"
-                                Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                Style="{StaticResource Button}"
-                                Width="300"
-                                Height="150"
-                                FontSize="48"/>
+                                           Command="{Binding BrowseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                           Style="{StaticResource Button}"
+                                           Width="300"
+                                           Height="150"
+                                           FontSize="48" />
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodel:NowPlayingViewModel}">
                         <view:MediaDisplay MetadataFontSize="36"

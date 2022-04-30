@@ -20,7 +20,6 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - we need to fully sort the folder before Upcoming can be truly accurate
 // - error when playlist starts or becomes empty
 // - too much memory usage!
-// - eternal header disposal debug assert
 
 // features to port:
 // - real-time lyrics
