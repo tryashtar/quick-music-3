@@ -23,7 +23,10 @@ public class SongSorter : IComparer<SongFile>
         int track = xm.TrackNumber.CompareTo(ym.TrackNumber);
         if (track != 0)
             return track;
-        return (xm.Title ?? "").CompareTo(ym.Title ?? "");
+        int title = (xm.Title ?? "").CompareTo(ym.Title ?? "");
+        if (title != 0)
+            return title;
+        return x.FilePath.CompareTo(y.FilePath);
     }
 
     private static int LoadStatusOrder(LoadStatus status)

@@ -129,7 +129,8 @@ public class Player : ObservableObject, IDisposable
         Stream = new(Playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.PropertyChanged += Stream_PropertyChanged;
-        Stream.CurrentIndex = first_index;
+        if (!Shuffle)
+            Stream.CurrentIndex = first_index;
         Output = new();
         Output.PlaybackStopped += Output_PlaybackStopped;
         UpdateVolume();
