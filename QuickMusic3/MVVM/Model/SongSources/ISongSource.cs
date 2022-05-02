@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -13,7 +14,7 @@ public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 
 public static class SongSourceExtensions
 {
-    public static List<ISongSource> FromFileList(IEnumerable<string> files, SearchOption search, bool expand_single)
+    public static (List<ISongSource> sources, int first_index) FromFileList(IEnumerable<string> files, SearchOption search, bool expand_single)
     {
         var results = new List<ISongSource>();
         var batch = new List<string>();
@@ -41,10 +42,16 @@ public static class SongSourceExtensions
         }
         if (expand_single && results.Count == 0 && batch.Count == 1)
         {
-            results.Add(new FolderSource(Path.GetDirectoryName(batch[0]), search, batch[0]));
-            return results;
+            var folder = new FolderSource(Path.GetDirectoryName(batch[0]), search);
+            results.Add(folder);
+            for (int i = 0; i < folder.Count; i++)
+            {
+                if (folder[i].FilePath == batch[0])
+                    return (results, i);
+            }
+            return (results, 0);
         }
         process_batch();
-        return results;
+        return (results, 0);
     }
 }

@@ -26,7 +26,7 @@ public class PlaylistFileSource : SourceAggregator
             // if reference path is absolute, it just uses that which is perfect
             entries.Add(Path.Combine(folder, line));
         }
-        foreach (var item in SongSourceExtensions.FromFileList(entries, SearchOption.TopDirectoryOnly, false))
+        foreach (var item in SongSourceExtensions.FromFileList(entries, SearchOption.TopDirectoryOnly, false).sources)
         {
             AddSource(item, false);
         }

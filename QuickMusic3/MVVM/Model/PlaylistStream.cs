@@ -50,6 +50,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
 
     private void SetCurrentTrack()
     {
+        var prev_track = CurrentTrack;
         do
         {
             CurrentTrack = Playlist[current_index];
@@ -62,7 +63,8 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         if (next < Playlist.Count)
             Playlist[next].Stream.LoadBackground();
         OnPropertyChanged(nameof(CurrentIndex));
-        OnPropertyChanged(nameof(CurrentTrack));
+        if (CurrentTrack != prev_track)
+            OnPropertyChanged(nameof(CurrentTrack));
     }
 
     private void AddResamples(IEnumerable<SongFile> songs)

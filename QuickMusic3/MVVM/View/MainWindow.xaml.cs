@@ -96,16 +96,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         var playlist = new DispatcherPlaylist(Dispatcher);
         var sources = SongSourceExtensions.FromFileList(files, search, true);
-        foreach (var item in sources)
+        foreach (var item in sources.sources)
         {
             playlist.AddSource(item);
         }
-        SongFile first = null;
-        if (sources.Count == 1 && sources[0] is FolderSource f && f.First != null)
-            first = f.First;
         if (playlist.Count > 0)
         {
-            Model.Shared.Player.Open(playlist, first);
+            Model.Shared.Player.Open(playlist, sources.first_index);
             Model.Shared.Player.Play();
             Model.GoToDefaultView();
         }
@@ -152,10 +149,47 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private readonly ListView PlaylistList;
 
+    private int LastKnownPosition;
+    private SongFile LastKnownTrack;
     private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Player.CurrentTrack) || e.PropertyName == nameof(Player.PlaylistPosition))
-            Dispatcher.BeginInvoke(() => PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack));
+        if (e.PropertyName == nameof(Player.CurrentTrack))
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
+                LastKnownPosition = Model.Shared.Player.PlaylistPosition;
+                LastKnownTrack = Model.Shared.Player.CurrentTrack;
+            });
+        }
+        else if (e.PropertyName == nameof(Player.PlaylistPosition))
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
+                {
+                    int pos = Model.Shared.Player.PlaylistPosition;
+                    var scroller = (ScrollViewer)((Decorator)VisualTreeHelper.GetChild(PlaylistList, 0)).Child;
+                    if (Math.Abs(LastKnownPosition - pos) > 20)
+                        PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
+                    else if (LastKnownPosition > pos)
+                    {
+                        for (int i = 0; i < LastKnownPosition - pos; i++)
+                        {
+                            scroller.LineUp();
+                        }
+                    }
+                    else if (LastKnownPosition < pos)
+                    {
+                        for (int i = 0; i < pos - LastKnownPosition; i++)
+                        {
+                            scroller.LineDown();
+                        }
+                    }
+                }
+                LastKnownPosition = Model.Shared.Player.PlaylistPosition;
+            });
+        }
     }
 
     private void Window_Closed(object sender, EventArgs e)
@@ -172,7 +206,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left)
+        {
             Model.Shared.Player.SwitchTo((SongFile)((ListViewItem)sender).Content);
+            Model.Shared.Player.Play();
+        }
     }
 
     private void Window_Drop(object sender, DragEventArgs e)

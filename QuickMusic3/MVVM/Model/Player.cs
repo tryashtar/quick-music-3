@@ -68,7 +68,7 @@ public class Player : ObservableObject, IDisposable
         {
             Properties.Settings.Default.Shuffle = value;
             if (value)
-                Playlist.Shuffle(CurrentTrack);
+                Playlist.Shuffle(Stream.CurrentIndex);
             else
                 Playlist.Unshuffle();
             OnPropertyChanged();
@@ -118,17 +118,18 @@ public class Player : ObservableObject, IDisposable
     }
 
     public ShufflableSource Playlist { get; private set; }
-    public void Open(ISongSource playlist, SongFile first = null)
+    public void Open(ISongSource playlist, int first_index = 0)
     {
         Close();
         Playlist = new ShufflableSource(playlist);
         if (Shuffle)
-            Playlist.Shuffle(first);
+            Playlist.Shuffle(first_index);
         if (Stream != null)
             Stream.Dispose();
         Stream = new(Playlist);
         Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
         Stream.PropertyChanged += Stream_PropertyChanged;
+        Stream.CurrentIndex = first_index;
         Output = new();
         Output.PlaybackStopped += Output_PlaybackStopped;
         UpdateVolume();

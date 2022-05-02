@@ -29,16 +29,37 @@ public class ShufflableSource : ISongSource
         {
             if (!IsShuffled)
                 CollectionChanged?.Invoke(this, e);
+            else
+            {
+                if (e.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    foreach (var item in e.OldItems)
+                    {
+                        int index = ShuffledCopy.IndexOf((SongFile)item);
+                        if (index != -1)
+                        {
+                            ShuffledCopy.RemoveAt(index);
+                            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+                        }
+                    }
+                }
+                else if (e.Action != NotifyCollectionChangedAction.Move) // ignore moves
+                    throw new NotSupportedException();
+            }
         };
     }
 
-    public void Shuffle(SongFile front = null)
+    public void Shuffle(int first_index = 0)
     {
         ShuffledCopy.Clear();
         ShuffledCopy.AddRange(BaseSource);
         Shuffle(ShuffledCopy);
-        if (front != null && ShuffledCopy.Remove(front))
-            ShuffledCopy.Insert(0, front);
+        if (first_index > 0)
+        {
+            var item = BaseSource[first_index];
+            ShuffledCopy.RemoveAt(ShuffledCopy.IndexOf(item));
+            ShuffledCopy.Insert(0, item);
+        }
         IsShuffled = true;
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }

@@ -340,9 +340,15 @@
                         <GridViewColumn>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
+                                    <!--<StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Metadata.Item.TrackNumber}"
+                                                   FontSize="16"
+                                                   Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   Width="30"/>-->
                                     <TextBlock Text="{Binding Metadata.Item.Title}"
                                                FontSize="16"
                                                TextWrapping="Wrap" />
+                                    <!--</StackPanel>-->
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

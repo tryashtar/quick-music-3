@@ -9,7 +9,6 @@ public class FolderSource : ISongSource
 {
     private readonly List<SongFile> Streams;
     public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public readonly SongFile First;
 
     public int Count => Streams.Count;
     public int IndexOf(SongFile song) => Streams.IndexOf(song);
@@ -26,23 +25,13 @@ public class FolderSource : ISongSource
         };
     }
 
-    public FolderSource(string path, SearchOption search, string first = null)
+    public FolderSource(string path, SearchOption search)
     {
         var directory = new DirectoryInfo(path);
         Streams = directory.GetFiles("*", search)
             .Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
             .Where(CheckExtension)
             .Select(x => new SongFile(x.FullName)).ToList();
-        if (first != null)
-        {
-            var index = Streams.FindIndex(x => x.FilePath == first);
-            if (index != -1)
-            {
-                First = Streams[index];
-                Streams.RemoveAt(index);
-                Streams.Insert(0, First);
-            }
-        }
         foreach (var item in Streams)
         {
             item.Metadata.Failed += (s, e) => MoveIntoPlace(item);
