@@ -169,21 +169,25 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
                 {
                     int pos = Model.Shared.Player.PlaylistPosition;
-                    var scroller = (ScrollViewer)((Decorator)VisualTreeHelper.GetChild(PlaylistList, 0)).Child;
-                    if (Math.Abs(LastKnownPosition - pos) > 20)
-                        PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
-                    else if (LastKnownPosition > pos)
+                    int children = VisualTreeHelper.GetChildrenCount(PlaylistList);
+                    if (children > 0)
                     {
-                        for (int i = 0; i < LastKnownPosition - pos; i++)
+                        var scroller = (ScrollViewer)((Decorator)VisualTreeHelper.GetChild(PlaylistList, 0)).Child;
+                        if (Math.Abs(LastKnownPosition - pos) > 20)
+                            PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
+                        else if (LastKnownPosition > pos)
                         {
-                            scroller.LineUp();
+                            for (int i = 0; i < LastKnownPosition - pos; i++)
+                            {
+                                scroller.LineUp();
+                            }
                         }
-                    }
-                    else if (LastKnownPosition < pos)
-                    {
-                        for (int i = 0; i < pos - LastKnownPosition; i++)
+                        else if (LastKnownPosition < pos)
                         {
-                            scroller.LineDown();
+                            for (int i = 0; i < pos - LastKnownPosition; i++)
+                            {
+                                scroller.LineDown();
+                            }
                         }
                     }
                 }
