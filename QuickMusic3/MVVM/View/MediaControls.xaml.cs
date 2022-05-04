@@ -73,14 +73,14 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         if (e.NewValue is BaseViewModel b)
         {
             b.Shared.Player.PropertyChanged += Player_PropertyChanged;
-            AddChapters();
+            Dispatcher.BeginInvoke(() => AddChapters());
         }
     }
 
     private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Player.CurrentTrack))
-            AddChapters();
+            Dispatcher.BeginInvoke(() => AddChapters());
     }
 
     private void AddChapters()
