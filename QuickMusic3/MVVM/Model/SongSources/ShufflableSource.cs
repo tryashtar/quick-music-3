@@ -49,14 +49,14 @@ public class ShufflableSource : ISongSource
         };
     }
 
-    public void Shuffle(int first_index = 0)
+    public void Shuffle(int? first_index = null)
     {
         ShuffledCopy.Clear();
         ShuffledCopy.AddRange(BaseSource);
         Shuffle(ShuffledCopy);
-        if (first_index > 0)
+        if (first_index.HasValue)
         {
-            var item = BaseSource[first_index];
+            var item = BaseSource[first_index.Value];
             ShuffledCopy.RemoveAt(ShuffledCopy.IndexOf(item));
             ShuffledCopy.Insert(0, item);
         }

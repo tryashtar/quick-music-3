@@ -14,7 +14,7 @@ public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 
 public static class SongSourceExtensions
 {
-    public static (List<ISongSource> sources, int first_index) FromFileList(IEnumerable<string> files, SearchOption search, bool expand_single)
+    public static (List<ISongSource> sources, int? first_index) FromFileList(IEnumerable<string> files, SearchOption search, bool expand_single)
     {
         var results = new List<ISongSource>();
         var batch = new List<string>();
@@ -49,9 +49,9 @@ public static class SongSourceExtensions
                 if (folder[i].FilePath == batch[0])
                     return (results, i);
             }
-            return (results, 0);
+            return (results, null);
         }
         process_batch();
-        return (results, 0);
+        return (results, null);
     }
 }
