@@ -1,11 +1,13 @@
 ﻿using Microsoft.Win32;
 using NAudio.Wave;
+using QuickMusic3.Converters;
 using QuickMusic3.Core;
 using QuickMusic3.MVVM.Model;
 using QuickMusic3.MVVM.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.View;
 
@@ -50,11 +53,61 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         set { playdragging = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlayDragging))); }
     }
 
+    private readonly StackPanel ProgressGrid;
+    private readonly StackPanel RemainingGrid;
+
     public MediaControls()
     {
         InitializeComponent();
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
+        ProgressGrid = (StackPanel)FindResource("ProgressGrid");
+        RemainingGrid = (StackPanel)FindResource("RemainingGrid");
+        this.DataContextChanged += MediaControls_DataContextChanged;
+    }
+
+    private void MediaControls_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.OldValue is BaseViewModel o)
+            o.Shared.Player.PropertyChanged -= Player_PropertyChanged;
+        if (e.NewValue is BaseViewModel b)
+        {
+            b.Shared.Player.PropertyChanged += Player_PropertyChanged;
+            AddChapters();
+        }
+    }
+
+    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Player.CurrentTrack))
+            AddChapters();
+    }
+
+    private void AddChapters()
+    {
+        var chapters = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack?.Metadata?.Item?.Chapters;
+        ProgressGrid.Children.Clear();
+        RemainingGrid.Children.Clear();
+        if (chapters != null)
+        {
+            var duration = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Metadata.Item.Duration;
+            for (int i = -1; i < chapters.Chapters.Count; i++)
+            {
+                TimeSpan start = i < 0 ? TimeSpan.Zero : chapters.Chapters[i].Time;
+                TimeSpan end = (i < chapters.Chapters.Count - 1) ? chapters.Chapters[i + 1].Time : duration;
+                var length = end - start;
+                var proportion = length / duration;
+                var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+                var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+                var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
+                left_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+                right_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+                left_bar.SetBinding(Border.WidthProperty, binding);
+                right_bar.SetBinding(Border.WidthProperty, binding);
+                ProgressGrid.Children.Add(left_bar);
+                RemainingGrid.Children.Add(right_bar);
+            }
+        }
     }
 
     private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)

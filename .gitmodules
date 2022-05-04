@@ -7,3 +7,6 @@
 [submodule "taglib-sharp"]
 	path = taglib-sharp
 	url = https://github.com/tryashtar/taglib-sharp
+[submodule "utils.music"]
+	path = utils.music
+	url = https://github.com/tryashtar/utils.music

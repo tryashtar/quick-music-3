@@ -61,6 +61,13 @@ public partial class CustomSlider : Slider
         get { return (Style)GetValue(RemainingBarStyleProperty); }
         set { SetValue(RemainingBarStyleProperty, value); }
     }
+    public static readonly DependencyProperty BackgroundItemProperty =
+        DependencyProperty.Register(nameof(BackgroundItem), typeof(FrameworkElement), typeof(CustomSlider), new FrameworkPropertyMetadata());
+    public FrameworkElement BackgroundItem
+    {
+        get { return (FrameworkElement)GetValue(BackgroundItemProperty); }
+        set { SetValue(BackgroundItemProperty, value); }
+    }
 
     private bool clickedInSlider;
     protected override void OnMouseMove(MouseEventArgs e)
