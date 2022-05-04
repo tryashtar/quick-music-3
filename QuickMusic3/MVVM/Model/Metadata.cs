@@ -1,12 +1,14 @@
 ﻿using NAudio.Wave;
 using QuickMusic3.Core;
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -20,6 +22,7 @@ public class Metadata : ObservableObject
     public TimeSpan Duration { get; init; }
     public BitmapSource Thumbnail { get; init; }
     public decimal ReplayGain { get; init; }
+    public ChapterCollection Chapters { get; init; }
     public BitmapSource HighResImage
     {
         get
@@ -47,6 +50,7 @@ public class Metadata : ObservableObject
         Duration = file.Properties.Duration;
         Thumbnail = ArtCache.GetEmbeddedImage(file.Tag);
         ReplayGain = LoadReplayGain(file);
+        Chapters = ChaptersIO.FromFile(file);
     }
     public Metadata() { }
 

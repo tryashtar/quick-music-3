@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NAudio.WinMM", "NAudio\NAud
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NAudio.Wasapi", "NAudio\NAudio.Wasapi\NAudio.Wasapi.csproj", "{CF82F468-61A0-4478-AC7C-9FBBF2E06EBA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TryashtarUtils.Music", "utils.music\TryashtarUtils.Music.csproj", "{36072737-1E17-4BC5-9143-C69A0831D4AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{CF82F468-61A0-4478-AC7C-9FBBF2E06EBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF82F468-61A0-4478-AC7C-9FBBF2E06EBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF82F468-61A0-4478-AC7C-9FBBF2E06EBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36072737-1E17-4BC5-9143-C69A0831D4AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36072737-1E17-4BC5-9143-C69A0831D4AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36072737-1E17-4BC5-9143-C69A0831D4AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36072737-1E17-4BC5-9143-C69A0831D4AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
