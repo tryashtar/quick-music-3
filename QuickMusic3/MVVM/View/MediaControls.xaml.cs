@@ -90,7 +90,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         RemainingGrid.Children.Clear();
         if (chapters != null)
         {
-            var duration = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Metadata.Item.Duration;
+            var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
             for (int i = -1; i < chapters.Chapters.Count; i++)
             {
                 TimeSpan start = i < 0 ? TimeSpan.Zero : chapters.Chapters[i].Time;
