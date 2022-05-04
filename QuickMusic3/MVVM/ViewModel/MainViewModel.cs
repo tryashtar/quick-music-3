@@ -20,6 +20,7 @@ namespace QuickMusic3.MVVM.ViewModel;
 // - we need to fully sort the folder before Upcoming can be truly accurate
 // - error when playlist starts or becomes empty
 // - too much memory usage!
+// - text wraps too early when small ... once this is fixed, add max height to popup
 
 // features to port:
 // - real-time lyrics

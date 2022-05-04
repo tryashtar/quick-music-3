@@ -91,32 +91,21 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         if (chapters != null)
         {
             var duration = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Metadata.Item.Duration;
-            int color_index = 0;
             for (int i = -1; i < chapters.Chapters.Count; i++)
             {
                 TimeSpan start = i < 0 ? TimeSpan.Zero : chapters.Chapters[i].Time;
                 TimeSpan end = (i < chapters.Chapters.Count - 1) ? chapters.Chapters[i + 1].Time : duration;
                 var length = end - start;
                 var proportion = length / duration;
-                var left_bar = new Rectangle();
-                var right_bar = new Rectangle();
+                var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+                var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
                 var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
-                left_bar.SetBinding(Rectangle.WidthProperty, binding);
-                right_bar.SetBinding(Rectangle.WidthProperty, binding);
-                if (color_index % 2 == 0)
-                {
-                    left_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarFilled");
-                    right_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarUnfilled");
-                }
-                else
-                {
-                    left_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarFilledChapter");
-                    right_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarUnfilledChapter");
-                }
+                left_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+                right_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+                left_bar.SetBinding(Border.WidthProperty, binding);
+                right_bar.SetBinding(Border.WidthProperty, binding);
                 ProgressGrid.Children.Add(left_bar);
                 RemainingGrid.Children.Add(right_bar);
-                if (proportion > 0.01)
-                    color_index++;
             }
         }
     }
