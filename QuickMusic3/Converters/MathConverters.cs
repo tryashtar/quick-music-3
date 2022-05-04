@@ -20,6 +20,8 @@ public class MultiplyConverter : ParameterConverter<double, double, double>
     {
         return value * parameter;
     }
+
+    public static readonly MultiplyConverter Instance = new MultiplyConverter();
 }
 
 public class GreaterThanConverter : ParameterConverter<int, bool, int>

@@ -75,6 +75,19 @@ public class Player : ObservableObject, IDisposable
         }
     }
 
+    public string CurrentChapter
+    {
+        get
+        {
+            if (CurrentTrack == null)
+                return null;
+            if (CurrentTrack.Metadata.Item.Chapters == null)
+                return null;
+            var chapter = CurrentTrack.Metadata.Item.Chapters.ChapterAtTime(CurrentTime);
+            return chapter?.Title;
+        }
+    }
+
     public TimeSpan CurrentTime
     {
         get => Stream?.CurrentTime + MissingTime.Elapsed ?? TimeSpan.Zero;
@@ -107,6 +120,7 @@ public class Player : ObservableObject, IDisposable
             MissingTime.Restart();
         }
         OnPropertyChanged(nameof(CurrentTime));
+        OnPropertyChanged(nameof(CurrentChapter));
         // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
     }
 
@@ -140,6 +154,7 @@ public class Player : ObservableObject, IDisposable
         OnPropertyChanged(nameof(PlaylistTotal));
         OnPropertyChanged(nameof(CurrentTrack));
         OnPropertyChanged(nameof(CurrentTime));
+        OnPropertyChanged(nameof(CurrentChapter));
         OnPropertyChanged(nameof(TotalTime));
     }
 
@@ -149,10 +164,14 @@ public class Player : ObservableObject, IDisposable
         {
             OnPropertyChanged(nameof(CurrentTrack));
             OnPropertyChanged(nameof(CurrentTime));
+            OnPropertyChanged(nameof(CurrentChapter));
             OnPropertyChanged(nameof(TotalTime));
         }
         else if (e.PropertyName == nameof(Stream.CurrentTime))
+        {
             OnPropertyChanged(nameof(CurrentTime));
+            OnPropertyChanged(nameof(CurrentChapter));
+        }
         else if (e.PropertyName == nameof(Stream.CurrentIndex))
             OnPropertyChanged(nameof(PlaylistPosition));
     }
@@ -189,6 +208,7 @@ public class Player : ObservableObject, IDisposable
             Timer.Enabled = true;
             MissingTime.Restart();
             OnPropertyChanged(nameof(CurrentTime));
+            OnPropertyChanged(nameof(CurrentChapter));
             OnPropertyChanged(nameof(PlayState));
         }
     }

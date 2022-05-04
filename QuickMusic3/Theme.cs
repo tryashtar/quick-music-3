@@ -22,7 +22,9 @@ public class Theme
     public Brush Text { get; set; }
     public Brush SubtleText { get; set; }
     public Brush BarUnfilled { get; set; }
+    public Brush BarUnfilledChapter { get; set; }
     public Brush BarFilled { get; set; }
+    public Brush BarFilledChapter { get; set; }
     public Brush BarButton { get; set; }
     public Brush Button { get; set; }
     public Brush ButtonOutline { get; set; }
@@ -44,7 +46,9 @@ public class Theme
                 Text = Brushes.Black,
                 SubtleText = new SolidColorBrush(Color.FromRgb(0xa0, 0xa0, 0xa0)),
                 BarUnfilled = new SolidColorBrush(Color.FromRgb(0xc8, 0xc8, 0xc8)),
+                BarUnfilledChapter = new SolidColorBrush(Color.FromRgb(0xc0, 0xc0, 0xc0)),
                 BarFilled = new SolidColorBrush(Color.FromRgb(0x7f, 0xb2, 0xf0)),
+                BarFilledChapter = new SolidColorBrush(Color.FromRgb(100, 140, 189)),
                 BarButton = new SolidColorBrush(Color.FromRgb(0x00, 0x78, 0xd7)),
                 Button = new SolidColorBrush(Color.FromRgb(0xdd, 0xdd, 0xdd)),
                 ButtonOutline = new SolidColorBrush(Color.FromRgb(0x70, 0x70, 0x70)),
@@ -65,7 +69,9 @@ public class Theme
                 Text = Brushes.White,
                 SubtleText = new SolidColorBrush(Color.FromRgb(0x90, 0x90, 0x90)),
                 BarUnfilled = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x44)),
+                BarUnfilledChapter = new SolidColorBrush(Color.FromRgb(0x4f, 0x4f, 0x4f)),
                 BarFilled = new SolidColorBrush(Color.FromRgb(0x2d, 0x5d, 0xba)),
+                BarFilledChapter = new SolidColorBrush(Color.FromRgb(0x2d, 0x50, 0xba)),
                 BarButton = new SolidColorBrush(Color.FromRgb(0x52, 0x86, 0xe6)),
                 Button = new SolidColorBrush(Color.FromRgb(0x30, 0x30, 0x30)),
                 ButtonOutline = new SolidColorBrush(Color.FromRgb(0x11, 0x11, 0x11)),

@@ -19,23 +19,23 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Border Name="TrackBackground"
-                                Height="{TemplateBinding BarHeight}"
-                                Grid.Row="1" />
+                        <ContentControl Grid.Row="1"
+                                        Height="{TemplateBinding BarHeight}"
+                                        Content="{TemplateBinding BackgroundItem}" />
                         <Track Grid.Row="1"
                                Name="PART_Track">
-                            <Track.DecreaseRepeatButton>
-                                <RepeatButton Command="Slider.DecreaseLarge"
-                                              Height="{TemplateBinding BarHeight}"
-                                              Style="{TemplateBinding ProgressBarStyle}"
-                                              Focusable="False" />
-                            </Track.DecreaseRepeatButton>
                             <Track.IncreaseRepeatButton>
                                 <RepeatButton Command="Slider.IncreaseLarge"
                                               Height="{TemplateBinding BarHeight}"
                                               Style="{TemplateBinding RemainingBarStyle}"
                                               Focusable="False" />
                             </Track.IncreaseRepeatButton>
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="Slider.DecreaseLarge"
+                                              Height="{TemplateBinding BarHeight}"
+                                              Style="{TemplateBinding ProgressBarStyle}"
+                                              Focusable="False" />
+                            </Track.DecreaseRepeatButton>
                             <Track.Thumb>
                                 <Thumb Style="{TemplateBinding ThumbButtonStyle}"
                                        Margin="-1" />

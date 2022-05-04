@@ -7,6 +7,7 @@ using QuickMusic3.MVVM.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,25 +53,17 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         set { playdragging = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlayDragging))); }
     }
 
+    private readonly StackPanel ProgressGrid;
+    private readonly StackPanel RemainingGrid;
+
     public MediaControls()
     {
         InitializeComponent();
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(TimeBar_MouseDown), true);
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
+        ProgressGrid = (StackPanel)FindResource("ProgressGrid");
+        RemainingGrid = (StackPanel)FindResource("RemainingGrid");
         this.DataContextChanged += MediaControls_DataContextChanged;
-
-        var value = new Binding("Value") { ElementName = "TimeBar" };
-        var total = new Binding("Maximum") { ElementName = "TimeBar" };
-        ProgressBinding = new MultiBinding();
-        ProgressBinding.Bindings.Add(value);
-        ProgressBinding.Bindings.Add(total);
-        ProgressBinding.Bindings.Add(new Binding() { Source = false });
-        ProgressBinding.Converter = ProgressDivvy.Instance;
-        RemainingBinding = new MultiBinding();
-        RemainingBinding.Bindings.Add(value);
-        RemainingBinding.Bindings.Add(total);
-        RemainingBinding.Bindings.Add(new Binding() { Source = true });
-        RemainingBinding.Converter = ProgressDivvy.Instance;
     }
 
     private void MediaControls_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -90,47 +83,40 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
             AddChapters();
     }
 
-    private readonly MultiBinding ProgressBinding;
-    private readonly MultiBinding RemainingBinding;
-
     private void AddChapters()
     {
-        ChapterBar.ColumnDefinitions.Clear();
-        ChapterBar.Children.Clear();
         var chapters = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack?.Metadata?.Item?.Chapters;
-        if (chapters == null)
+        ProgressGrid.Children.Clear();
+        RemainingGrid.Children.Clear();
+        if (chapters != null)
         {
-            var left = new ColumnDefinition();
-            var right = new ColumnDefinition();
-            left.SetBinding(ColumnDefinition.WidthProperty, ProgressBinding);
-            right.SetBinding(ColumnDefinition.WidthProperty, RemainingBinding);
-            ChapterBar.ColumnDefinitions.Add(left);
-            ChapterBar.ColumnDefinitions.Add(right);
-            var left_shape = new Rectangle();
-            var right_shape = new Rectangle();
-            left_shape.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarFilled");
-            right_shape.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarUnfilled");
-            Grid.SetColumn(left_shape, 0);
-            Grid.SetColumn(right_shape, 1);
-            ChapterBar.Children.Add(left_shape);
-            ChapterBar.Children.Add(right_shape);
-        }
-        else
-        {
+            var duration = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Metadata.Item.Duration;
+            int color_index = 0;
             for (int i = -1; i < chapters.Chapters.Count; i++)
             {
                 TimeSpan start = i < 0 ? TimeSpan.Zero : chapters.Chapters[i].Time;
-                TimeSpan end = (i < chapters.Chapters.Count - 1) ? chapters.Chapters[i + 1].Time : ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Metadata.Item.Duration;
+                TimeSpan end = (i < chapters.Chapters.Count - 1) ? chapters.Chapters[i + 1].Time : duration;
                 var length = end - start;
-                var def = new ColumnDefinition() { Width = new GridLength(length.TotalMilliseconds, GridUnitType.Star) };
-                ChapterBar.ColumnDefinitions.Add(def);
-                var left_shape = new Rectangle();
-                if (i % 2 == 0)
-                    left_shape.Fill = Brushes.Red;
+                var proportion = length / duration;
+                var left_bar = new Rectangle();
+                var right_bar = new Rectangle();
+                var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
+                left_bar.SetBinding(Rectangle.WidthProperty, binding);
+                right_bar.SetBinding(Rectangle.WidthProperty, binding);
+                if (color_index % 2 == 0)
+                {
+                    left_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarFilled");
+                    right_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarUnfilled");
+                }
                 else
-                    left_shape.Fill = Brushes.DarkRed;
-                ChapterBar.Children.Add(left_shape);
-                Grid.SetColumn(left_shape, i + 1);
+                {
+                    left_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarFilledChapter");
+                    right_bar.SetBinding(Rectangle.FillProperty, "Shared.ActiveTheme.BarUnfilledChapter");
+                }
+                ProgressGrid.Children.Add(left_bar);
+                RemainingGrid.Children.Add(right_bar);
+                if (proportion > 0.01)
+                    color_index++;
             }
         }
     }
