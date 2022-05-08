@@ -9,6 +9,7 @@ namespace QuickMusic3.MVVM.Model;
 public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 {
     int IndexOf(SongFile file);
+    void GetInOrder(int index, bool now);
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

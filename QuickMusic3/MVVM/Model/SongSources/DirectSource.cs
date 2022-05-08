@@ -17,4 +17,6 @@ public class DirectSource : ISongSource
     {
         Streams = paths.Select(x => new SongFile(x)).ToList();
     }
+
+    public void GetInOrder(int index, bool now) { }
 }

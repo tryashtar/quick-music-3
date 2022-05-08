@@ -21,6 +21,12 @@ public class ShufflableSource : ISongSource
     public int IndexOf(SongFile song) => IsShuffled ? ShuffledCopy.IndexOf(song) : BaseSource.IndexOf(song);
     public IEnumerator<SongFile> GetEnumerator() => IsShuffled ? ShuffledCopy.GetEnumerator() : BaseSource.GetEnumerator();
 
+    public void GetInOrder(int index, bool now)
+    {
+        if (!IsShuffled)
+            BaseSource.GetInOrder(index, now);
+    }
+
     public ShufflableSource(ISongSource wrapped)
     {
         BaseSource = wrapped;

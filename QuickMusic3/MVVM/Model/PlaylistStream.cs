@@ -59,6 +59,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
                 current_index++;
         }
         while (CurrentTrack.Stream.IsFailed);
+        Playlist.GetInOrder(current_index, false);
         int next = UpcomingIndex();
         if (next < Playlist.Count)
             Playlist[next].Stream.LoadBackground();

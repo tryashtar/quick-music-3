@@ -138,6 +138,8 @@ public class Player : ObservableObject, IDisposable
         Playlist = new ShufflableSource(playlist);
         if (Shuffle)
             Playlist.Shuffle(first_index);
+        //if (!first_index.HasValue)
+        //    Playlist.GetInOrder(0, true);
         if (Stream != null)
             Stream.Dispose();
         Stream = new(Playlist);

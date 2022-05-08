@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -8,6 +10,7 @@ namespace QuickMusic3.MVVM.Model;
 public class FolderSource : ISongSource
 {
     private readonly List<SongFile> Streams;
+    private readonly Dictionary<string, List<SongFile>> Folders = new();
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     public int Count => Streams.Count;
@@ -37,6 +40,24 @@ public class FolderSource : ISongSource
             item.Metadata.Failed += (s, e) => MoveIntoPlace(item);
             item.Metadata.Loaded += (s, e) => MoveIntoPlace(item);
             item.Stream.Failed += (s, e) => Remove(item);
+            var folder = Path.GetDirectoryName(item.FilePath);
+            if (!Folders.ContainsKey(folder))
+                Folders[folder] = new();
+            Folders[folder].Add(item);
+        }
+    }
+
+    public void GetInOrder(int index, bool now)
+    {
+        if (Folders.TryGetValue(Path.GetDirectoryName(Streams[index].FilePath), out var folder))
+        {
+            foreach (var item in folder)
+            {
+                if (now)
+                    item.Metadata.LoadNow();
+                else
+                    item.Metadata.LoadBackground();
+            }
         }
     }
 
@@ -53,7 +74,7 @@ public class FolderSource : ISongSource
             if (destination < 0)
                 destination = ~destination;
             Streams.Insert(destination, item);
-            //Debug.WriteLine("M " + String.Join(' ', Streams.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
+            Debug.WriteLine("M " + String.Join(' ', Streams.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index));
     }

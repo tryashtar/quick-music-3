@@ -20,6 +20,18 @@ public abstract class SourceAggregator : ISongSource
     public int IndexOf(SongFile song) => FlatList.IndexOf(song);
     public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
 
+    public void GetInOrder(int index, bool now)
+    {
+        foreach (var item in SourcePositions.OrderBy(x => x.Value))
+        {
+            if (index >= item.Value)
+            {
+                item.Key.GetInOrder(index - item.Value, now);
+                return;
+            }
+        }
+    }
+
     protected void SendEvent(NotifyCollectionChangedEventArgs e)
     {
         CollectionChanged?.Invoke(this, e);
@@ -39,7 +51,7 @@ public abstract class SourceAggregator : ISongSource
                     if (item.Value > old_index)
                         SourcePositions[item.Key] = item.Value - e.OldItems.Count;
                 }
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items, old_index + e.OldStartingIndex));
+                SendEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items, old_index + e.OldStartingIndex));
                 //Debug.WriteLine("R " + String.Join(' ', FlatList.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : "-")));
             }
             else if (e.Action == NotifyCollectionChangedAction.Move)
@@ -48,7 +60,7 @@ public abstract class SourceAggregator : ISongSource
                 int destination = old_index + e.NewStartingIndex;
                 FlatList.RemoveAt(old_index + e.OldStartingIndex);
                 FlatList.Insert(destination, item);
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index + e.OldStartingIndex));
+                SendEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index + e.OldStartingIndex));
                 //Debug.WriteLine("M " + String.Join(' ', FlatList.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : "-")));
             }
             else
