@@ -39,10 +39,24 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Image x:Name="AlbumArt"
+                   Focusable="False"
                    Source="{Binding Shared.Player.CurrentTrack.Metadata.Item.HighResImage, TargetNullValue={StaticResource DefaultImage}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    VerticalAlignment="Center">
+                <!--<Image.Effect>
+                    <BlurEffect Radius="100" />
+                </Image.Effect>-->
             </Image>
+            <ScrollViewer Focusable="False">
+                <TextBlock HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Padding="10,5,10,5"
+                           FontSize="13"
+                           Focusable="False"
+                           local:HighlightTextBehavior.LineToBeHighlighted="{Binding Shared.Player.CurrentLine}"
+                           local:HighlightTextBehavior.Text="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics, Converter={StaticResource LyricsConverter}}" />
+            </ScrollViewer>
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

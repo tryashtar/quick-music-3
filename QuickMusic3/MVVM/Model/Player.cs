@@ -88,6 +88,8 @@ public class Player : ObservableObject, IDisposable
         }
     }
 
+    public int CurrentLine { get; private set; } = -1;
+
     public TimeSpan CurrentTime
     {
         get => Stream?.CurrentTime + MissingTime.Elapsed ?? TimeSpan.Zero;
@@ -119,9 +121,32 @@ public class Player : ObservableObject, IDisposable
             // Debug.WriteLine(MissingTime.ElapsedMilliseconds);
             MissingTime.Restart();
         }
+        TimeChanged();
+        // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
+    }
+
+    private void TimeChanged()
+    {
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(CurrentChapter));
-        // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
+        int line = GetCurrentLine();
+        if (line != CurrentLine)
+        {
+            CurrentLine = line;
+            OnPropertyChanged(nameof(CurrentLine));
+        }
+    }
+
+    private int GetCurrentLine()
+    {
+        if (CurrentTrack == null)
+            return -1;
+        if (CurrentTrack.Metadata.Item.Lyrics == null)
+            return -1;
+        var line = CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
+        if (line == null)
+            return -1;
+        return CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(line.Value);
     }
 
     public void SwitchTo(SongFile song)
@@ -155,8 +180,7 @@ public class Player : ObservableObject, IDisposable
         OnPropertyChanged(nameof(PlaylistPosition));
         OnPropertyChanged(nameof(PlaylistTotal));
         OnPropertyChanged(nameof(CurrentTrack));
-        OnPropertyChanged(nameof(CurrentTime));
-        OnPropertyChanged(nameof(CurrentChapter));
+        TimeChanged();
         OnPropertyChanged(nameof(TotalTime));
     }
 
@@ -165,15 +189,11 @@ public class Player : ObservableObject, IDisposable
         if (e.PropertyName == nameof(Stream.CurrentTrack))
         {
             OnPropertyChanged(nameof(CurrentTrack));
-            OnPropertyChanged(nameof(CurrentTime));
-            OnPropertyChanged(nameof(CurrentChapter));
+            TimeChanged();
             OnPropertyChanged(nameof(TotalTime));
         }
         else if (e.PropertyName == nameof(Stream.CurrentTime))
-        {
-            OnPropertyChanged(nameof(CurrentTime));
-            OnPropertyChanged(nameof(CurrentChapter));
-        }
+            TimeChanged();
         else if (e.PropertyName == nameof(Stream.CurrentIndex))
             OnPropertyChanged(nameof(PlaylistPosition));
     }
@@ -209,8 +229,7 @@ public class Player : ObservableObject, IDisposable
             Output.Play();
             Timer.Enabled = true;
             MissingTime.Restart();
-            OnPropertyChanged(nameof(CurrentTime));
-            OnPropertyChanged(nameof(CurrentChapter));
+            TimeChanged();
             OnPropertyChanged(nameof(PlayState));
         }
     }

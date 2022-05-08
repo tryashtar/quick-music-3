@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using TryashtarUtils.Music;
 using TryashtarUtils.Utility;
 
 namespace QuickMusic3.Converters;
@@ -51,4 +52,14 @@ public class ProgressDivvy : IMultiValueConverter
     }
 
     public static readonly ProgressDivvy Instance = new ProgressDivvy();
+}
+
+public class LyricsConverter : OneWayConverter<Lyrics, string>
+{
+    public override string Convert(Lyrics value)
+    {
+        if (value == null)
+            return null;
+        return value.ToSimple();
+    }
 }

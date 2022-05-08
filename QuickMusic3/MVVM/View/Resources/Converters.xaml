@@ -7,4 +7,5 @@
     <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
     <converters:GreaterThanConverter x:Key="GreaterThan" />
     <converters:EqualityConverter x:Key="EqualityCheck" />
+    <converters:LyricsConverter x:Key="LyricsConverter" />
 </ResourceDictionary>

@@ -23,6 +23,7 @@ public class Metadata : ObservableObject
     public BitmapSource Thumbnail { get; init; }
     public decimal ReplayGain { get; init; }
     public ChapterCollection Chapters { get; init; }
+    public Lyrics Lyrics { get; init; }
     public BitmapSource HighResImage
     {
         get
@@ -51,6 +52,7 @@ public class Metadata : ObservableObject
         Thumbnail = ArtCache.GetEmbeddedImage(file.Tag);
         ReplayGain = LoadReplayGain(file);
         Chapters = ChaptersIO.FromFile(file);
+        Lyrics = LyricsIO.FromFile(file);
     }
     public Metadata() { }
 

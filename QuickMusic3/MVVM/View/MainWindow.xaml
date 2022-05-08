@@ -225,6 +225,11 @@
                       SizeChanged="PlaylistList_SizeChanged"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.VirtualizationMode="Recycling">
+                <!--<ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Open file location" Command="{Binding }" />
+                    </ContextMenu>
+                </ListView.ContextMenu>-->
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
                         <EventSetter Event="MouseDoubleClick"
