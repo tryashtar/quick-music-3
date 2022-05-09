@@ -15,10 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace QuickMusic3.MVVM.View;
-/// <summary>
-/// Interaction logic for CustomButton.xaml
-/// </summary>
-public partial class CustomButton : Button
+
+public class CustomButton : Button
 {
     static CustomButton()
     {

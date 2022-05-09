@@ -19,6 +19,12 @@ public class SharedState : ObservableObject
         get { return active_theme; }
         private set { active_theme = value; OnPropertyChanged(); }
     }
+    public bool LyricsEnabled
+    {
+        get { return Properties.Settings.Default.LyricsVisible; }
+        set { Properties.Settings.Default.LyricsVisible = value; OnPropertyChanged(); }
+    }
+
     public ICommand PlayPauseCommand { get; }
     public ICommand NextCommand { get; }
     public ICommand PrevCommand { get; }
@@ -28,6 +34,7 @@ public class SharedState : ObservableObject
     public ICommand ChangeVolumeCommand { get; }
     public ICommand SeekCommand { get; }
     public ICommand ChangeThemeCommand { get; }
+    public ICommand ChangeLyricsEnabledCommand { get; }
 
     public SharedState()
     {
@@ -58,6 +65,7 @@ public class SharedState : ObservableObject
         ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
         ChangeShuffleCommand = new RelayCommand(() => { Player.Shuffle = !Player.Shuffle; });
         ChangeVolumeCommand = new RelayCommand<float>(n => { Player.Volume = Math.Clamp(Player.Volume + n, 0, 1); });
+        ChangeLyricsEnabledCommand = new RelayCommand(() => { LyricsEnabled = !LyricsEnabled; });
         SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));
         ChangeThemeCommand = new RelayCommand(() =>
         {

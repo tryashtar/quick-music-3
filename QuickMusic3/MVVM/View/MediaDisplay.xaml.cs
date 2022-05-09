@@ -18,20 +18,25 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.View;
 
 public partial class MediaDisplay : UserControl
 {
     public static readonly DependencyProperty MetadataFontSizeProperty =
-            DependencyProperty.Register("MetadataFontSize", typeof(double),
+            DependencyProperty.Register(nameof(MetadataFontSize), typeof(double),
             typeof(MediaDisplay), new FrameworkPropertyMetadata(30d));
     public static readonly DependencyProperty TopRightProperty =
-            DependencyProperty.Register("TopRight", typeof(FrameworkElement),
+            DependencyProperty.Register(nameof(TopRight), typeof(FrameworkElement),
             typeof(MediaDisplay), new FrameworkPropertyMetadata());
     public static readonly DependencyProperty MediaControlsProperty =
-            DependencyProperty.Register("MediaControls", typeof(MediaControls),
+            DependencyProperty.Register(nameof(MediaControls), typeof(MediaControls),
             typeof(MediaDisplay), new FrameworkPropertyMetadata());
+    public static readonly DependencyProperty LyricsEnabledProperty =
+            DependencyProperty.Register(nameof(LyricsEnabled), typeof(bool),
+            typeof(MediaDisplay), new FrameworkPropertyMetadata(true));
     public double MetadataFontSize
     {
         get { return (double)GetValue(MetadataFontSizeProperty); }
@@ -47,9 +52,55 @@ public partial class MediaDisplay : UserControl
         get { return (MediaControls)GetValue(MediaControlsProperty); }
         set { SetValue(MediaControlsProperty, value); }
     }
+    public bool LyricsEnabled
+    {
+        get { return (bool)GetValue(LyricsEnabledProperty); }
+        set { SetValue(LyricsEnabledProperty, value); }
+    }
 
     public MediaDisplay()
     {
         InitializeComponent();
+        this.DataContextChanged += MediaDisplay_DataContextChanged;
+    }
+
+    private void MediaDisplay_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.OldValue is BaseViewModel o)
+            o.Shared.Player.PropertyChanged -= Player_PropertyChanged;
+        if (e.NewValue is BaseViewModel b)
+        {
+            b.Shared.Player.PropertyChanged += Player_PropertyChanged;
+            Dispatcher.BeginInvoke(() => ScrollLine(), DispatcherPriority.Background);
+            Dispatcher.BeginInvoke(() => LyricsScroller.ScrollToTop(), DispatcherPriority.Background);
+        }
+    }
+
+    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Player.CurrentLine))
+            Dispatcher.BeginInvoke(() => ScrollLine(), DispatcherPriority.Background);
+        else if (e.PropertyName == nameof(Player.CurrentTrack))
+            Dispatcher.BeginInvoke(() => LyricsScroller.ScrollToTop(), DispatcherPriority.Background);
+    }
+
+    private void ScrollLine()
+    {
+        if (LyricsBox.Lines == null)
+            return;
+        var current = ((BaseViewModel)this.DataContext).Shared.Player.CurrentLine;
+        foreach (Inline line in LyricsBox.Inlines)
+        {
+            if ((LyricsEntry)line.DataContext == current)
+            {
+                line.BringIntoView();
+                break;
+            }
+        }
+    }
+
+    private void Run_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        ((BaseViewModel)this.DataContext).Shared.Player.CurrentTime = ((LyricsEntry)((Inline)sender).DataContext).Time;
     }
 }

@@ -157,6 +157,9 @@
                     Command="{Binding Shared.ChangeThemeCommand}" />
         <KeyBinding Key="Tab"
                     Command="{Binding ChangeViewCommand}" />
+        <KeyBinding Modifiers="Alt"
+                    Key="L"
+                    Command="{Binding Shared.ChangeLyricsEnabledCommand}" />
     </Window.InputBindings>
     <Window.Resources>
         <ResourceDictionary>
@@ -206,7 +209,8 @@
                             BorderThickness="2">
                         <view:SizeHost ButtonSize="32,32">
                             <view:MediaDisplay MetadataFontSize="18"
-                                               TopRight="{StaticResource PopupTopRight}">
+                                               TopRight="{StaticResource PopupTopRight}"
+                                               LyricsEnabled="False">
                                 <view:MediaDisplay.MediaControls>
                                     <view:MediaControls VolumeWidth="50" />
                                 </view:MediaDisplay.MediaControls>

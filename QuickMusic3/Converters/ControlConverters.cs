@@ -54,12 +54,17 @@ public class ProgressDivvy : IMultiValueConverter
     public static readonly ProgressDivvy Instance = new ProgressDivvy();
 }
 
-public class LyricsConverter : OneWayConverter<Lyrics, string>
+public class LyricsVisibility : IMultiValueConverter
 {
-    public override string Convert(Lyrics value)
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value == null)
-            return null;
-        return value.ToSimple();
+        if (values[0] is bool b1 && b1 && values[1] is bool b2 && b2 && values[2] is not null)
+            return Visibility.Visible;
+        return Visibility.Collapsed;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
+        throw new InvalidOperationException();
     }
 }

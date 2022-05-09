@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:music="clr-namespace:TryashtarUtils.Music;assembly=TryashtarUtils.Music"
              xmlns:local="clr-namespace:QuickMusic3.MVVM.View"
              xmlns:converters="clr-namespace:QuickMusic3.Converters"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -47,15 +48,54 @@
                     <BlurEffect Radius="100" />
                 </Image.Effect>-->
             </Image>
-            <ScrollViewer Focusable="False">
-                <TextBlock HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Padding="10,5,10,5"
-                           FontSize="13"
-                           Focusable="False"
-                           local:HighlightTextBehavior.LineToBeHighlighted="{Binding Shared.Player.CurrentLine}"
-                           local:HighlightTextBehavior.Text="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics, Converter={StaticResource LyricsConverter}}" />
+            <ScrollViewer x:Name="LyricsScroller"
+                          Focusable="False"
+                          Background="{Binding Shared.ActiveTheme.AlbumBackground}">
+                <ScrollViewer.Visibility>
+                    <MultiBinding Converter="{StaticResource LyricsVisibility}">
+                        <Binding Path="LyricsEnabled"
+                                 ElementName="ThisControl" />
+                        <Binding Path="Shared.LyricsEnabled" />
+                        <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Lyrics" />
+                    </MultiBinding>
+                </ScrollViewer.Visibility>
+                <local:BindableTextBlock x:Name="LyricsBox"
+                                         HorizontalAlignment="Center"
+                                         TextAlignment="Center"
+                                         TextWrapping="Wrap"
+                                         Padding="10,5,10,5"
+                                         FontSize="13"
+                                         Focusable="False"
+                                         Lines="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines}">
+                    <local:BindableTextBlock.LineTemplate>
+                        <ControlTemplate>
+                            <Run MouseDown="Run_MouseDown">
+                                <Run.Text>
+                                    <Binding Path="Text"
+                                             Mode="OneWay"
+                                             StringFormat="{}{0}&#x0a;" />
+                                </Run.Text>
+                                <Run.Style>
+                                    <Style TargetType="Run">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource EqualityCheck}">
+                                                        <Binding />
+                                                        <Binding Path="DataContext.Shared.Player.CurrentLine"
+                                                                 RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background"
+                                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Run.Style>
+                            </Run>
+                        </ControlTemplate>
+                    </local:BindableTextBlock.LineTemplate>
+                </local:BindableTextBlock>
             </ScrollViewer>
         </Grid>
         <Grid Grid.Column="1">

@@ -153,5 +153,17 @@ namespace QuickMusic3.Properties {
                 this["DefaultView"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LyricsVisible {
+            get {
+                return ((bool)(this["LyricsVisible"]));
+            }
+            set {
+                this["LyricsVisible"] = value;
+            }
+        }
     }
 }

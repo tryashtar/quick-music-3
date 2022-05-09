@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -88,7 +89,7 @@ public class Player : ObservableObject, IDisposable
         }
     }
 
-    public int CurrentLine { get; private set; } = -1;
+    public LyricsEntry CurrentLine { get; private set; }
 
     public TimeSpan CurrentTime
     {
@@ -97,6 +98,7 @@ public class Player : ObservableObject, IDisposable
         {
             if (Stream != null)
                 Stream.CurrentTime = value;
+            MissingTime.Restart();
         }
     }
     public TimeSpan TotalTime => Stream?.TotalTime ?? TimeSpan.Zero;
@@ -129,7 +131,7 @@ public class Player : ObservableObject, IDisposable
     {
         OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(CurrentChapter));
-        int line = GetCurrentLine();
+        var line = GetCurrentLine();
         if (line != CurrentLine)
         {
             CurrentLine = line;
@@ -137,16 +139,13 @@ public class Player : ObservableObject, IDisposable
         }
     }
 
-    private int GetCurrentLine()
+    private LyricsEntry GetCurrentLine()
     {
         if (CurrentTrack == null)
-            return -1;
+            return null;
         if (CurrentTrack.Metadata.Item.Lyrics == null)
-            return -1;
-        var line = CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
-        if (line == null)
-            return -1;
-        return CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(line.Value);
+            return null;
+        return CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
     }
 
     public void SwitchTo(SongFile song)

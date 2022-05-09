@@ -15,10 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace QuickMusic3.MVVM.View;
-/// <summary>
-/// Interaction logic for CustomSlider.xaml
-/// </summary>
-public partial class CustomSlider : Slider
+
+public class CustomSlider : Slider
 {
     static CustomSlider()
     {
