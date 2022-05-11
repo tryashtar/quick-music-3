@@ -138,17 +138,8 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         set
         {
             long position = (long)(value.TotalSeconds * CurrentBase.WaveFormat.AverageBytesPerSecond);
-            if (position < 0)
-            {
-                if (CurrentTime < TimeSpan.FromSeconds(1))
-                {
-                    CurrentIndex = UpcomingIndex(-1);
-                    position = CurrentBase.Length;
-                }
-                else
-                    position = 0;
-            }
-            else if (position > CurrentBase.Length)
+            position = Math.Max(0, position);
+            if (position > CurrentBase.Length)
             {
                 CurrentIndex = UpcomingIndex(1);
                 position = 0;

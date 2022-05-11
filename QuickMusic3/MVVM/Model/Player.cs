@@ -97,8 +97,11 @@ public class Player : ObservableObject, IDisposable
         set
         {
             if (Stream != null)
+            {
                 Stream.CurrentTime = value;
-            MissingTime.Restart();
+                if (MissingTime.IsRunning)
+                    MissingTime.Restart();
+            }
         }
     }
     public TimeSpan TotalTime => Stream?.TotalTime ?? TimeSpan.Zero;

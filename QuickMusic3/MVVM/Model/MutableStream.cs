@@ -19,7 +19,7 @@ public class MutableStream : IDisposable
     public MutableStream(string path)
     {
         FilePath = path;
-        BaseStream = new AudioFileReader(path);
+        BaseStream = new AudioFileReader(path, BaseReaders.Auto);
         PlayableStream = BaseStream;
     }
 

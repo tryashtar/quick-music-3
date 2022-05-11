@@ -64,7 +64,7 @@
                                          TextAlignment="Center"
                                          TextWrapping="Wrap"
                                          Padding="10,5,10,5"
-                                         FontSize="13"
+                                         FontSize="14"
                                          Focusable="False"
                                          Lines="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines}">
                     <local:BindableTextBlock.LineTemplate>
