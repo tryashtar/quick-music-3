@@ -50,6 +50,7 @@
             </Image>
             <ScrollViewer x:Name="LyricsScroller"
                           Focusable="False"
+                          HorizontalScrollBarVisibility="Disabled"
                           Background="{Binding Shared.ActiveTheme.AlbumBackground}">
                 <ScrollViewer.Visibility>
                     <MultiBinding Converter="{StaticResource LyricsVisibility}">
@@ -59,24 +60,21 @@
                         <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Lyrics" />
                     </MultiBinding>
                 </ScrollViewer.Visibility>
-                <local:BindableTextBlock x:Name="LyricsBox"
-                                         HorizontalAlignment="Center"
-                                         TextAlignment="Center"
-                                         TextWrapping="Wrap"
-                                         Padding="10,5,10,5"
-                                         FontSize="14"
-                                         Focusable="False"
-                                         Lines="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines}">
-                    <local:BindableTextBlock.LineTemplate>
-                        <ControlTemplate>
-                            <Run MouseDown="Run_MouseDown">
-                                <Run.Text>
-                                    <Binding Path="Text"
-                                             Mode="OneWay"
-                                             StringFormat="{}{0}&#x0a;" />
-                                </Run.Text>
-                                <Run.Style>
-                                    <Style TargetType="Run">
+                <ItemsControl x:Name="LyricsBox"
+                              ItemsSource="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines}"
+                              Focusable="False"
+                              FontSize="14"
+                              Padding="10,5,10,5"
+                              Background="{Binding Shared.ActiveTheme.AlbumBackground}"
+                              Foreground="{Binding Shared.ActiveTheme.Text}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Text}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"
+                                       MouseDown="Lyric_MouseDown">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
                                         <Style.Triggers>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
@@ -91,11 +89,11 @@
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Run.Style>
-                            </Run>
-                        </ControlTemplate>
-                    </local:BindableTextBlock.LineTemplate>
-                </local:BindableTextBlock>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Grid>
         <Grid Grid.Column="1">

@@ -86,21 +86,14 @@ public partial class MediaDisplay : UserControl
 
     private void ScrollLine()
     {
-        if (LyricsBox.Lines == null)
-            return;
         var current = ((BaseViewModel)this.DataContext).Shared.Player.CurrentLine;
-        foreach (Inline line in LyricsBox.Inlines)
-        {
-            if ((LyricsEntry)line.DataContext == current)
-            {
-                line.BringIntoView();
-                break;
-            }
-        }
+        var element = (FrameworkElement)LyricsBox.ItemContainerGenerator.ContainerFromItem(current);
+        if (element != null)
+            element.BringIntoView();
     }
 
-    private void Run_MouseDown(object sender, MouseButtonEventArgs e)
+    private void Lyric_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        ((BaseViewModel)this.DataContext).Shared.Player.CurrentTime = ((LyricsEntry)((Inline)sender).DataContext).Time;
+        ((BaseViewModel)this.DataContext).Shared.Player.CurrentTime = ((LyricsEntry)((FrameworkElement)sender).DataContext).Time;
     }
 }
