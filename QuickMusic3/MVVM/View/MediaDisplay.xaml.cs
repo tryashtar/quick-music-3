@@ -105,7 +105,7 @@ public partial class MediaDisplay : UserControl
             }
             else if (LastLineIndex != -1 && index != -1 && index < LastLineIndex)
             {
-                for (int i = 0; i < index - LastLineIndex; i++)
+                for (int i = 0; i < LastLineIndex - index; i++)
                 {
                     LyricsScroller.LineUp();
                 }
@@ -117,6 +117,9 @@ public partial class MediaDisplay : UserControl
 
     private void Lyric_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        ((BaseViewModel)this.DataContext).Shared.Player.CurrentTime = ((LyricsEntry)((FrameworkElement)sender).DataContext).Time;
+        var player = ((BaseViewModel)this.DataContext).Shared.Player;
+        var entry = (LyricsEntry)((FrameworkElement)sender).DataContext;
+        player.CurrentTime = entry.Time;
+        LastLineIndex = player.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(entry);
     }
 }
