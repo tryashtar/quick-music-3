@@ -8,4 +8,5 @@
     <converters:GreaterThanConverter x:Key="GreaterThan" />
     <converters:EqualityConverter x:Key="EqualityCheck" />
     <converters:LyricsVisibility x:Key="LyricsVisibility" />
+    <converters:TypeGetter x:Key="TypeGetter" />
 </ResourceDictionary>

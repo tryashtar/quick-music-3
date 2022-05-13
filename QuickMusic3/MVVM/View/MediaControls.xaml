@@ -21,10 +21,10 @@
             </ResourceDictionary.MergedDictionaries>
             <StackPanel x:Key="ProgressGrid"
                         Orientation="Horizontal"
-                        Background="{Binding Shared.ActiveTheme.BarFilled}"/>
+                        Background="{Binding Shared.ActiveTheme.BarFilled}" />
             <StackPanel x:Key="RemainingGrid"
                         Orientation="Horizontal"
-                        Background="{Binding Shared.ActiveTheme.BarUnfilled}"/>
+                        Background="{Binding Shared.ActiveTheme.BarUnfilled}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Orientation="Vertical"
@@ -97,21 +97,21 @@
                           Margin="1"
                           Stretch="Uniform">
                         <Path.Style>
-                            <Style>
+                            <Style TargetType="Path">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Shared.Player.PlayState}"
                                                  Value="Playing">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource PauseIcon}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Shared.Player.PlayState}"
                                                  Value="Paused">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource PlayIcon}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding PlayDragging, ElementName=ThisControl}"
                                                  Value="true">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource PauseIcon}" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -126,21 +126,21 @@
                           Margin="2"
                           Stretch="Uniform">
                         <Path.Style>
-                            <Style>
+                            <Style TargetType="Path">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Shared.Player.RepeatMode}"
                                                  Value="RepeatAll">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource RepeatAllIcon}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Shared.Player.RepeatMode}"
                                                  Value="RepeatOne">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource RepeatOneIcon}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Shared.Player.RepeatMode}"
                                                  Value="PlayAll">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource RepeatNoneIcon}" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -157,11 +157,11 @@
                           Margin="2"
                           Stretch="Uniform">
                         <Path.Style>
-                            <Style>
+                            <Style TargetType="Path">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Shared.Player.Shuffle}"
                                                  Value="false">
-                                        <Setter Property="Path.Opacity"
+                                        <Setter Property="Opacity"
                                                 Value="0.2" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -190,16 +190,16 @@
                           Margin="0"
                           Stretch="Uniform">
                         <Path.Style>
-                            <Style>
+                            <Style TargetType="Path">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Shared.Player.Muted}"
                                                  Value="true">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource MuteIcon}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Shared.Player.Muted}"
                                                  Value="false">
-                                        <Setter Property="Path.Data"
+                                        <Setter Property="Data"
                                                 Value="{StaticResource VolumeIcon}" />
                                     </DataTrigger>
                                 </Style.Triggers>

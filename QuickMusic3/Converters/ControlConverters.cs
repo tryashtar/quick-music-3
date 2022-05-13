@@ -68,3 +68,11 @@ public class LyricsVisibility : IMultiValueConverter
         throw new InvalidOperationException();
     }
 }
+
+public class TypeGetter : OneWayConverter<object, Type>
+{
+    public override Type Convert(object value)
+    {
+        return value.GetType();
+    }
+}

@@ -168,6 +168,50 @@
                 <ResourceDictionary Source="Resources/Converters.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <StackPanel x:Key="MainTopRight"
+                        Orientation="Vertical">
+                <view:CustomButton Height="40"
+                                   Width="40"
+                                   Command="{Binding DataContext.ChangeViewCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource Button}"
+                                   NoHover="Transparent"
+                                   BorderThickness="0"
+                                   VerticalAlignment="Top">
+                    <Path Stretch="Uniform"
+                          Opacity="0.3">
+                        <Path.Style>
+                            <Style TargetType="Path"
+                                   BasedOn="{StaticResource FillPath}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.ActiveViewModel, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource TypeGetter}}"
+                                                 Value="{x:Type viewmodel:NowPlayingViewModel}">
+                                        <Setter Property="Data"
+                                                Value="{StaticResource PlaylistIcon}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding DataContext.ActiveViewModel, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource TypeGetter}}"
+                                                 Value="{x:Type viewmodel:PlaylistViewModel}">
+                                        <Setter Property="Data"
+                                                Value="{StaticResource NowPlayingIcon}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Path.Style>
+                    </Path>
+                </view:CustomButton>
+                <view:CustomButton Height="40"
+                                   Width="40"
+                                   Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Style="{StaticResource Button}"
+                                   NoHover="Transparent"
+                                   BorderThickness="0"
+                                   VerticalAlignment="Top">
+                    <Path Style="{StaticResource FillPath}"
+                          Margin="-6"
+                          Stretch="Uniform"
+                          Data="{StaticResource DownIcon}"
+                          Opacity="0.3" />
+                </view:CustomButton>
+            </StackPanel>
             <StackPanel x:Key="PopupTopRight"
                         Orientation="Horizontal">
                 <view:CustomButton x:Name="PopupCloseButton"
@@ -519,23 +563,8 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodel:NowPlayingViewModel}">
                         <view:MediaDisplay MetadataFontSize="36"
-                                           MediaControls="{StaticResource MediaControls}">
-                            <view:MediaDisplay.TopRight>
-                                <view:CustomButton Height="40"
-                                                   Width="40"
-                                                   Command="{Binding HideWindowCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                   Style="{StaticResource Button}"
-                                                   NoHover="Transparent"
-                                                   BorderThickness="0"
-                                                   VerticalAlignment="Top">
-                                    <Path Style="{StaticResource FillPath}"
-                                          Margin="-6"
-                                          Stretch="Uniform"
-                                          Data="{StaticResource DownIcon}"
-                                          Opacity="0.3" />
-                                </view:CustomButton>
-                            </view:MediaDisplay.TopRight>
-                        </view:MediaDisplay>
+                                           MediaControls="{StaticResource MediaControls}"
+                                           TopRight="{StaticResource MainTopRight}" />
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodel:PlaylistViewModel}">
                         <Grid>
@@ -543,8 +572,17 @@
                                 <RowDefinition />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <ContentControl Grid.Row="0"
-                                            Content="{StaticResource PlaylistList}" />
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ContentControl Grid.Column="0"
+                                                Content="{StaticResource PlaylistList}" />
+                                <ContentControl Grid.Column="1"
+                                                Margin="5"
+                                                Content="{StaticResource MainTopRight}" />
+                            </Grid>
                             <ContentControl Grid.Row="1"
                                             Content="{StaticResource MediaControls}" />
                         </Grid>

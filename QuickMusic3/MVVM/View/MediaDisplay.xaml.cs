@@ -91,6 +91,8 @@ public partial class MediaDisplay : UserControl
     private int LastLineIndex = -1;
     private void ScrollLine()
     {
+        if (this.DataContext == null)
+            return;
         var current = ((BaseViewModel)this.DataContext).Shared.Player.CurrentLine;
         var element = (FrameworkElement)LyricsBox.ItemContainerGenerator.ContainerFromItem(current);
         if (element != null)
