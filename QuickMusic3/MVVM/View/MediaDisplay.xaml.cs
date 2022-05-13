@@ -120,8 +120,11 @@ public partial class MediaDisplay : UserControl
     private void Lyric_MouseDown(object sender, MouseButtonEventArgs e)
     {
         var player = ((BaseViewModel)this.DataContext).Shared.Player;
-        var entry = (LyricsEntry)((FrameworkElement)sender).DataContext;
-        player.CurrentTime = entry.Time;
-        LastLineIndex = player.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(entry);
+        if (player.CurrentTrack.Metadata.Item.Lyrics.Synchronized)
+        {
+            var entry = (LyricsEntry)((FrameworkElement)sender).DataContext;
+            player.CurrentTime = entry.Time;
+            LastLineIndex = player.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(entry);
+        }
     }
 }

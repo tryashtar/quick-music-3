@@ -148,6 +148,8 @@ public class Player : ObservableObject, IDisposable
             return null;
         if (CurrentTrack.Metadata.Item.Lyrics == null)
             return null;
+        if (!CurrentTrack.Metadata.Item.Lyrics.Synchronized)
+            return null;
         return CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
     }
 
