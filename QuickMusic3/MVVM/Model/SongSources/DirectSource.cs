@@ -10,7 +10,7 @@ public class DirectSource : ISongSource
     public SongFile this[int index] => Streams[index];
     public int Count => Streams.Count;
     public int IndexOf(SongFile song) => Streams.IndexOf(song);
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler CollectionChanged { add { } remove { } }
     public IEnumerator<SongFile> GetEnumerator() => Streams.GetEnumerator();
 
     public DirectSource(IEnumerable<string> paths)

@@ -11,7 +11,7 @@ namespace QuickMusic3.Core;
 
 public class RelayCommand : ICommand
 {
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler CanExecuteChanged { add { } remove { } }
 
     private readonly Action ExecuteAction;
     public RelayCommand(Action execute)
@@ -32,7 +32,7 @@ public class RelayCommand : ICommand
 
 public class RelayCommand<T> : ICommand
 {
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler CanExecuteChanged { add { } remove { } }
 
     private readonly Action<T> ExecuteAction;
     public RelayCommand(Action<T> execute)

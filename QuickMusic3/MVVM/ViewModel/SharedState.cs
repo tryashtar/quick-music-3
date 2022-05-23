@@ -2,6 +2,7 @@
 using QuickMusic3.Core;
 using QuickMusic3.MVVM.Model;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
@@ -99,9 +100,10 @@ public class SharedState : ObservableObject
             using var file = File.OpenText(theme);
             ActiveTheme = deserializer.Deserialize<Theme>(file);
         }
-        catch (FileNotFoundException ex)
+        catch (FileNotFoundException)
         {
             Properties.Settings.Default.ImportedThemes.Remove(theme);
+            Debug.WriteLine($"Removed theme {theme} because file not found");
         }
         catch
         { }
