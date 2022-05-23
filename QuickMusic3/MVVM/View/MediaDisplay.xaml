@@ -64,33 +64,37 @@
                               ItemsSource="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines}"
                               Focusable="False"
                               FontSize="14"
-                              Padding="10,5,10,5"
+                              Padding="0,3,0,3"
                               Background="{Binding Shared.ActiveTheme.AlbumBackground}"
                               Foreground="{Binding Shared.ActiveTheme.Text}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Text}"
-                                       TextWrapping="Wrap"
-                                       TextAlignment="Center"
-                                       MouseDown="Lyric_MouseDown">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource EqualityCheck}">
-                                                        <Binding />
-                                                        <Binding Path="DataContext.Shared.Player.CurrentLine"
-                                                                 RelativeSource="{RelativeSource AncestorType=UserControl}" />
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background"
-                                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                            <Grid MouseDown="Lyric_MouseDown"
+                                  Background="Transparent">
+                                <TextBlock Text="{Binding Text}"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center"
+                                           Padding="5,2,5,2"
+                                           HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Value="True">
+                                                    <DataTrigger.Binding>
+                                                        <MultiBinding Converter="{StaticResource EqualityCheck}">
+                                                            <Binding />
+                                                            <Binding Path="DataContext.Shared.Player.CurrentLine"
+                                                                     RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                                        </MultiBinding>
+                                                    </DataTrigger.Binding>
+                                                    <Setter Property="Background"
+                                                            Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

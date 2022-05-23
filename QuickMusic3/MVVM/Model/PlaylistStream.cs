@@ -22,11 +22,8 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         {
             int count = Playlist.Count;
             int destination = WrapIndex(value);
-            int previous_index = current_index;
             current_index = Math.Clamp(destination, 0, count - 1);
             SetCurrentTrack();
-            if (current_index != previous_index && previous_index < count)
-                Playlist[previous_index].CloseStream();
             if (destination >= count)
                 CurrentBase.CurrentTime = CurrentBase.TotalTime;
             else
@@ -38,6 +35,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
     private MutableStream CurrentStream => CurrentTrack.Stream.Item;
     private WaveStream CurrentBase => CurrentStream.BaseStream;
     private IWaveProvider CurrentPlayable => CurrentStream.PlayableStream;
+    private readonly HashSet<SongFile> Loaded = new();
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
     public PlaylistStream(ISongSource playlist)
@@ -51,10 +49,16 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
     private void SetCurrentTrack()
     {
         var prev_track = CurrentTrack;
+        foreach (var item in Loaded)
+        {
+            item.CloseStream();
+        }
+        Loaded.Clear();
         do
         {
             CurrentTrack = Playlist[current_index];
             CurrentTrack.Stream.LoadNow();
+            Loaded.Add(CurrentTrack);
             if (CurrentTrack.Stream.IsFailed)
                 current_index++;
         }
@@ -62,7 +66,10 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         Playlist.GetInOrder(current_index, false);
         int next = UpcomingIndex();
         if (next < Playlist.Count)
+        {
             Playlist[next].Stream.LoadBackground();
+            Loaded.Add(Playlist[next]);
+        }
         OnPropertyChanged(nameof(CurrentIndex));
         if (CurrentTrack != prev_track)
             OnPropertyChanged(nameof(CurrentTrack));
@@ -134,9 +141,22 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
     public TimeSpan TotalTime => CurrentBase.TotalTime;
     public TimeSpan CurrentTime
     {
-        get => CurrentBase.CurrentTime;
+        get
+        {
+            if (!CurrentTrack.Stream.IsLoaded)
+            {
+                Debug.WriteLine("Requested CurrentTime but current track isn't loaded :(");
+                return TimeSpan.Zero;
+            }
+            return CurrentBase.CurrentTime;
+        }
         set
         {
+            if (!CurrentTrack.Stream.IsLoaded)
+            {
+                Debug.WriteLine("Tried to set CurrentTime but current track isn't loaded :(");
+                return;
+            }
             long position = (long)(value.TotalSeconds * CurrentBase.WaveFormat.AverageBytesPerSecond);
             position = Math.Max(0, position);
             if (position > CurrentBase.Length)

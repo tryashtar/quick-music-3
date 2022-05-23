@@ -30,18 +30,20 @@
     <StackPanel Orientation="Vertical"
                 Margin="20,5,10,5">
         <Grid>
-            <TextBlock Text="{Binding Shared.Player.CurrentTime, Converter={StaticResource TimeStringConverter}}"
-                       FontSize="18"
-                       Foreground="{Binding Shared.ActiveTheme.Text}"
-                       HorizontalAlignment="Left" />
-            <TextBlock Text="{Binding Shared.Player.CurrentChapter}"
-                       FontSize="18"
-                       Foreground="{Binding Shared.ActiveTheme.Text}"
-                       HorizontalAlignment="Center" />
-            <TextBlock Text="{Binding Shared.Player.TotalTime, Converter={StaticResource TimeStringConverter}}"
-                       FontSize="18"
-                       Foreground="{Binding Shared.ActiveTheme.Text}"
-                       HorizontalAlignment="Right" />
+            <local:AlignableWrapPanel>
+                <TextBlock Text="{Binding Shared.Player.CurrentTime, Converter={StaticResource TimeStringConverter}}"
+                           FontSize="18"
+                           Foreground="{Binding Shared.ActiveTheme.Text}"
+                           HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding Shared.Player.TotalTime, Converter={StaticResource TimeStringConverter}}"
+                           FontSize="18"
+                           Foreground="{Binding Shared.ActiveTheme.Text}"
+                           HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding Shared.Player.CurrentChapter}"
+                           FontSize="18"
+                           Foreground="{Binding Shared.ActiveTheme.Text}"
+                           HorizontalAlignment="Center" />
+            </local:AlignableWrapPanel>
         </Grid>
         <local:CustomSlider x:Name="TimeBar"
                             InvisibleHeight="36"
