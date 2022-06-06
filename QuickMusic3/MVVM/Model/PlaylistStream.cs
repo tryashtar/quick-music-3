@@ -49,20 +49,24 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
     private void SetCurrentTrack()
     {
         var prev_track = CurrentTrack;
-        foreach (var item in Loaded)
-        {
-            item.CloseStream();
-        }
-        Loaded.Clear();
         do
         {
             CurrentTrack = Playlist[current_index];
             CurrentTrack.Stream.LoadNow();
-            Loaded.Add(CurrentTrack);
             if (CurrentTrack.Stream.IsFailed)
                 current_index++;
         }
         while (CurrentTrack.Stream.IsFailed);
+        if (CurrentTrack != prev_track)
+        {
+            foreach (var item in Loaded)
+            {
+                if (item != CurrentTrack)
+                    item.CloseStream();
+            }
+            Loaded.Clear();
+        }
+        Loaded.Add(CurrentTrack);
         Playlist.GetInOrder(current_index, false);
         int next = UpcomingIndex();
         if (next < Playlist.Count)
