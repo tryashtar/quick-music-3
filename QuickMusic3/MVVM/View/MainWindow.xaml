@@ -168,6 +168,11 @@
                 <ResourceDictionary Source="Resources/Converters.xaml" />
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ContextMenu x:Key="ItemContextMenu">
+                <MenuItem Header="Open file location"
+                          Command="{Binding OpenFileLocationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                          CommandParameter="{Binding}" />
+            </ContextMenu>
             <StackPanel x:Key="MainTopRight"
                         Orientation="Vertical">
                 <view:CustomButton Height="40"
@@ -268,20 +273,18 @@
                       ItemsSource="{Binding Shared.Player.Playlist}"
                       Focusable="False"
                       BorderThickness="0"
+                      FontSize="16"
                       Background="{Binding Shared.ActiveTheme.PlaylistBackground}"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       SizeChanged="PlaylistList_SizeChanged"
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.VirtualizationMode="Recycling">
-                <!--<ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Open file location" Command="{Binding }" />
-                    </ContextMenu>
-                </ListView.ContextMenu>-->
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
                         <EventSetter Event="MouseDoubleClick"
                                      Handler="PlaylistItem_MouseDoubleClick" />
+                        <Setter Property="ContextMenu"
+                                Value="{StaticResource ItemContextMenu}" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -338,7 +341,8 @@
                                         Value="Collapsed" />
                             </Style>
                         </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Width="40">
+                        <GridViewColumn x:Name="ArtColumn"
+                                        Width="40">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Height="35">
@@ -390,46 +394,46 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn>
+                        <GridViewColumn x:Name="NumberColumn"
+                                        Width="40">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <!--<StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Metadata.Item.TrackNumber}"
-                                                   FontSize="16"
-                                                   Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                   Width="30"/>-->
-                                    <TextBlock Text="{Binding Metadata.Item.Title}"
-                                               FontSize="16"
-                                               TextWrapping="Wrap" />
-                                    <!--</StackPanel>-->
+                                    <TextBlock Text="{Binding Metadata.Item.TrackNumber, Converter={StaticResource ZeroAsEmptyConverter}}"
+                                               Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn>
+                        <GridViewColumn x:Name="TitleColumn">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Metadata.Item.Title}"
+                                               TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn x:Name="ArtistColumn">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Metadata.Item.Artist}"
-                                               FontSize="16"
                                                TextWrapping="Wrap"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn>
+                        <GridViewColumn x:Name="AlbumColumn">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Metadata.Item.Album}"
-                                               FontSize="16"
                                                TextWrapping="Wrap"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Width="60">
+                        <GridViewColumn x:Name="TimeColumn"
+                                        Width="60">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding GuessDuration, Converter={StaticResource TimeStringConverter}}"
-                                               FontSize="16"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>

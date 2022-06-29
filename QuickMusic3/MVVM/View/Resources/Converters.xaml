@@ -4,6 +4,7 @@
     <converters:MultiplyConverter x:Key="MultiplyBy" />
     <converters:TimeConverter x:Key="TimeConverter" />
     <converters:TimeStringConverter x:Key="TimeStringConverter" />
+    <converters:ZeroAsEmptyConverter x:Key="ZeroAsEmptyConverter" />
     <converters:AlbumArtFitter x:Key="AlbumArtFitter" />
     <converters:GreaterThanConverter x:Key="GreaterThan" />
     <converters:EqualityConverter x:Key="EqualityCheck" />

@@ -8,6 +8,7 @@ using QuickMusic3.MVVM.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,6 +40,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ICommand CloseWindowCommand { get; }
     public ICommand MaximizeWindowCommand { get; }
     public ICommand MinimizeWindowCommand { get; }
+    public ICommand OpenFileLocationCommand { get; }
 
     public Visibility TrayIconVisibility
     {
@@ -75,6 +77,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 else
                     OpenPlaylist(dialog.FileNames, SearchOption.TopDirectoryOnly);
             }
+        });
+        OpenFileLocationCommand = new RelayCommand<SongFile>(x =>
+        {
+            Process.Start("explorer.exe", $"/select, \"{x.FilePath}\"");
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
@@ -234,12 +240,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void PlaylistList_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        ListView listView = sender as ListView;
-        GridView gView = listView.View as GridView;
+        var listView = sender as ListView;
+        var gView = listView.View as GridView;
 
-        var workingWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth - gView.Columns[0].ActualWidth - gView.Columns[4].ActualWidth;
-        gView.Columns[1].Width = workingWidth * 0.5;
-        gView.Columns[2].Width = workingWidth * 0.25;
+        var workingWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth - gView.Columns[0].ActualWidth - gView.Columns[1].ActualWidth - gView.Columns[5].ActualWidth;
+        gView.Columns[2].Width = workingWidth * 0.5;
         gView.Columns[3].Width = workingWidth * 0.25;
+        gView.Columns[4].Width = workingWidth * 0.25;
     }
 }

@@ -76,3 +76,13 @@ public class TypeGetter : OneWayConverter<object, Type>
         return value.GetType();
     }
 }
+
+public class ZeroAsEmptyConverter : OneWayConverter<uint, string>
+{
+    public override string Convert(uint value)
+    {
+        if (value == 0)
+            return String.Empty;
+        return value.ToString();
+    }
+}
