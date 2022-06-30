@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TryashtarUtils.Utility;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -11,10 +12,10 @@ public class SongSorter : IComparer<SongFile>
         if (status != 0)
             return status;
         if (!x.Metadata.IsLoaded) // both are unloaded because otherwise previous check would return
-            return x.FilePath.CompareTo(y.FilePath);
+            return LogicalStringComparer.Instance.Compare(x.FilePath, y.FilePath);
         var xm = x.Metadata.Item;
         var ym = y.Metadata.Item;
-        int album = (xm.Album ?? "").CompareTo(ym.Album ?? "");
+        int album = LogicalStringComparer.Instance.Compare(xm.Album ?? "", ym.Album ?? "");
         if (album != 0)
             return album;
         int disc = xm.DiscNumber.CompareTo(ym.DiscNumber);
@@ -23,10 +24,10 @@ public class SongSorter : IComparer<SongFile>
         int track = xm.TrackNumber.CompareTo(ym.TrackNumber);
         if (track != 0)
             return track;
-        int title = (xm.Title ?? "").CompareTo(ym.Title ?? "");
+        int title = LogicalStringComparer.Instance.Compare(xm.Title ?? "", ym.Title ?? "");
         if (title != 0)
             return title;
-        return x.FilePath.CompareTo(y.FilePath);
+        return LogicalStringComparer.Instance.Compare(x.FilePath, y.FilePath);
     }
 
     private static int LoadStatusOrder(LoadStatus status)
