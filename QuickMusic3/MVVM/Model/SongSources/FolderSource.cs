@@ -49,7 +49,9 @@ public class FolderSource : ISongSource
 
     public void GetInOrder(int index, bool now)
     {
-        if (Folders.TryGetValue(Path.GetDirectoryName(Streams[index].FilePath), out var folder))
+        if (index < 0 || index >= Streams.Count)
+            Debug.WriteLine($"Tried to get index {index} in order for {Streams.Count} streams");
+        else if (Folders.TryGetValue(Path.GetDirectoryName(Streams[index].FilePath), out var folder))
         {
             foreach (var item in folder)
             {

@@ -17,7 +17,8 @@ public static class BaseReaders
         var fileStream = File.OpenRead(fileName);
         var possible_streams = new Func<WaveStream>[]
         {
-            () => TryOpenMP3(fileStream),
+            // disable MP3 because of the "MP3FileReader does not support sample rate changes"
+            //() => TryOpenMP3(fileStream),
             () => TryOpenAiff(fileStream),
             () =>
             {
@@ -37,13 +38,13 @@ public static class BaseReaders
         };
         int first = 0;
         if (fileName.EndsWith(".aiff", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".aif", StringComparison.OrdinalIgnoreCase))
-            first = 1;
+            first = 0;
         if (fileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-            first = 2;
+            first = 1;
         if (fileName.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
-            first = 3;
+            first = 2;
         if (fileName.EndsWith(".flac", StringComparison.OrdinalIgnoreCase))
-            first = 4;
+            first = 3;
         WaveStream readerStream;
         readerStream = possible_streams[first]();
         if (readerStream != null)

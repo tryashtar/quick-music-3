@@ -72,6 +72,7 @@ public abstract class Loadable<T>
         {
             LoadStatus = LoadStatus.Failed;
             Exception = ex;
+            Debug.WriteLine($"Failed to load: {ex}");
         }
     }
 
