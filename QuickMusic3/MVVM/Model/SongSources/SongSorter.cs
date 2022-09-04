@@ -8,10 +8,7 @@ public class SongSorter : IComparer<SongFile>
     public static readonly SongSorter Instance = new();
     public int Compare(SongFile x, SongFile y)
     {
-        int status = LoadStatusOrder(x.Metadata.LoadStatus).CompareTo(LoadStatusOrder(y.Metadata.LoadStatus));
-        if (status != 0)
-            return status;
-        if (!x.Metadata.IsLoaded) // both are unloaded because otherwise previous check would return
+        if (!x.Metadata.IsLoaded || !y.Metadata.IsLoaded)
             return LogicalStringComparer.Instance.Compare(x.FilePath, y.FilePath);
         var xm = x.Metadata.Item;
         var ym = y.Metadata.Item;
@@ -28,17 +25,5 @@ public class SongSorter : IComparer<SongFile>
         if (title != 0)
             return title;
         return LogicalStringComparer.Instance.Compare(x.FilePath, y.FilePath);
-    }
-
-    private static int LoadStatusOrder(LoadStatus status)
-    {
-        return status switch
-        {
-            LoadStatus.Loading => 0,
-            LoadStatus.NotLoaded => 0,
-            LoadStatus.Loaded => 1,
-            LoadStatus.Failed => 2,
-            _ => 3
-        };
     }
 }

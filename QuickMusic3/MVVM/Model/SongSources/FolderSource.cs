@@ -10,6 +10,8 @@ namespace QuickMusic3.MVVM.Model;
 public class FolderSource : ISongSource
 {
     private readonly List<SongFile> Streams;
+    private readonly HashSet<SongFile> Loaded = new();
+    private readonly IComparer<SongFile> Sorter;
     private readonly Dictionary<string, List<SongFile>> Folders = new();
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -45,6 +47,27 @@ public class FolderSource : ISongSource
                 Folders[folder] = new();
             Folders[folder].Add(item);
         }
+        Sorter = new LoadableComparer(this);
+    }
+
+    private class LoadableComparer : IComparer<SongFile>
+    {
+        private readonly FolderSource Parent;
+        public LoadableComparer(FolderSource parent)
+        {
+            Parent = parent;
+        }
+
+        public int Compare(SongFile x, SongFile y)
+        {
+            bool x_loaded = Parent.Loaded.Contains(x);
+            bool y_loaded = Parent.Loaded.Contains(y);
+            if (x_loaded && !y_loaded)
+                return -1;
+            if (y_loaded && !x_loaded)
+                return 1;
+            return SongSorter.Instance.Compare(x, y);
+        }
     }
 
     public void GetInOrder(int index, bool now)
@@ -68,11 +91,18 @@ public class FolderSource : ISongSource
         int old_index, destination;
         lock (Streams)
         {
+            // in order for the binary search to work correctly, the list must remain sorted at all times
+            // however, the metadata is loading in asynchronously on other threads
+            // so the first line of defense is the lock, of course
+            // but we can't have the binary search checking the comparer against loaded tracks that are still waiting on the lock
+            // so we keep track of which tracks are loaded here too
+            // any tracks that happen to finish loading but haven't been moved into place yet are considered unloaded by the comparer until it's their turn
+            Loaded.Add(item);
             old_index = Streams.IndexOf(item);
             if (old_index == -1)
                 return;
             Streams.RemoveAt(old_index);
-            destination = Streams.BinarySearch(item, SongSorter.Instance);
+            destination = Streams.BinarySearch(item, Sorter);
             if (destination < 0)
                 destination = ~destination;
             Streams.Insert(destination, item);
@@ -88,7 +118,7 @@ public class FolderSource : ISongSource
         {
             old_index = Streams.IndexOf(item);
             Streams.RemoveAt(old_index);
-            //Debug.WriteLine("R " + String.Join(' ', Streams.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
+            Debug.WriteLine("R " + String.Join(' ', Streams.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, old_index));
     }
