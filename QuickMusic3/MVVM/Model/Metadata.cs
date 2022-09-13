@@ -59,6 +59,18 @@ public class Metadata : ObservableObject
     private static decimal LoadReplayGain(TagLib.File file)
     {
         const string TRACK_GAIN = "REPLAYGAIN_TRACK_GAIN";
+        var id3v2 = (TagLib.Id3v2.Tag)file.GetTag(TagLib.TagTypes.Id3v2);
+        if (id3v2 != null)
+        {
+            var frames = id3v2.GetFrames<TagLib.Id3v2.RelativeVolumeFrame>();
+            foreach (var frame in frames)
+            {
+                foreach (var channel in frame.Channels)
+                {
+                    return (decimal)frame.GetVolumeAdjustment(channel);
+                }
+            }
+        }
         var ape = (TagLib.Ape.Tag)file.GetTag(TagLib.TagTypes.Ape);
         if (ape != null)
         {
