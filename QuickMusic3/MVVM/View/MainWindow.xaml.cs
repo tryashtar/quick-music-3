@@ -110,6 +110,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             Model.Shared.Player.Open(playlist, sources.first_index);
             Model.Shared.Player.Play();
+            Model.Shared.History.Add();
             Model.GoToDefaultView();
         }
     }
@@ -219,6 +220,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             Model.Shared.Player.SwitchTo((SongFile)((ListViewItem)sender).Content);
             Model.Shared.Player.Play();
+            Model.Shared.History.Add();
         }
     }
 
@@ -247,5 +249,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         gView.Columns[2].Width = workingWidth * 0.5;
         gView.Columns[3].Width = workingWidth * 0.25;
         gView.Columns[4].Width = workingWidth * 0.25;
+    }
+
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.XButton1)
+            Model.Shared.History.Backward();
+        else if (e.ChangedButton == MouseButton.XButton2)
+            Model.Shared.History.Forward();
     }
 }

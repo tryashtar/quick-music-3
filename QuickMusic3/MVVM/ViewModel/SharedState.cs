@@ -14,6 +14,7 @@ namespace QuickMusic3.MVVM.ViewModel;
 public class SharedState : ObservableObject
 {
     public Player Player { get; } = new();
+    public PlayHistory History { get; }
     private Theme active_theme;
     public Theme ActiveTheme
     {
@@ -36,9 +37,12 @@ public class SharedState : ObservableObject
     public ICommand SeekCommand { get; }
     public ICommand ChangeThemeCommand { get; }
     public ICommand ChangeLyricsEnabledCommand { get; }
+    public ICommand ForwardCommand { get; }
+    public ICommand BackwardCommand { get; }
 
     public SharedState()
     {
+        History = new(Player);
         PlayPauseCommand = new RelayCommand(() =>
         {
             if (Player.PlayState == PlaybackState.Playing)
@@ -46,14 +50,23 @@ public class SharedState : ObservableObject
             else
                 Player.Play();
         });
-        NextCommand = new RelayCommand(() => Player.Next());
+        NextCommand = new RelayCommand(() =>
+        {
+            Player.Next();
+            History.Add();
+        });
         PrevCommand = new RelayCommand(() =>
         {
             if (Player.CurrentTime > TimeSpan.FromSeconds(2))
                 Player.CurrentTime = TimeSpan.Zero;
             else
+            {
                 Player.Prev();
+                History.Add();
+            }
         });
+        ForwardCommand = new RelayCommand(() => History.Forward());
+        BackwardCommand = new RelayCommand(() => History.Backward());
         ChangeRepeatCommand = new RelayCommand(() =>
         {
             if (Player.RepeatMode == RepeatMode.RepeatAll)

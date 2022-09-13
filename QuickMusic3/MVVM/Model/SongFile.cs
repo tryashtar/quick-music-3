@@ -70,7 +70,7 @@ public class SongFile : ObservableObject, IDisposable
 
     private void PrepareStream()
     {
-        Stream = new NeedyLoadable<MutableStream>(() => new MutableStream(FilePath));
+        Stream = new NeedyLoadable<MutableStream>(() => new MutableStream(FilePath), x => x.IsDisposed);
         Stream.Loaded += (s, e) =>
         {
             Debug.WriteLine($"{Path.GetFileName(FilePath)}: {Stream.Item.BaseStream.WaveFormat.SampleRate} / {Stream.Item.BaseStream.WaveFormat.Channels}");

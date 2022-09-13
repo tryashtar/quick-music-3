@@ -160,26 +160,37 @@ public class Player : ObservableObject, IDisposable
             Stream.CurrentIndex = index;
     }
 
+    public ISongSource RawSource { get; private set; }
     public ShufflableSource Playlist { get; private set; }
     public void Open(ISongSource playlist, int? first_index = 0)
     {
         Close();
-        Playlist = new ShufflableSource(playlist);
-        if (Shuffle)
-            Playlist.Shuffle(first_index);
-        //if (!first_index.HasValue)
-        //    Playlist.GetInOrder(0, true);
+        RawSource = playlist;
         if (Stream != null)
             Stream.Dispose();
-        Stream = new(Playlist);
-        Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
-        Stream.PropertyChanged += Stream_PropertyChanged;
-        if (!Shuffle && first_index.HasValue)
-            Stream.CurrentIndex = first_index.Value;
-        Output = new();
-        Output.PlaybackStopped += Output_PlaybackStopped;
-        UpdateVolume();
-        Output.Init(Stream);
+        if (playlist == null)
+        {
+            Playlist = null;
+            Stream = null;
+            Output = null;
+        }
+        else
+        {
+            Playlist = new ShufflableSource(playlist);
+            if (Shuffle)
+                Playlist.Shuffle(first_index);
+            //if (!first_index.HasValue)
+            //    Playlist.GetInOrder(0, true);
+            Stream = new(Playlist);
+            Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
+            Stream.PropertyChanged += Stream_PropertyChanged;
+            if (!Shuffle && first_index.HasValue)
+                Stream.CurrentIndex = first_index.Value;
+            Output = new();
+            Output.PlaybackStopped += Output_PlaybackStopped;
+            UpdateVolume();
+            Output.Init(Stream);
+        }
         OnPropertyChanged(nameof(Playlist));
         OnPropertyChanged(nameof(PlaylistPosition));
         OnPropertyChanged(nameof(PlaylistTotal));
@@ -283,5 +294,69 @@ public class Player : ObservableObject, IDisposable
         Close();
         Timer.Elapsed -= Timer_Elapsed;
         Timer.Dispose();
+    }
+}
+
+public class PlayHistory
+{
+    private readonly Player Parent;
+    private record Entry(ISongSource Source, SongFile Song, TimeSpan Time, PlaybackState State);
+    private int CurrentIndex = 0;
+    private readonly List<Entry> History;
+
+    public PlayHistory(Player parent)
+    {
+        Parent = parent;
+        History = new();
+    }
+
+    private Entry MakeCurrentEntry()
+    {
+        return new Entry(Parent.RawSource, Parent.CurrentTrack, Parent.CurrentTime, Parent.PlayState);
+    }
+
+    public void Add()
+    {
+        if (CurrentIndex < History.Count - 1)
+            History.RemoveRange(CurrentIndex + 1, History.Count - CurrentIndex - 1);
+        History.Add(MakeCurrentEntry());
+        if (History.Count > 1)
+            CurrentIndex++;
+    }
+
+    private void SwitchTo(Entry entry)
+    {
+        if (Parent.RawSource != entry.Source)
+            Parent.Open(entry.Source);
+        Parent.SwitchTo(entry.Song);
+        Parent.CurrentTime = entry.Time;
+        if (entry.State == PlaybackState.Stopped || entry.State == PlaybackState.Paused)
+            Parent.Pause();
+        else if (entry.State == PlaybackState.Playing)
+            Parent.Play();
+    }
+
+    public void Forward()
+    {
+        if (History.Count == 0)
+            return;
+        History[CurrentIndex] = MakeCurrentEntry();
+        if (CurrentIndex < History.Count - 1)
+        {
+            CurrentIndex++;
+            SwitchTo(History[CurrentIndex]);
+        }
+    }
+
+    public void Backward()
+    {
+        if (History.Count == 0)
+            return;
+        History[CurrentIndex] = MakeCurrentEntry();
+        if (CurrentIndex > 0)
+        {
+            CurrentIndex--;
+            SwitchTo(History[CurrentIndex]);
+        }
     }
 }

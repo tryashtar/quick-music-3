@@ -14,17 +14,19 @@ public abstract class Loadable<T>
     public event EventHandler Failed;
     public LoadStatus LoadStatus { get; private set; } = LoadStatus.NotLoaded;
     public Exception Exception { get; private set; }
-    public bool IsLoaded => LoadStatus == LoadStatus.Loaded;
+    public bool IsLoaded => ItemReady();
     public bool IsFailed => LoadStatus == LoadStatus.Failed;
     private Task LoadingTask;
     private readonly object LoadingLock = new();
-    private T item;
+    protected T _item;
     public T Item
     {
         get
         {
-            if (LoadStatus == LoadStatus.Loaded)
-                return item;
+            if (ItemReady())
+                return _item;
+            else if (HasUnloaded())
+                return ItemReload();
             else if (LoadStatus == LoadStatus.Failed)
                 return ItemFailed();
             else
@@ -36,7 +38,7 @@ public abstract class Loadable<T>
     {
         lock (LoadingLock)
         {
-            if (LoadStatus != LoadStatus.NotLoaded)
+            if (ItemReady())
                 return;
             LoadStatus = LoadStatus.Loading;
             if (LoadingTask == null || LoadingTask.IsCompleted)
@@ -48,7 +50,7 @@ public abstract class Loadable<T>
     {
         lock (LoadingLock)
         {
-            if (LoadStatus == LoadStatus.Failed || LoadStatus == LoadStatus.Loaded)
+            if (ItemReady())
                 return;
             LoadStatus = LoadStatus.Loading;
             if (LoadingTask != null && !LoadingTask.IsCompleted)
@@ -65,7 +67,7 @@ public abstract class Loadable<T>
     {
         try
         {
-            item = Load();
+            _item = Load();
             LoadStatus = LoadStatus.Loaded;
         }
         catch (Exception ex)
@@ -87,6 +89,16 @@ public abstract class Loadable<T>
         AfterLoad();
     }
 
+    private bool ItemReady()
+    {
+        return LoadStatus == LoadStatus.Loaded && !ItemUnloaded(_item);
+    }
+
+    private bool HasUnloaded()
+    {
+        return LoadStatus == LoadStatus.Loaded && ItemUnloaded(_item);
+    }
+
     protected abstract T Load();
     protected virtual void AfterLoad() { }
     protected abstract T ItemRequested();
@@ -94,6 +106,8 @@ public abstract class Loadable<T>
     {
         throw new InvalidOperationException("Loading failed", Exception);
     }
+    protected abstract bool ItemUnloaded(T item);
+    protected virtual T ItemReload() => ItemRequested();
 }
 
 public enum LoadStatus
@@ -107,9 +121,11 @@ public enum LoadStatus
 public class NeedyLoadable<T> : Loadable<T>
 {
     private readonly Func<T> Getter;
-    public NeedyLoadable(Func<T> getter)
+    private readonly Func<T, bool> UnloadCheck;
+    public NeedyLoadable(Func<T> getter, Func<T, bool> unload_check)
     {
         Getter = getter;
+        UnloadCheck = unload_check;
     }
 
     protected override T ItemRequested()
@@ -122,6 +138,8 @@ public class NeedyLoadable<T> : Loadable<T>
     {
         return Getter();
     }
+
+    protected override bool ItemUnloaded(T item) => UnloadCheck(item);
 }
 
 public class PlaceholderLoadable<T> : Loadable<T>
@@ -148,5 +166,10 @@ public class PlaceholderLoadable<T> : Loadable<T>
     protected override T Load()
     {
         return RealGetter();
+    }
+
+    protected override bool ItemUnloaded(T item)
+    {
+        return false;
     }
 }

@@ -19,7 +19,8 @@
         AllowDrop="True"
         Drop="Window_Drop"
         DragOver="Window_DragOver"
-        SizeChanged="Window_SizeChanged">
+        SizeChanged="Window_SizeChanged"
+        MouseDown="Window_MouseDown">
     <Window.Title>
         <MultiBinding StringFormat="Quick Music – {0} ({1} / {2})"
                       FallbackValue="Quick Music">
@@ -107,6 +108,14 @@
             <KeyBinding.CommandParameter>
                 <sys:Double>5</sys:Double>
             </KeyBinding.CommandParameter>
+        </KeyBinding>
+        <KeyBinding Modifiers="Alt"
+                    Key="Left"
+                    Command="{Binding Shared.BackwardCommand}">
+        </KeyBinding>
+        <KeyBinding Modifiers="Alt"
+                    Key="Right"
+                    Command="{Binding Shared.ForwardCommand}">
         </KeyBinding>
         <KeyBinding Key="J"
                     Command="{Binding Shared.SeekCommand}">
