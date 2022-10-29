@@ -34,7 +34,7 @@ public static class BaseReaders
             },
             () => TryOpenOgg(fileStream),
             () => TryOpenFlac(fileStream),
-            () => MediaFoundationReader.TryOpen(fileStream)
+            () => new MediaFoundationReader(fileStream.Name)
         };
         int first = 0;
         if (fileName.EndsWith(".aiff", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".aif", StringComparison.OrdinalIgnoreCase))

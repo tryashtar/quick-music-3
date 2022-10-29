@@ -41,7 +41,7 @@
         <Grid Grid.Column="0">
             <Image x:Name="AlbumArt"
                    Focusable="False"
-                   Source="{Binding Shared.Player.CurrentTrack.Metadata.Item.HighResImage, TargetNullValue={StaticResource DefaultImage}}"
+                   Source="{Binding Shared.Player.CurrentTrack.Song.Metadata.Item.HighResImage, TargetNullValue={StaticResource DefaultImage}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    VerticalAlignment="Center">
                 <!--<Image.Effect>
@@ -57,11 +57,11 @@
                         <Binding Path="LyricsEnabled"
                                  ElementName="ThisControl" />
                         <Binding Path="Shared.LyricsEnabled" />
-                        <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Lyrics" />
+                        <Binding Path="Shared.Player.CurrentTrack.Song.Metadata.Item.Lyrics" />
                     </MultiBinding>
                 </ScrollViewer.Visibility>
                 <ItemsControl x:Name="LyricsBox"
-                              ItemsSource="{Binding Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines}"
+                              ItemsSource="{Binding Shared.Player.CurrentTrack.Song.Metadata.Item.Lyrics.Lines}"
                               Focusable="False"
                               FontSize="14"
                               Margin="0,3,0,3"
@@ -118,16 +118,16 @@
                              VerticalAlignment="Top"
                              HorizontalAlignment="Left">
                         <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Title, FallbackValue=Title}"
+                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Song.Metadata.Item.Title, FallbackValue=Title}"
                                        FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}"
                                        TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Artist, FallbackValue=Artist}"
+                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Song.Metadata.Item.Artist, FallbackValue=Artist}"
                                        FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}"
                                        Foreground="{Binding Shared.ActiveTheme.SubtleText}"
                                        TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Metadata.Item.Album, FallbackValue=Album}"
+                            <TextBlock Text="{Binding Path=Shared.Player.CurrentTrack.Song.Metadata.Item.Album, FallbackValue=Album}"
                                        FontSize="{Binding MetadataFontSize, ElementName=ThisControl}"
                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=DockPanel}}"
                                        Foreground="{Binding Shared.ActiveTheme.SubtleText}"

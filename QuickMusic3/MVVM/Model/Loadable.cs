@@ -1,6 +1,7 @@
 ﻿using NAudio.Wave;
 using QuickMusic3.Core;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,10 +9,12 @@ using System.Windows.Media.Imaging;
 
 namespace QuickMusic3.MVVM.Model;
 
-public abstract class Loadable<T>
+public abstract class Loadable<T> : INotifyPropertyChanged
 {
     public event EventHandler Loaded;
     public event EventHandler Failed;
+    public event PropertyChangedEventHandler PropertyChanged;
+
     public LoadStatus LoadStatus { get; private set; } = LoadStatus.NotLoaded;
     public Exception Exception { get; private set; }
     public bool IsLoaded => ItemReady();
@@ -86,6 +89,11 @@ public abstract class Loadable<T>
             Failed?.Invoke(this, EventArgs.Empty);
         Loaded = null;
         Failed = null;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LoadStatus)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Exception)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsFailed)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLoaded)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Item)));
         AfterLoad();
     }
 

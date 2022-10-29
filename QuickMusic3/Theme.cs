@@ -32,6 +32,7 @@ public class Theme
     public Brush PlaylistBackground { get; set; }
     public Brush PlaylistHighlight { get; set; }
     public Brush PlaylistActive { get; set; }
+    public Brush PlaylistError { get; set; }
 
     public static readonly Dictionary<string, Theme> DefaultThemes = new()
     {
@@ -53,7 +54,8 @@ public class Theme
                 Header = new SolidColorBrush(Color.FromRgb(0xeb, 0xf0, 0xf5)),
                 PlaylistBackground = Brushes.White,
                 PlaylistHighlight = new SolidColorBrush(Color.FromRgb(0xbd, 0xe7, 0xff)),
-                PlaylistActive = new SolidColorBrush(Color.FromRgb(0xd9, 0xff, 0xdb))
+                PlaylistActive = new SolidColorBrush(Color.FromRgb(0xd9, 0xff, 0xdb)),
+                PlaylistError = new SolidColorBrush(Color.FromRgb(0xff, 0xbf, 0xbf))
             }
         },
         {
@@ -74,7 +76,8 @@ public class Theme
                 Header = new SolidColorBrush(Color.FromRgb(0x11, 0x11, 0x11)),
                 PlaylistBackground = new SolidColorBrush(Color.FromRgb(0x20, 0x20, 0x20)),
                 PlaylistHighlight = new SolidColorBrush(Color.FromRgb(0x1e, 0x56, 0x75)),
-                PlaylistActive = new SolidColorBrush(Color.FromRgb(0x1d, 0x73, 0x55))
+                PlaylistActive = new SolidColorBrush(Color.FromRgb(0x1d, 0x73, 0x55)),
+                PlaylistError = new SolidColorBrush(Color.FromRgb(0x73, 0x1d, 0x1d))
             }
         }
     };

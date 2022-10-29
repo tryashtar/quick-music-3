@@ -20,14 +20,8 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         get => current_index;
         set
         {
-            int count = Playlist.Count;
-            int destination = WrapIndex(value);
-            current_index = Math.Clamp(destination, 0, count - 1);
+            current_index = FixIndex(value);
             SetCurrentTrack();
-            if (destination >= count)
-                CurrentBase.CurrentTime = CurrentBase.TotalTime;
-            else
-                CurrentBase.CurrentTime = TimeSpan.Zero;
         }
     }
     public RepeatMode RepeatMode { get; set; }
@@ -43,20 +37,24 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         this.Playlist = playlist;
         CurrentIndex = 0;
         playlist.CollectionChanged += Playlist_CollectionChanged;
-        AddResamples(playlist);
+        AddResamples(playlist.Select(x => x.Song).Where(x => x != null));
     }
 
     private void SetCurrentTrack()
     {
-        var prev_track = CurrentTrack;
-        do
+        while (IsBad(Playlist[current_index]))
         {
-            CurrentTrack = Playlist[current_index];
-            CurrentTrack.Stream.LoadNow();
-            if (CurrentTrack.Stream.IsFailed)
-                current_index++;
+            int index = NextGoodIndex();
+            if (index == current_index)
+            {
+                current_index = -1;
+                return;
+            }
+            current_index = index;
+            Playlist[current_index].Song.Stream.LoadNow();
         }
-        while (CurrentTrack.Stream.IsFailed);
+        var prev_track = CurrentTrack;
+        CurrentTrack = Playlist[current_index].Song;
         if (CurrentTrack != prev_track)
         {
             foreach (var item in Loaded)
@@ -69,10 +67,10 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         Loaded.Add(CurrentTrack);
         Playlist.GetInOrder(current_index, false);
         int next = UpcomingIndex();
-        if (next < Playlist.Count)
+        if (next < Playlist.Count && Playlist[next].Song != null)
         {
-            Playlist[next].Stream.LoadBackground();
-            Loaded.Add(Playlist[next]);
+            Playlist[next].Song.Stream.LoadBackground();
+            Loaded.Add(Playlist[next].Song);
         }
         OnPropertyChanged(nameof(CurrentIndex));
         if (CurrentTrack != prev_track)
@@ -120,15 +118,19 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             current_index += e.NewItems.Count;
             Debug.WriteLine($"Add: Current index moved from {current_index - e.NewItems.Count} to {current_index}");
         }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex < current_index)
+        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex <= current_index)
         {
-            current_index -= e.OldItems.Count;
-            Debug.WriteLine($"Remove: Current index moved from {current_index + e.OldItems.Count} to {current_index}");
-        }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex == current_index)
-        {
-            CurrentIndex += e.OldItems.Count;
-            Debug.WriteLine($"Currently playing track removed, current index advanced to {current_index}");
+            if (e.OldStartingIndex + e.OldItems.Count > current_index)
+            {
+                current_index = e.OldStartingIndex;
+                Debug.WriteLine($"Currently playing track removed, current index advanced to {current_index}");
+                SetCurrentTrack();
+            }
+            else
+            {
+                current_index -= e.OldItems.Count;
+                Debug.WriteLine($"Remove: Current index moved from {current_index + e.OldItems.Count} to {current_index}");
+            }
         }
         else if (e.Action == NotifyCollectionChangedAction.Reset)
         {
@@ -183,29 +185,61 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             read += readThisTime;
             if (readThisTime == 0)
             {
-                int next = UpcomingIndex();
-                if (next < 0 || next >= Playlist.Count)
+                if (RepeatMode == RepeatMode.PlayAll && current_index == Playlist.Count - 1)
                     break;
-                else
-                    CurrentIndex = next;
+                CurrentIndex = UpcomingIndex();
             }
         }
         return read;
     }
 
+    public void Next()
+    {
+        CurrentIndex = NextGoodIndex(1);
+    }
+
+    public void Previous()
+    {
+        CurrentIndex = NextGoodIndex(-1);
+    }
+
     private int WrapIndex(int index)
     {
         int count = Playlist.Count;
-        if (RepeatMode == RepeatMode.RepeatAll || RepeatMode == RepeatMode.RepeatOne)
-            return (index % count + count) % count;
-        return Math.Clamp(index, -1, count);
+        return (index % count + count) % count;
+    }
+
+    private int FixIndex(int index)
+    {
+        if (RepeatMode == RepeatMode.PlayAll)
+            return Math.Clamp(index, 0, Playlist.Count - 1);
+        return WrapIndex(index);
+    }
+
+    private int NextGoodIndex(int direction = 1)
+    {
+        int index;
+        do
+        {
+            index = WrapIndex(current_index + direction);
+            direction += Math.Sign(direction);
+        }
+        while (index != current_index && IsBad(Playlist[index]));
+        return index;
+    }
+
+    private bool IsBad(SongReference song)
+    {
+        if (song.Song == null)
+            return true;
+        return song.Song.Stream.IsFailed;
     }
 
     private int UpcomingIndex(int direction = 1)
     {
         if (RepeatMode == RepeatMode.RepeatOne)
             return current_index;
-        return WrapIndex(current_index + direction);
+        return NextGoodIndex(direction);
     }
 
     public void Dispose()
@@ -213,7 +247,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         Debug.WriteLine("Disposing PlaylistStream start");
         foreach (var item in Playlist)
         {
-            item.Dispose();
+            item.Song?.Dispose();
         }
         Debug.WriteLine("Disposing PlaylistStream complete");
     }

@@ -24,7 +24,7 @@
     <Window.Title>
         <MultiBinding StringFormat="Quick Music – {0} ({1} / {2})"
                       FallbackValue="Quick Music">
-            <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Title" />
+            <Binding Path="Shared.Player.CurrentTrack.Song.Metadata.Item.Title" />
             <Binding Path="Shared.Player.PlaylistPosition" />
             <Binding Path="Shared.Player.PlaylistTotal" />
         </MultiBinding>
@@ -178,6 +178,9 @@
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <ContextMenu x:Key="ItemContextMenu">
+                <MenuItem Header="Remove"
+                          Command="{Binding RemoveTrackCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                          CommandParameter="{Binding}" />
                 <MenuItem Header="Open file location"
                           Command="{Binding OpenFileLocationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                           CommandParameter="{Binding}" />
@@ -326,13 +329,23 @@
                             <DataTrigger Value="True">
                                 <DataTrigger.Binding>
                                     <MultiBinding Converter="{StaticResource EqualityCheck}">
-                                        <Binding />
-                                        <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                        <Binding Path="Song" />
+                                        <Binding Path="DataContext.Shared.Player.CurrentTrack.Song"
                                                  RelativeSource="{RelativeSource AncestorType=Window}" />
                                     </MultiBinding>
                                 </DataTrigger.Binding>
                                 <Setter Property="Background"
                                         Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </DataTrigger>
+                            <DataTrigger Value="{x:Null}"
+                                         Binding="{Binding Song}">
+                                <Setter Property="Background"
+                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistError, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </DataTrigger>
+                            <DataTrigger Value="True"
+                                         Binding="{Binding Song.Stream.IsFailed}">
+                                <Setter Property="Background"
+                                        Value="{Binding DataContext.Shared.ActiveTheme.PlaylistError, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </DataTrigger>
                             <Trigger Property="IsMouseOver"
                                      Value="True">
@@ -355,7 +368,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Height="35">
-                                        <Image Source="{Binding Metadata.Item.Thumbnail}">
+                                        <Image Source="{Binding Song.Metadata.Item.Thumbnail}">
                                             <Image.Style>
                                                 <Style TargetType="Image">
                                                     <Setter Property="Visibility"
@@ -407,7 +420,7 @@
                                         Width="40">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Item.TrackNumber, Converter={StaticResource ZeroAsEmptyConverter}}"
+                                    <TextBlock Text="{Binding Song.Metadata.Item.TrackNumber, Converter={StaticResource ZeroAsEmptyConverter}}"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
@@ -415,15 +428,28 @@
                         <GridViewColumn x:Name="TitleColumn">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Item.Title}"
-                                               TextWrapping="Wrap" />
+                                    <TextBlock TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text"
+                                                        Value="{Binding Song.Metadata.Item.Title}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Song}"
+                                                                 Value="{x:Null}">
+                                                        <Setter Property="Text"
+                                                                Value="{Binding FilePath}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn x:Name="ArtistColumn">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Item.Artist}"
+                                    <TextBlock Text="{Binding Song.Metadata.Item.Artist}"
                                                TextWrapping="Wrap"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
@@ -432,7 +458,7 @@
                         <GridViewColumn x:Name="AlbumColumn">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Metadata.Item.Album}"
+                                    <TextBlock Text="{Binding Song.Metadata.Item.Album}"
                                                TextWrapping="Wrap"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
@@ -442,7 +468,7 @@
                                         Width="60">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding GuessDuration, Converter={StaticResource TimeStringConverter}}"
+                                    <TextBlock Text="{Binding Song.GuessDuration, Converter={StaticResource TimeStringConverter}}"
                                                Foreground="{Binding DataContext.Shared.ActiveTheme.SubtleText, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>

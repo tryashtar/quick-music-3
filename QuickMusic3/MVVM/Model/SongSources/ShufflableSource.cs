@@ -12,19 +12,24 @@ namespace QuickMusic3.MVVM.Model;
 public class ShufflableSource : ISongSource
 {
     private readonly ISongSource BaseSource;
-    private readonly List<SongFile> ShuffledCopy;
+    private readonly List<SongReference> ShuffledCopy;
     public bool IsShuffled { get; private set; }
 
     public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public SongFile this[int index] => IsShuffled ? ShuffledCopy[index] : BaseSource[index];
+    public SongReference this[int index] => IsShuffled ? ShuffledCopy[index] : BaseSource[index];
     public int Count => BaseSource.Count;
-    public int IndexOf(SongFile song) => IsShuffled ? ShuffledCopy.IndexOf(song) : BaseSource.IndexOf(song);
-    public IEnumerator<SongFile> GetEnumerator() => IsShuffled ? ShuffledCopy.GetEnumerator() : BaseSource.GetEnumerator();
+    public int IndexOf(SongFile song) => IsShuffled ? ShuffledCopy.FindIndex(x => x.Song == song) : BaseSource.IndexOf(song);
+    public IEnumerator<SongReference> GetEnumerator() => IsShuffled ? ShuffledCopy.GetEnumerator() : BaseSource.GetEnumerator();
 
     public void GetInOrder(int index, bool now)
     {
         if (!IsShuffled)
             BaseSource.GetInOrder(index, now);
+    }
+
+    public void Remove(SongReference song)
+    {
+        BaseSource.Remove(song);
     }
 
     public ShufflableSource(ISongSource wrapped)
@@ -41,7 +46,7 @@ public class ShufflableSource : ISongSource
                 {
                     foreach (var item in e.OldItems)
                     {
-                        int index = ShuffledCopy.IndexOf((SongFile)item);
+                        int index = ShuffledCopy.IndexOf((SongReference)item);
                         if (index != -1)
                         {
                             ShuffledCopy.RemoveAt(index);

@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using QuickMusic3.MVVM.Model;
+using QuickMusic3.MVVM.View;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

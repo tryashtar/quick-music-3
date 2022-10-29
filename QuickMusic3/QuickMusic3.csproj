@@ -8,6 +8,9 @@
 		<AssemblyTitle>Quick Music 3</AssemblyTitle>
 		<AssemblyName>QuickMusic3</AssemblyName>
 		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>false</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<PublishSingleFile>true</PublishSingleFile>
 		<PublishReadyToRun>true</PublishReadyToRun>
 	</PropertyGroup>
 

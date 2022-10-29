@@ -6,11 +6,24 @@ using System.Linq;
 
 namespace QuickMusic3.MVVM.Model;
 
-public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
+public interface ISongSource : IReadOnlyList<SongReference>, INotifyCollectionChanged
 {
     int IndexOf(SongFile file);
     void GetInOrder(int index, bool now);
+    void Remove(SongReference song);
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class SongReference
+{
+    public string FilePath { get; }
+    public SongFile Song { get; }
+    public SongReference(string path)
+    {
+        FilePath = Path.GetFullPath(path);
+        if (File.Exists(FilePath))
+            Song = new(FilePath);
+    }
 }
 
 public static class SongSourceExtensions
@@ -27,19 +40,18 @@ public static class SongSourceExtensions
         }
         foreach (string file in files)
         {
-            bool is_file = File.Exists(file);
-            if (is_file && Path.GetExtension(file) == ".m3u")
-            {
-                process_batch();
-                results.Add(new PlaylistFileSource(file));
-            }
-            else if (is_file)
-                batch.Add(file);
-            else if (Directory.Exists(file))
+            if (Directory.Exists(file))
             {
                 process_batch();
                 results.Add(new FolderSource(file, search));
             }
+            else if (Path.GetExtension(file) == ".m3u")
+            {
+                process_batch();
+                results.Add(new PlaylistFileSource(file));
+            }
+            else
+                batch.Add(file);
         }
         if (expand_single && results.Count == 0 && batch.Count == 1)
         {

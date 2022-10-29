@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -11,14 +12,14 @@ namespace QuickMusic3.MVVM.Model;
 
 public abstract class SourceAggregator : ISongSource
 {
-    protected readonly List<SongFile> FlatList = new();
+    protected readonly List<SongReference> FlatList = new();
     protected readonly Dictionary<ISongSource, int> SourcePositions = new();
 
     public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public SongFile this[int index] => FlatList[index];
+    public SongReference this[int index] => FlatList[index];
     public int Count => FlatList.Count;
-    public int IndexOf(SongFile song) => FlatList.IndexOf(song);
-    public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
+    public int IndexOf(SongFile song) => FlatList.FindIndex(x => x.Song == song);
+    public IEnumerator<SongReference> GetEnumerator() => FlatList.GetEnumerator();
 
     public void GetInOrder(int index, bool now)
     {
@@ -29,6 +30,14 @@ public abstract class SourceAggregator : ISongSource
                 item.Key.GetInOrder(index - item.Value, now);
                 return;
             }
+        }
+    }
+
+    public void Remove(SongReference song)
+    {
+        foreach (var item in SourcePositions.Keys)
+        {
+            item.Remove(song);
         }
     }
 

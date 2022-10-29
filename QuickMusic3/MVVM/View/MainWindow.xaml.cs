@@ -1,6 +1,7 @@
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Win32;
 using NAudio.Wave;
+using QuickMusic3.Converters;
 using QuickMusic3.Core;
 using QuickMusic3.MVVM.Model;
 using QuickMusic3.MVVM.View;
@@ -41,6 +42,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ICommand MaximizeWindowCommand { get; }
     public ICommand MinimizeWindowCommand { get; }
     public ICommand OpenFileLocationCommand { get; }
+    public ICommand RemoveTrackCommand { get; }
 
     public Visibility TrayIconVisibility
     {
@@ -78,9 +80,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     OpenPlaylist(dialog.FileNames, SearchOption.TopDirectoryOnly);
             }
         });
-        OpenFileLocationCommand = new RelayCommand<SongFile>(x =>
+        OpenFileLocationCommand = new RelayCommand<SongReference>(x =>
         {
             Process.Start("explorer.exe", $"/select, \"{x.FilePath}\"");
+        });
+        RemoveTrackCommand = new RelayCommand<SongReference>(x =>
+        {
+            Model.Shared.Player.Playlist.Remove(x);
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
@@ -166,14 +172,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
                 LastKnownPosition = Model.Shared.Player.PlaylistPosition;
-                LastKnownTrack = Model.Shared.Player.CurrentTrack;
+                LastKnownTrack = Model.Shared.Player.CurrentTrack.Song;
             });
         }
         else if (e.PropertyName == nameof(Player.PlaylistPosition))
         {
             Dispatcher.BeginInvoke(() =>
             {
-                if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
+                if (Model.Shared.Player.CurrentTrack.Song == LastKnownTrack)
                 {
                     int pos = Model.Shared.Player.PlaylistPosition;
                     int children = VisualTreeHelper.GetChildrenCount(PlaylistList);
@@ -218,9 +224,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         if (e.ChangedButton == MouseButton.Left)
         {
-            Model.Shared.Player.SwitchTo((SongFile)((ListViewItem)sender).Content);
-            Model.Shared.Player.Play();
-            Model.Shared.History.Add();
+            var clicked = (SongReference)((ListViewItem)sender).Content;
+            if (clicked.Song != null)
+            {
+                Model.Shared.Player.SwitchTo(clicked.Song);
+                Model.Shared.Player.Play();
+                Model.Shared.History.Add();
+            }
         }
     }
 
