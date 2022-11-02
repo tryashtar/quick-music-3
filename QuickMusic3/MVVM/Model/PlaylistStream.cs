@@ -75,6 +75,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         OnPropertyChanged(nameof(CurrentIndex));
         if (CurrentTrack != prev_track)
             OnPropertyChanged(nameof(CurrentTrack));
+        CurrentBase.CurrentTime = TimeSpan.Zero;
     }
 
     private void AddResamples(IEnumerable<SongFile> songs)
