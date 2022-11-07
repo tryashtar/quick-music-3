@@ -97,7 +97,7 @@ public partial class MediaDisplay : UserControl
         var element = (FrameworkElement)LyricsBox.ItemContainerGenerator.ContainerFromItem(current);
         if (element != null)
         {
-            int index = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Song.Metadata.Item.Lyrics.Lines.IndexOf(current);
+            int index = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(current);
             if (LastLineIndex != -1 && index != -1 && index > LastLineIndex)
             {
                 for (int i = 0; i < index - LastLineIndex; i++)
@@ -120,11 +120,11 @@ public partial class MediaDisplay : UserControl
     private void Lyric_MouseDown(object sender, MouseButtonEventArgs e)
     {
         var player = ((BaseViewModel)this.DataContext).Shared.Player;
-        if (player.CurrentTrack.Song.Metadata.Item.Lyrics.Synchronized)
+        if (player.CurrentTrack.Metadata.Item.Lyrics.Synchronized)
         {
             var entry = (LyricsEntry)((FrameworkElement)sender).DataContext;
             player.CurrentTime = entry.Time;
-            LastLineIndex = player.CurrentTrack.Song.Metadata.Item.Lyrics.Lines.IndexOf(entry);
+            LastLineIndex = player.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(entry);
         }
     }
 }

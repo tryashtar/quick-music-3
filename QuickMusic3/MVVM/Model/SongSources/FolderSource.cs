@@ -9,16 +9,16 @@ namespace QuickMusic3.MVVM.Model;
 
 public class FolderSource : ISongSource
 {
-    private readonly List<SongReference> Files;
-    private readonly HashSet<SongReference> Loaded = new();
-    private readonly IComparer<SongReference> Sorter;
-    private readonly Dictionary<string, List<SongReference>> Folders = new();
+    private readonly List<SongFile> Files;
+    private readonly HashSet<SongFile> Loaded = new();
+    private readonly IComparer<SongFile> Sorter;
+    private readonly Dictionary<string, List<SongFile>> Folders = new();
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     public int Count => Files.Count;
-    public int IndexOf(SongFile song) => Files.FindIndex(x => x.Song == song);
-    public SongReference this[int index] => Files[index];
-    public IEnumerator<SongReference> GetEnumerator() => Files.GetEnumerator();
+    public int IndexOf(SongFile song) => Files.IndexOf(song);
+    public SongFile this[int index] => Files[index];
+    public IEnumerator<SongFile> GetEnumerator() => Files.GetEnumerator();
 
     private bool CheckExtension(FileInfo info)
     {
@@ -36,11 +36,11 @@ public class FolderSource : ISongSource
         Files = directory.GetFiles("*", search)
             .Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
             .Where(CheckExtension)
-            .Select(x => new SongReference(x.FullName)).ToList();
+            .Select(x => new SongFile(x.FullName)).ToList();
         foreach (var item in Files)
         {
-            item.Song.Metadata.Failed += (s, e) => MoveIntoPlace(item);
-            item.Song.Metadata.Loaded += (s, e) => MoveIntoPlace(item);
+            item.Metadata.Failed += (s, e) => MoveIntoPlace(item);
+            item.Metadata.Loaded += (s, e) => MoveIntoPlace(item);
             var folder = Path.GetDirectoryName(item.FilePath);
             if (!Folders.ContainsKey(folder))
                 Folders[folder] = new();
@@ -49,7 +49,7 @@ public class FolderSource : ISongSource
         Sorter = new LoadableComparer(this);
     }
 
-    private class LoadableComparer : IComparer<SongReference>
+    private class LoadableComparer : IComparer<SongFile>
     {
         private readonly FolderSource Parent;
         public LoadableComparer(FolderSource parent)
@@ -57,7 +57,7 @@ public class FolderSource : ISongSource
             Parent = parent;
         }
 
-        public int Compare(SongReference x, SongReference y)
+        public int Compare(SongFile x, SongFile y)
         {
             bool x_loaded = Parent.Loaded.Contains(x);
             bool y_loaded = Parent.Loaded.Contains(y);
@@ -78,14 +78,14 @@ public class FolderSource : ISongSource
             foreach (var item in folder)
             {
                 if (now)
-                    item.Song.Metadata.LoadNow();
+                    item.Metadata.LoadNow();
                 else
-                    item.Song.Metadata.LoadBackground();
+                    item.Metadata.LoadBackground();
             }
         }
     }
 
-    private void MoveIntoPlace(SongReference item)
+    private void MoveIntoPlace(SongFile item)
     {
         int old_index, destination;
         lock (Files)
@@ -105,12 +105,12 @@ public class FolderSource : ISongSource
             if (destination < 0)
                 destination = ~destination;
             Files.Insert(destination, item);
-            Debug.WriteLine("M " + String.Join(' ', Files.Select(x => x.Song.Metadata.IsLoaded ? x.Song.Metadata.Item.TrackNumber.ToString() : x.Song.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
+            Debug.WriteLine("M " + String.Join(' ', Files.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index));
     }
 
-    public void Remove(SongReference item)
+    public void Remove(SongFile item)
     {
         int old_index;
         lock (Files)
@@ -119,7 +119,7 @@ public class FolderSource : ISongSource
             if (old_index == -1)
                 return;
             Files.RemoveAt(old_index);
-            Debug.WriteLine("R " + String.Join(' ', Files.Select(x => x.Song.Metadata.IsLoaded ? x.Song.Metadata.Item.TrackNumber.ToString() : x.Song.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
+            Debug.WriteLine("R " + String.Join(' ', Files.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, old_index));
     }

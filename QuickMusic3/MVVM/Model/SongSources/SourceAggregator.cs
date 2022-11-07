@@ -12,14 +12,14 @@ namespace QuickMusic3.MVVM.Model;
 
 public abstract class SourceAggregator : ISongSource
 {
-    protected readonly List<SongReference> FlatList = new();
+    protected readonly List<SongFile> FlatList = new();
     protected readonly Dictionary<ISongSource, int> SourcePositions = new();
 
     public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public SongReference this[int index] => FlatList[index];
+    public SongFile this[int index] => FlatList[index];
     public int Count => FlatList.Count;
-    public int IndexOf(SongFile song) => FlatList.FindIndex(x => x.Song == song);
-    public IEnumerator<SongReference> GetEnumerator() => FlatList.GetEnumerator();
+    public int IndexOf(SongFile song) => FlatList.IndexOf(song);
+    public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
 
     public void GetInOrder(int index, bool now)
     {
@@ -33,7 +33,7 @@ public abstract class SourceAggregator : ISongSource
         }
     }
 
-    public void Remove(SongReference song)
+    public void Remove(SongFile song)
     {
         foreach (var item in SourcePositions.Keys)
         {

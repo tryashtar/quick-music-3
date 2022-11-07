@@ -85,7 +85,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
 
     private void AddChapters()
     {
-        var chapters = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack?.Song?.Metadata?.Item?.Chapters;
+        var chapters = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack?.Metadata?.Item?.Chapters;
         ProgressGrid.Children.Clear();
         RemainingGrid.Children.Clear();
         if (chapters != null)

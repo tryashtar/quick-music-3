@@ -37,7 +37,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         this.Playlist = playlist;
         CurrentIndex = 0;
         playlist.CollectionChanged += Playlist_CollectionChanged;
-        AddResamples(playlist.Select(x => x.Song).Where(x => x != null));
+        AddResamples(playlist);
     }
 
     private void SetCurrentTrack()
@@ -51,10 +51,10 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
                 return;
             }
             current_index = index;
-            Playlist[current_index].Song.Stream.LoadNow();
+            Playlist[current_index].Stream.LoadNow();
         }
         var prev_track = CurrentTrack;
-        CurrentTrack = Playlist[current_index].Song;
+        CurrentTrack = Playlist[current_index];
         if (CurrentTrack != prev_track)
         {
             foreach (var item in Loaded)
@@ -67,10 +67,10 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         Loaded.Add(CurrentTrack);
         Playlist.GetInOrder(current_index, false);
         int next = UpcomingIndex();
-        if (next < Playlist.Count && Playlist[next].Song != null)
+        if (next < Playlist.Count)
         {
-            Playlist[next].Song.Stream.LoadBackground();
-            Loaded.Add(Playlist[next].Song);
+            Playlist[next].Stream.LoadBackground();
+            Loaded.Add(Playlist[next]);
         }
         OnPropertyChanged(nameof(CurrentIndex));
         if (CurrentTrack != prev_track)
@@ -96,7 +96,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
 
     private void Playlist_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        int old_current_index = current_index;
+        var previous_track = CurrentTrack;
         if (e.Action == NotifyCollectionChangedAction.Add)
             AddResamples(e.NewItems.Cast<SongFile>());
         if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex == current_index)
@@ -125,7 +125,6 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             {
                 current_index = e.OldStartingIndex;
                 Debug.WriteLine($"Currently playing track removed, current index advanced to {current_index}");
-                SetCurrentTrack();
             }
             else
             {
@@ -138,7 +137,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             current_index = Playlist.IndexOf(CurrentTrack);
             Debug.WriteLine($"Reset: Current index relocated to {current_index}");
         }
-        if (old_current_index != current_index)
+        if (Playlist[current_index] != previous_track)
             SetCurrentTrack();
     }
 
@@ -229,11 +228,10 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         return index;
     }
 
-    private bool IsBad(SongReference song)
+    private bool IsBad(SongFile song)
     {
-        if (song.Song == null)
-            return true;
-        return song.Song.Stream.IsFailed;
+        song.Stream.LoadNow();
+        return song.Stream.IsFailed;
     }
 
     private int UpcomingIndex(int direction = 1)
@@ -248,7 +246,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
         Debug.WriteLine("Disposing PlaylistStream start");
         foreach (var item in Playlist)
         {
-            item.Song?.Dispose();
+            item.Dispose();
         }
         Debug.WriteLine("Disposing PlaylistStream complete");
     }

@@ -18,7 +18,7 @@ public class Player : ObservableObject, IDisposable
     private PlaylistStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
-    public SongReference CurrentTrack => Stream?.Playlist[Stream.CurrentIndex];
+    public SongFile CurrentTrack => Stream?.Playlist[Stream.CurrentIndex];
     public PlaybackState PlayState
     {
         get
@@ -82,9 +82,9 @@ public class Player : ObservableObject, IDisposable
         {
             if (CurrentTrack == null)
                 return null;
-            if (CurrentTrack.Song.Metadata.Item.Chapters == null)
+            if (CurrentTrack.Metadata.Item.Chapters == null)
                 return null;
-            var chapter = CurrentTrack.Song.Metadata.Item.Chapters.ChapterAtTime(CurrentTime);
+            var chapter = CurrentTrack.Metadata.Item.Chapters.ChapterAtTime(CurrentTime);
             return chapter?.Title;
         }
     }
@@ -146,11 +146,11 @@ public class Player : ObservableObject, IDisposable
     {
         if (CurrentTrack == null)
             return null;
-        if (CurrentTrack.Song.Metadata.Item.Lyrics == null)
+        if (CurrentTrack.Metadata.Item.Lyrics == null)
             return null;
-        if (!CurrentTrack.Song.Metadata.Item.Lyrics.Synchronized)
+        if (!CurrentTrack.Metadata.Item.Lyrics.Synchronized)
             return null;
-        return CurrentTrack.Song.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
+        return CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
     }
 
     public void SwitchTo(SongFile song)
@@ -310,7 +310,7 @@ public class PlayHistory
 
     private Entry MakeCurrentEntry()
     {
-        return new Entry(Parent.RawSource, Parent.CurrentTrack.Song, Parent.CurrentTime, Parent.PlayState);
+        return new Entry(Parent.RawSource, Parent.CurrentTrack, Parent.CurrentTime, Parent.PlayState);
     }
 
     public void Add()

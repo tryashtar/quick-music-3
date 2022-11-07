@@ -6,24 +6,12 @@ using System.Linq;
 
 namespace QuickMusic3.MVVM.Model;
 
-public interface ISongSource : IReadOnlyList<SongReference>, INotifyCollectionChanged
+public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 {
     int IndexOf(SongFile file);
     void GetInOrder(int index, bool now);
-    void Remove(SongReference song);
+    void Remove(SongFile song);
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-public class SongReference
-{
-    public string FilePath { get; }
-    public SongFile Song { get; }
-    public SongReference(string path)
-    {
-        FilePath = Path.GetFullPath(path);
-        if (File.Exists(FilePath))
-            Song = new(FilePath);
-    }
 }
 
 public static class SongSourceExtensions

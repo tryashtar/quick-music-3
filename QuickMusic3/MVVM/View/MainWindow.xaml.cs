@@ -80,11 +80,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     OpenPlaylist(dialog.FileNames, SearchOption.TopDirectoryOnly);
             }
         });
-        OpenFileLocationCommand = new RelayCommand<SongReference>(x =>
+        OpenFileLocationCommand = new RelayCommand<SongFile>(x =>
         {
             Process.Start("explorer.exe", $"/select, \"{x.FilePath}\"");
         });
-        RemoveTrackCommand = new RelayCommand<SongReference>(x =>
+        RemoveTrackCommand = new RelayCommand<SongFile>(x =>
         {
             Model.Shared.Player.Playlist.Remove(x);
         });
@@ -172,14 +172,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
                 LastKnownPosition = Model.Shared.Player.PlaylistPosition;
-                LastKnownTrack = Model.Shared.Player.CurrentTrack.Song;
+                LastKnownTrack = Model.Shared.Player.CurrentTrack;
             });
         }
         else if (e.PropertyName == nameof(Player.PlaylistPosition))
         {
             Dispatcher.BeginInvoke(() =>
             {
-                if (Model.Shared.Player.CurrentTrack.Song == LastKnownTrack)
+                if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
                 {
                     int pos = Model.Shared.Player.PlaylistPosition;
                     int children = VisualTreeHelper.GetChildrenCount(PlaylistList);
@@ -224,13 +224,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         if (e.ChangedButton == MouseButton.Left)
         {
-            var clicked = (SongReference)((ListViewItem)sender).Content;
-            if (clicked.Song != null)
-            {
-                Model.Shared.Player.SwitchTo(clicked.Song);
-                Model.Shared.Player.Play();
-                Model.Shared.History.Add();
-            }
+            var clicked = (SongFile)((ListViewItem)sender).Content;
+            Model.Shared.Player.SwitchTo(clicked);
+            Model.Shared.Player.Play();
+            Model.Shared.History.Add();
         }
     }
 

@@ -29,7 +29,7 @@ public class SongFile : ObservableObject, IDisposable
 
     public SongFile(string path)
     {
-        FilePath = path;
+        FilePath = Path.GetFullPath(path);
         PrepareStream();
         Metadata = new PlaceholderLoadable<Metadata>(
             () => new Metadata(path),

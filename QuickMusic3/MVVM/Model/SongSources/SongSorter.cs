@@ -4,15 +4,15 @@ using TryashtarUtils.Utility;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class SongSorter : IComparer<SongReference>
+public class SongSorter : IComparer<SongFile>
 {
     public static readonly SongSorter Instance = new();
-    public int Compare(SongReference x, SongReference y)
+    public int Compare(SongFile x, SongFile y)
     {
-        if (x.Song != null && y.Song != null && x.Song.Metadata.IsLoaded && y.Song.Metadata.IsLoaded)
+        if (x.Metadata.IsLoaded && y.Metadata.IsLoaded)
         {
-            var xm = x.Song.Metadata.Item;
-            var ym = y.Song.Metadata.Item;
+            var xm = x.Metadata.Item;
+            var ym = y.Metadata.Item;
             int album = LogicalStringComparer.Instance.Compare(xm.Album ?? "", ym.Album ?? "");
             if (album != 0)
                 return album;
