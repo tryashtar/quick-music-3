@@ -96,6 +96,7 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
 
     private void Playlist_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+        int previous_index = current_index;
         var previous_track = CurrentTrack;
         if (e.Action == NotifyCollectionChangedAction.Add)
             AddResamples(e.NewItems.Cast<SongFile>());
@@ -137,6 +138,8 @@ public class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
             current_index = Playlist.IndexOf(CurrentTrack);
             Debug.WriteLine($"Reset: Current index relocated to {current_index}");
         }
+        if (current_index != previous_index)
+            OnPropertyChanged(nameof(CurrentIndex));
         if (Playlist[current_index] != previous_track)
             SetCurrentTrack();
     }
