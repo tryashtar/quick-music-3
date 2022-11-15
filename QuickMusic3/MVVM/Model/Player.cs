@@ -13,7 +13,7 @@ using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class Player : ObservableObject, IDisposable
+public sealed class Player : ObservableObject, IDisposable
 {
     private PlaylistStream Stream;
     private WaveOutEvent Output;
@@ -153,16 +153,16 @@ public class Player : ObservableObject, IDisposable
         return CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
     }
 
-    public void SwitchTo(SongFile song)
+    public async Task SwitchToAsync(SongFile song)
     {
         int index = Playlist.IndexOf(song);
         if (index != -1)
-            Stream.CurrentIndex = index;
+            Stream.SetIndexAsync(index);
     }
 
     public ISongSource RawSource { get; private set; }
     public ShufflableSource Playlist { get; private set; }
-    public void Open(ISongSource playlist, int? first_index = 0)
+    public async Task OpenAsync(ISongSource playlist, int? first_index = 0)
     {
         Close();
         RawSource = playlist;
@@ -185,7 +185,7 @@ public class Player : ObservableObject, IDisposable
             Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
             Stream.PropertyChanged += Stream_PropertyChanged;
             if (!Shuffle && first_index.HasValue)
-                Stream.CurrentIndex = first_index.Value;
+                await Stream.SetIndexAsync(first_index.Value);
             Output = new();
             Output.PlaybackStopped += Output_PlaybackStopped;
             UpdateVolume();
@@ -213,11 +213,11 @@ public class Player : ObservableObject, IDisposable
             OnPropertyChanged(nameof(PlaylistPosition));
     }
 
-    public void FreshShuffle()
+    public async Task FreshShuffleAsync()
     {
         Properties.Settings.Default.Shuffle = true;
         Playlist.Shuffle();
-        Stream.CurrentIndex = 0;
+        await Stream.SetIndexAsync(0);
         OnPropertyChanged(nameof(Shuffle));
     }
 
@@ -322,11 +322,11 @@ public class PlayHistory
             CurrentIndex++;
     }
 
-    private void SwitchTo(Entry entry)
+    private async void SwitchTo(Entry entry)
     {
         if (Parent.RawSource != entry.Source)
-            Parent.Open(entry.Source);
-        Parent.SwitchTo(entry.Song);
+            await Parent.OpenAsync(entry.Source);
+        await Parent.SwitchToAsync(entry.Song);
         Parent.CurrentTime = entry.Time;
         if (entry.State == PlaybackState.Stopped || entry.State == PlaybackState.Paused)
             Parent.Pause();

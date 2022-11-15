@@ -9,7 +9,7 @@ public class SongSorter : IComparer<SongFile>
     public static readonly SongSorter Instance = new();
     public int Compare(SongFile x, SongFile y)
     {
-        if (x.Metadata.IsLoaded && y.Metadata.IsLoaded)
+        if (x.Metadata.IsSuccessfullyCompleted && y.Metadata.IsSuccessfullyCompleted)
         {
             var xm = x.Metadata.Item;
             var ym = y.Metadata.Item;

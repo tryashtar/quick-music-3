@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -30,5 +31,5 @@ public class DirectSource : ISongSource
         }
     }
 
-    public void GetInOrder(int index, bool now) { }
+    public async Task GetInOrderAsync(int index) { }
 }

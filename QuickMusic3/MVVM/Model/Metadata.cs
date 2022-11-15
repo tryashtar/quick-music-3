@@ -12,7 +12,7 @@ using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class Metadata : ObservableObject
+public sealed class Metadata : ObservableObject
 {
     public string Title { get; init; }
     public string Artist { get; init; }

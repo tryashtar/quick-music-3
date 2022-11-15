@@ -21,14 +21,13 @@ public abstract class SourceAggregator : ISongSource
     public int IndexOf(SongFile song) => FlatList.IndexOf(song);
     public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
 
-    public void GetInOrder(int index, bool now)
+    public async Task GetInOrderAsync(int index)
     {
         foreach (var item in SourcePositions.OrderBy(x => x.Value))
         {
             if (index >= item.Value)
             {
-                item.Key.GetInOrder(index - item.Value, now);
-                return;
+                await item.Key.GetInOrderAsync(index - item.Value);
             }
         }
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class MutableStream : IDisposable
+public sealed class MutableStream : IDisposable
 {
     public readonly string FilePath;
     public bool IsDisposed { get; private set; } = false;

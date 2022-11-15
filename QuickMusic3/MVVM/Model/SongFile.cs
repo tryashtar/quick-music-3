@@ -7,96 +7,44 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TagLib.Flac;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class SongFile : ObservableObject, IDisposable
+public sealed class SongFile : ObservableObject, IAsyncDisposable
 {
     public string FilePath { get; }
-    public Loadable<MutableStream> Stream { get; private set; }
-    public Loadable<Metadata> Metadata { get; }
-    public TimeSpan GuessDuration
-    {
-        get
-        {
-            if (Stream.IsLoaded)
-                return Stream.Item.BaseStream.TotalTime;
-            if (Metadata.IsLoaded)
-                return Metadata.Item.Duration;
-            return TimeSpan.Zero;
-        }
-    }
+    public NewLoadable<MutableStream> Stream { get; }
+    public NewLoadable<Metadata> Metadata { get; }
+
+    private readonly List<Action<MutableStream>> StreamLoadActions = new();
 
     public SongFile(string path)
     {
         FilePath = Path.GetFullPath(path);
-        PrepareStream();
-        Metadata = new PlaceholderLoadable<Metadata>(
-            () => new Metadata(path),
-            new Metadata() { Title = Path.GetFileName(path) }
-        );
-        Metadata.Loaded += (s, e) =>
-        {
-            OnPropertyChanged(nameof(Metadata));
-            OnPropertyChanged(nameof(GuessDuration));
-        };
-
-#if DEBUG
-        Metadata.Failed += (s, e) => Debug.WriteLine($"{Path.GetFileName(FilePath)}: Metadata load failed ({Metadata.Exception.Message})");
-#endif
+        Stream = new(create: MakeStreamAsync, invalid_check: x => x.IsDisposed);
+        Metadata = new(create: () => new Metadata(FilePath), new Metadata() { Title = Path.GetFileName(FilePath) });
     }
 
-    private readonly List<Action<MutableStream>> StreamLoadActions = new();
-    public void OnStreamLoaded(Action<MutableStream> action)
+    private async Task<MutableStream> MakeStreamAsync()
     {
-        StreamLoadActions.Add(action);
-        if (Stream.IsLoaded)
-            action(Stream.Item);
-    }
-
-    public void CloseStream()
-    {
-        if (Stream.LoadStatus == LoadStatus.Loading)
+        var stream = new MutableStream(FilePath);
+        var meta = await Metadata;
+        if (meta.ReplayGain != 0)
+            stream.AddTransform(x => new DecibalOffsetProvider(x, meta.ReplayGain));
+        foreach (var action in StreamLoadActions)
         {
-            Debug.WriteLine($"Requested to close {Path.GetFileName(FilePath)} while it was still loading");
-            Stream.LoadNow();
+            action(stream);
         }
-        if (Stream.IsLoaded)
-        {
-            Stream.Item.Dispose();
-            PrepareStream();
-        }
+        return stream;
     }
 
-    private void PrepareStream()
+    public async ValueTask DisposeAsync()
     {
-        Stream = new NeedyLoadable<MutableStream>(() => new MutableStream(FilePath), x => x.IsDisposed);
-        Stream.Loaded += (s, e) =>
+        if (Stream.Status != TaskStatus.Created)
         {
-            Debug.WriteLine($"{Path.GetFileName(FilePath)}: {Stream.Item.BaseStream.WaveFormat.SampleRate} / {Stream.Item.BaseStream.WaveFormat.Channels}");
-            OnPropertyChanged(nameof(Stream));
-            OnPropertyChanged(nameof(GuessDuration));
-            Metadata.LoadNow();
-            if (Metadata.Item.ReplayGain != 0)
-                Stream.Item.AddTransform(x => new DecibalOffsetProvider(x, Metadata.Item.ReplayGain));
-            foreach (var action in StreamLoadActions)
-            {
-                action(Stream.Item);
-            }
-        };
-#if DEBUG
-        Stream.Failed += (s, e) => Debug.WriteLine($"{Path.GetFileName(FilePath)}: Stream load failed ({((Loadable<MutableStream>)s).Exception.Message})");
-#endif
-    }
-
-    public void Dispose()
-    {
-        if (Stream.LoadStatus == LoadStatus.Loading)
-        {
-            Debug.WriteLine($"Requested to dispose {Path.GetFileName(FilePath)} while it was still loading");
-            Stream.LoadNow();
+            var result = await Stream;
+            result.Dispose();
         }
-        if (Stream.IsLoaded)
-            Stream.Item.Dispose();
     }
 }

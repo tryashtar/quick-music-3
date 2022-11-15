@@ -338,12 +338,12 @@
                                         Value="{Binding DataContext.Shared.ActiveTheme.PlaylistActive, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </DataTrigger>
                             <DataTrigger Value="True"
-                                         Binding="{Binding Stream.IsFailed}">
+                                         Binding="{Binding Stream.IsFaulted}">
                                 <Setter Property="Background"
                                         Value="{Binding DataContext.Shared.ActiveTheme.PlaylistError, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </DataTrigger>
                             <DataTrigger Value="True"
-                                         Binding="{Binding Metadata.IsFailed}">
+                                         Binding="{Binding Metadata.IsFaulted}">
                                 <Setter Property="Background"
                                         Value="{Binding DataContext.Shared.ActiveTheme.PlaylistError, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </DataTrigger>
@@ -434,7 +434,7 @@
                                                 <Setter Property="Text"
                                                         Value="{Binding Metadata.Item.Title}" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Metadata.IsFailed}"
+                                                    <DataTrigger Binding="{Binding Metadata.IsFaulted}"
                                                                  Value="True">
                                                         <Setter Property="Text"
                                                                 Value="{Binding FilePath}" />

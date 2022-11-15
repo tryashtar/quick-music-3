@@ -104,7 +104,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             OpenPlaylist(args.Skip(1), SearchOption.TopDirectoryOnly);
     }
 
-    private void OpenPlaylist(IEnumerable<string> files, SearchOption search)
+    private async void OpenPlaylist(IEnumerable<string> files, SearchOption search)
     {
         var playlist = new DispatcherPlaylist(Dispatcher);
         var sources = SongSourceExtensions.FromFileList(files, search, true);
@@ -114,7 +114,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
         if (playlist.Count > 0)
         {
-            Model.Shared.Player.Open(playlist, sources.first_index);
+            await Model.Shared.Player.OpenAsync(playlist, sources.first_index);
             Model.Shared.Player.Play();
             Model.Shared.History.Add();
             Model.GoToDefaultView();
@@ -220,12 +220,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
     }
 
-    private void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    private async void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left)
         {
             var clicked = (SongFile)((ListViewItem)sender).Content;
-            Model.Shared.Player.SwitchTo(clicked);
+            await Model.Shared.Player.SwitchToAsync(clicked);
             Model.Shared.Player.Play();
             Model.Shared.History.Add();
         }
