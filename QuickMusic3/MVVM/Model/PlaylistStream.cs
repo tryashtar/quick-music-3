@@ -17,7 +17,7 @@ namespace QuickMusic3.MVVM.Model;
 public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposable
 {
     public readonly ISongSource Playlist;
-    public int CurrentIndex { get; private set; }
+    public int CurrentIndex { get; private set; } = -1;
     public SongFile? CurrentTrack { get; private set; }
     public RepeatMode RepeatMode { get; set; }
 
@@ -26,16 +26,26 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
     public PlaylistStream(ISongSource playlist)
     {
         this.Playlist = playlist;
-        CurrentIndex = 0;
         playlist.CollectionChanged += Playlist_CollectionChanged;
     }
 
     public async Task SetIndexAsync(int index)
     {
         (index, SongFile? song) = await FindGoodSongAsync(index, 1);
-        OnPropertyChanged(nameof(CurrentIndex));
+        if (song != null)
+        {
+            var stream = await song.Stream;
+            if (stream.BaseStream.WaveFormat.SampleRate != StandardFormat.SampleRate)
+                stream.AddTransform(x => new WdlResamplingSampleProvider(x, StandardFormat.SampleRate));
+            if (stream.BaseStream.WaveFormat.Channels != StandardFormat.Channels)
+                stream.AddTransform(x => new MonoToStereoSampleProvider(x));
+        }
         CurrentIndex = index;
         CurrentTrack = song;
+        CurrentTime = TimeSpan.Zero;
+        OnPropertyChanged(nameof(CurrentTrack));
+        OnPropertyChanged(nameof(CurrentIndex));
+        OnPropertyChanged(nameof(TotalTime));
     }
 
     private async Task<(int index, SongFile? song)> FindGoodSongAsync(int start, int direction)
@@ -59,14 +69,6 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             break;
         }
         return (index, song);
-    }
-
-    private void AddResample(MutableStream stream)
-    {
-        if (stream.BaseStream.WaveFormat.SampleRate != StandardFormat.SampleRate)
-            stream.AddTransform(x => new WdlResamplingSampleProvider(x, StandardFormat.SampleRate));
-        if (stream.BaseStream.WaveFormat.Channels != StandardFormat.Channels)
-            stream.AddTransform(x => new MonoToStereoSampleProvider(x));
     }
 
     private void Playlist_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -117,19 +119,11 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             _ = SetIndexAsync(CurrentIndex);
     }
 
-    public WaveFormat WaveFormat => StandardFormat;
+    public WaveFormat WaveFormat => CurrentTrack?.Stream.Item?.PlayableStream?.WaveFormat ?? StandardFormat;
     public TimeSpan TotalTime => CurrentTrack?.Stream.Item?.BaseStream?.TotalTime ?? TimeSpan.Zero;
     public TimeSpan CurrentTime
     {
-        get
-        {
-            if (!CurrentTrack?.Stream.IsSuccessfullyCompleted ?? true)
-            {
-                Debug.WriteLine("Requested CurrentTime but current track isn't loaded :(");
-                return TimeSpan.Zero;
-            }
-            return CurrentTrack.Stream.Item.BaseStream.CurrentTime;
-        }
+        get => CurrentTrack?.Stream.Item?.BaseStream?.CurrentTime ?? TimeSpan.Zero;
         set
         {
             if (!CurrentTrack?.Stream.IsSuccessfullyCompleted ?? true)
@@ -164,6 +158,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             {
                 if (RepeatMode == RepeatMode.PlayAll && CurrentIndex == Playlist.Count - 1)
                     break;
+                SetIndexAsync(CurrentIndex + 1).Wait();
             }
         }
         return read;
@@ -171,12 +166,12 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
 
     public void Next()
     {
-        
+
     }
 
     public void Previous()
     {
-        
+
     }
 
     private int WrapIndex(int index)
@@ -194,12 +189,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
 
     public void Dispose()
     {
-        Debug.WriteLine("Disposing PlaylistStream start");
-        foreach (var item in Playlist)
-        {
-            item.DisposeAsync();
-        }
-        Debug.WriteLine("Disposing PlaylistStream complete");
+
     }
 }
 

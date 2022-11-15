@@ -18,7 +18,7 @@ public sealed class Player : ObservableObject, IDisposable
     private PlaylistStream Stream;
     private WaveOutEvent Output;
     private readonly Timer Timer;
-    public SongFile CurrentTrack => Stream?.Playlist[Stream.CurrentIndex];
+    public SongFile? CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState
     {
         get
@@ -186,6 +186,8 @@ public sealed class Player : ObservableObject, IDisposable
             Stream.PropertyChanged += Stream_PropertyChanged;
             if (!Shuffle && first_index.HasValue)
                 await Stream.SetIndexAsync(first_index.Value);
+            else
+                await Stream.SetIndexAsync(0);
             Output = new();
             Output.PlaybackStopped += Output_PlaybackStopped;
             UpdateVolume();
@@ -199,7 +201,7 @@ public sealed class Player : ObservableObject, IDisposable
         OnPropertyChanged(nameof(TotalTime));
     }
 
-    private void Stream_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Stream_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Stream.CurrentTrack))
         {
@@ -222,7 +224,7 @@ public sealed class Player : ObservableObject, IDisposable
     }
 
     // if you spam forward a lot, it stops sometimes with an error
-    private void Output_PlaybackStopped(object sender, StoppedEventArgs e)
+    private void Output_PlaybackStopped(object? sender, StoppedEventArgs e)
     {
         if (e.Exception != null)
         {

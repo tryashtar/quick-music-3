@@ -10,14 +10,14 @@ namespace QuickMusic3.Converters;
 
 public abstract class GenericConverter<TFrom, TTo> : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object parameter, CultureInfo culture)
     {
-        return Convert((TFrom)value);
+        return value == null ? null : Convert((TFrom)value);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object parameter, CultureInfo culture)
     {
-        return ConvertBack((TTo)value);
+        return value == null ? null : ConvertBack((TTo)value);
     }
 
     public abstract TTo Convert(TFrom value);

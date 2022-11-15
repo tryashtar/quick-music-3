@@ -16,6 +16,17 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
     public string FilePath { get; }
     public NewLoadable<MutableStream> Stream { get; }
     public NewLoadable<Metadata> Metadata { get; }
+    public TimeSpan? GuessDuration
+    {
+        get
+        {
+            if (Stream.IsSuccessfullyCompleted)
+                return Stream.Item.BaseStream.TotalTime;
+            if (Metadata.IsSuccessfullyCompleted)
+                return Metadata.Item.Duration;
+            return null;
+        }
+    }
 
     private readonly List<Action<MutableStream>> StreamLoadActions = new();
 
@@ -23,7 +34,14 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
     {
         FilePath = Path.GetFullPath(path);
         Stream = new(create: MakeStreamAsync, invalid_check: x => x.IsDisposed);
-        Metadata = new(create: () => new Metadata(FilePath), new Metadata() { Title = Path.GetFileName(FilePath) });
+        Metadata = new(create: MakeMetadata, new Metadata() { Title = Path.GetFileName(FilePath) });
+    }
+
+    private Metadata MakeMetadata()
+    {
+        var meta = new Metadata(FilePath);
+        OnPropertyChanged(nameof(GuessDuration));
+        return meta;
     }
 
     private async Task<MutableStream> MakeStreamAsync()
@@ -36,6 +54,7 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
         {
             action(stream);
         }
+        OnPropertyChanged(nameof(GuessDuration));
         return stream;
     }
 
