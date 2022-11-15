@@ -16,6 +16,7 @@ public sealed class NewLoadable<TResult> : INotifyPropertyChanged
     private readonly Func<Task<TResult>> CreateTask;
     private readonly TResult Placeholder;
     private readonly Predicate<TResult> IsInvalid;
+    private Action Callback = () => { };
     public NewLoadable(Func<TResult> create, TResult placeholder = default, Predicate<TResult> invalid_check = null)
     {
         CreateTask = () => Task.Run(create);
@@ -47,6 +48,13 @@ public sealed class NewLoadable<TResult> : INotifyPropertyChanged
         }
     }
 
+    public void AddCallback(Action action)
+    {
+        Callback += action;
+        if (WrappedTask != null && WrappedTask.IsCompleted)
+            action();
+    }
+
     public TaskAwaiter<TResult> GetAwaiter()
     {
         if (WrappedTask == null)
@@ -71,6 +79,7 @@ public sealed class NewLoadable<TResult> : INotifyPropertyChanged
         catch
         {
         }
+        Callback();
         if (PropertyChanged == null)
             return;
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(Status)));

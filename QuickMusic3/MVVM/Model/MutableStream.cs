@@ -19,6 +19,7 @@ public sealed class MutableStream : IDisposable
 
     public MutableStream(string path)
     {
+        Debug.WriteLine($"Loading stream at {path}");
         FilePath = path;
         BaseStream = new AudioFileReader(path, BaseReaders.Auto);
         PlayableStream = BaseStream;

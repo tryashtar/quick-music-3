@@ -33,29 +33,27 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
     public SongFile(string path)
     {
         FilePath = Path.GetFullPath(path);
-        Stream = new(create: MakeStreamAsync, invalid_check: x => x.IsDisposed);
-        Metadata = new(create: MakeMetadata, new Metadata() { Title = Path.GetFileName(FilePath) });
-    }
-
-    private Metadata MakeMetadata()
-    {
-        var meta = new Metadata(FilePath);
-        OnPropertyChanged(nameof(GuessDuration));
-        return meta;
-    }
-
-    private async Task<MutableStream> MakeStreamAsync()
-    {
-        var stream = new MutableStream(FilePath);
-        var meta = await Metadata;
-        if (meta.ReplayGain != 0)
-            stream.AddTransform(x => new DecibalOffsetProvider(x, meta.ReplayGain));
-        foreach (var action in StreamLoadActions)
+        Stream = new(create: () => new MutableStream(FilePath), invalid_check: x => x.IsDisposed);
+        Metadata = new(create: () => new Metadata(FilePath), placeholder: new Metadata() { Title = Path.GetFileName(FilePath) });
+        Metadata.AddCallback(() =>
         {
-            action(stream);
-        }
-        OnPropertyChanged(nameof(GuessDuration));
-        return stream;
+            OnPropertyChanged(nameof(GuessDuration));
+        });
+        Stream.AddCallback(async () =>
+        {
+            if (Stream.IsSuccessfullyCompleted)
+            {
+                var stream = await Stream;
+                var meta = await Metadata;
+                if (meta.ReplayGain != 0)
+                    stream.AddTransform(x => new DecibalOffsetProvider(x, meta.ReplayGain));
+                foreach (var action in StreamLoadActions)
+                {
+                    action(stream);
+                }
+                OnPropertyChanged(nameof(GuessDuration));
+            }
+        });
     }
 
     public async ValueTask DisposeAsync()

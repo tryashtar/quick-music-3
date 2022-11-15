@@ -38,6 +38,7 @@ public sealed class Metadata : ObservableObject
     private readonly string FilePath;
     public Metadata(string path)
     {
+        Debug.WriteLine($"Loading metadata at {path}");
         FilePath = path;
         using var file = TagLib.File.Create(path);
         Title = file.Tag.Title ?? Path.GetFileName(path);

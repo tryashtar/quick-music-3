@@ -22,6 +22,18 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
     public RepeatMode RepeatMode { get; set; }
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
+    private readonly HashSet<MutableStream> Loaded = new();
+    private MutableStream? CurrentStream
+    {
+        get
+        {
+            if (CurrentTrack == null)
+                return null;
+            if (!CurrentTrack.Stream.IsSuccessfullyCompleted)
+                return null;
+            return CurrentTrack.Stream.Item;
+        }
+    }
 
     public PlaylistStream(ISongSource playlist)
     {
@@ -29,17 +41,25 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         playlist.CollectionChanged += Playlist_CollectionChanged;
     }
 
-    public async Task SetIndexAsync(int index)
+    private async Task<MutableStream> LoadStream(SongFile song)
     {
-        (index, SongFile? song) = await FindGoodSongAsync(index, 1);
-        if (song != null)
+        var stream = await song.Stream;
+        if (!Loaded.Contains(stream))
         {
-            var stream = await song.Stream;
+            Loaded.Add(stream);
             if (stream.BaseStream.WaveFormat.SampleRate != StandardFormat.SampleRate)
                 stream.AddTransform(x => new WdlResamplingSampleProvider(x, StandardFormat.SampleRate));
             if (stream.BaseStream.WaveFormat.Channels != StandardFormat.Channels)
                 stream.AddTransform(x => new MonoToStereoSampleProvider(x));
         }
+        return stream;
+    }
+
+    public async Task SetIndexAsync(int index)
+    {
+        (index, SongFile? song) = await FindGoodSongAsync(index, 1);
+        if (song != null)
+            await LoadStream(song);
         CurrentIndex = index;
         CurrentTrack = song;
         CurrentTime = TimeSpan.Zero;
@@ -119,11 +139,11 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             _ = SetIndexAsync(CurrentIndex);
     }
 
-    public WaveFormat WaveFormat => CurrentTrack?.Stream.Item?.PlayableStream?.WaveFormat ?? StandardFormat;
-    public TimeSpan TotalTime => CurrentTrack?.Stream.Item?.BaseStream?.TotalTime ?? TimeSpan.Zero;
+    public WaveFormat WaveFormat => CurrentStream?.PlayableStream?.WaveFormat ?? StandardFormat;
+    public TimeSpan TotalTime => CurrentStream?.BaseStream?.TotalTime ?? TimeSpan.Zero;
     public TimeSpan CurrentTime
     {
-        get => CurrentTrack?.Stream.Item?.BaseStream?.CurrentTime ?? TimeSpan.Zero;
+        get => CurrentStream?.BaseStream?.CurrentTime ?? TimeSpan.Zero;
         set
         {
             if (!CurrentTrack?.Stream.IsSuccessfullyCompleted ?? true)
@@ -131,7 +151,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
                 Debug.WriteLine("Tried to set CurrentTime but current track isn't loaded :(");
                 return;
             }
-            var stream = CurrentTrack.Stream.Item.BaseStream;
+            var stream = CurrentStream.BaseStream;
             long position = (long)(value.TotalSeconds * stream.WaveFormat.AverageBytesPerSecond);
             position = Math.Max(0, position);
             if (position > stream.Length)
@@ -149,7 +169,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         while (read < count)
         {
             var needed = count - read;
-            var playable = CurrentTrack?.Stream.Item?.PlayableStream;
+            var playable = CurrentStream?.PlayableStream;
             if (playable == null)
                 return read;
             var readThisTime = playable.Read(buffer, offset + read, needed);

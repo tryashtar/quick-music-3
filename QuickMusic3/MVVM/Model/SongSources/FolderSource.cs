@@ -41,7 +41,7 @@ public class FolderSource : ISongSource
             .Select(x => new SongFile(x.FullName)).ToList();
         foreach (var item in Files)
         {
-            _ = MoveIntoPlaceAsync(item);
+            item.Metadata.AddCallback(() => _ = MoveIntoPlaceAsync(item));
             var folder = Path.GetDirectoryName(item.FilePath);
             if (!Folders.ContainsKey(folder))
                 Folders[folder] = new();
@@ -104,7 +104,6 @@ public class FolderSource : ISongSource
             if (destination < 0)
                 destination = ~destination;
             Files.Insert(destination, item);
-            Debug.WriteLine("M " + DebugList());
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index));
     }
@@ -118,7 +117,6 @@ public class FolderSource : ISongSource
             if (old_index == -1)
                 return;
             Files.RemoveAt(old_index);
-            Debug.WriteLine("R " + DebugList());
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, old_index));
     }
