@@ -64,49 +64,61 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
         ProgressGrid = (StackPanel)FindResource("ProgressGrid");
         RemainingGrid = (StackPanel)FindResource("RemainingGrid");
-        this.DataContextChanged += (s, e) =>
-        {
-            if (Listener != null)
-                Listener.Changed -= Listener_Changed;
-            if (DataContext is BaseViewModel)
-            {
-                Listener = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
-                Listener.Changed += Listener_Changed;
-            }
-        };
+        this.DataContextChanged += (s, e) => SetEvents();
     }
 
-    private void Listener_Changed(object? sender, SongFile e)
+    private async void SetEvents()
     {
-        Dispatcher.BeginInvoke(() => AddChapters());
-    }
-
-    private void AddChapters()
-    {
-        var track = ((BaseViewModel)this.DataContext).Shared.Player.Stream.CurrentTrack;
-        if (track == null)
+        if (DataContext is not BaseViewModel)
             return;
-        var chapters = track.Metadata?.Item?.Chapters;
+        if (Listener != null)
+            Listener.Changed -= Listener_Changed;
+        Listener = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
+        Listener.Changed += Listener_Changed;
+        await SongChanged(Model.Shared.Player.Stream?.CurrentTrack);
+    }
+
+    private async void Listener_Changed(object? sender, SongFile e)
+    {
+        await SongChanged(e);
+    }
+
+    private async Task SongChanged(SongFile song)
+    {
+        if (song == null)
+            return;
+        try
+        {
+            var meta = await song.Metadata;
+            Dispatcher.BeginInvoke(() => AddChapters(meta.Chapters));
+        }
+        catch { }
+    }
+
+    private void AddChapters(ChapterCollection? chapters)
+    {
+        Debug.WriteLine("Start!");
         ProgressGrid.Children.Clear();
         RemainingGrid.Children.Clear();
-        if (chapters != null)
+        if (chapters == null)
+            return;
+        var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
+        var segments = chapters.UniqueSegments().ToArray();
+        for (int i = 0; i < segments.Length; i++)
         {
-            var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
-            for (int i = 0; i < chapters.Chapters.Count; i++)
-            {
-                var length = chapters.Chapters[i].End - chapters.Chapters[i].Start;
-                var proportion = length / duration;
-                var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
-                var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
-                var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
-                left_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
-                right_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
-                left_bar.SetBinding(Border.WidthProperty, binding);
-                right_bar.SetBinding(Border.WidthProperty, binding);
-                ProgressGrid.Children.Add(left_bar);
-                RemainingGrid.Children.Add(right_bar);
-            }
+            var length = segments[i] - (i == 0 ? TimeSpan.Zero : segments[i - 1]);
+            var proportion = length / duration;
+            var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+            var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+            var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
+            left_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+            right_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+            left_bar.SetBinding(Border.WidthProperty, binding);
+            right_bar.SetBinding(Border.WidthProperty, binding);
+            ProgressGrid.Children.Add(left_bar);
+            RemainingGrid.Children.Add(right_bar);
         }
+        Debug.WriteLine("Done!");
     }
 
     private void TimeBar_MouseDown(object? sender, MouseButtonEventArgs e)
