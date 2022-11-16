@@ -23,7 +23,10 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
 
     private readonly WaveFormat StandardFormat = new WaveFormat();
     private readonly HashSet<MutableStream> Loaded = new();
-    private MutableStream? CurrentStream
+
+    public WaveFormat WaveFormat => CurrentStream?.PlayableStream?.WaveFormat ?? StandardFormat;
+
+    public MutableStream? CurrentStream
     {
         get
         {
@@ -41,7 +44,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         playlist.CollectionChanged += Playlist_CollectionChanged;
     }
 
-    private async Task<MutableStream> LoadStream(SongFile song)
+    private async Task<MutableStream> LoadStreamAsync(SongFile song)
     {
         var stream = await song.Stream;
         if (!Loaded.Contains(stream))
@@ -55,17 +58,18 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         return stream;
     }
 
-    public async Task SetIndexAsync(int index)
+    public async Task SetIndexAsync(int index, int direction)
     {
-        (index, SongFile? song) = await FindGoodSongAsync(index, 1);
+        (index, SongFile? song) = await FindGoodSongAsync(index, direction);
         if (song != null)
-            await LoadStream(song);
+        {
+            var stream = await LoadStreamAsync(song);
+            stream.BaseStream.Position = 0;
+        }
         CurrentIndex = index;
         CurrentTrack = song;
-        CurrentTime = TimeSpan.Zero;
         OnPropertyChanged(nameof(CurrentTrack));
         OnPropertyChanged(nameof(CurrentIndex));
-        OnPropertyChanged(nameof(TotalTime));
     }
 
     private async Task<(int index, SongFile? song)> FindGoodSongAsync(int start, int direction)
@@ -136,31 +140,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         if (CurrentIndex != previous_index)
             OnPropertyChanged(nameof(CurrentIndex));
         if (Playlist[CurrentIndex] != previous_track)
-            _ = SetIndexAsync(CurrentIndex);
-    }
-
-    public WaveFormat WaveFormat => CurrentStream?.PlayableStream?.WaveFormat ?? StandardFormat;
-    public TimeSpan TotalTime => CurrentStream?.BaseStream?.TotalTime ?? TimeSpan.Zero;
-    public TimeSpan CurrentTime
-    {
-        get => CurrentStream?.BaseStream?.CurrentTime ?? TimeSpan.Zero;
-        set
-        {
-            if (!CurrentTrack?.Stream.IsSuccessfullyCompleted ?? true)
-            {
-                Debug.WriteLine("Tried to set CurrentTime but current track isn't loaded :(");
-                return;
-            }
-            var stream = CurrentStream.BaseStream;
-            long position = (long)(value.TotalSeconds * stream.WaveFormat.AverageBytesPerSecond);
-            position = Math.Max(0, position);
-            if (position > stream.Length)
-            {
-                position = 0;
-            }
-            stream.Position = position;
-            OnPropertyChanged();
-        }
+            _ = SetIndexAsync(CurrentIndex, 1);
     }
 
     public int Read(byte[] buffer, int offset, int count)
@@ -178,20 +158,17 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             {
                 if (RepeatMode == RepeatMode.PlayAll && CurrentIndex == Playlist.Count - 1)
                     break;
-                SetIndexAsync(CurrentIndex + 1).Wait();
+                SetIndexAsync(UpcomingIndex(), 1).Wait();
             }
         }
         return read;
     }
 
-    public void Next()
+    private int UpcomingIndex()
     {
-
-    }
-
-    public void Previous()
-    {
-
+        if (RepeatMode == RepeatMode.RepeatOne)
+            return CurrentIndex;
+        return CurrentIndex + 1;
     }
 
     private int WrapIndex(int index)

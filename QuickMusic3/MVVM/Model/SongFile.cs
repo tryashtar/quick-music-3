@@ -33,7 +33,11 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
     public SongFile(string path)
     {
         FilePath = Path.GetFullPath(path);
-        Stream = new(create: () => new MutableStream(FilePath), invalid_check: x => x.IsDisposed);
+        Stream = new(create: () =>
+        {
+            Debug.WriteLine($"Loading stream at {FilePath}");
+            return new MutableStream(new AudioFileReader(FilePath, BaseReaders.Auto));
+        }, invalid_check: x => x.IsDisposed);
         Metadata = new(create: () => new Metadata(FilePath), placeholder: new Metadata() { Title = Path.GetFileName(FilePath) });
         Metadata.AddCallback(() =>
         {
@@ -44,9 +48,13 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
             if (Stream.IsSuccessfullyCompleted)
             {
                 var stream = await Stream;
-                var meta = await Metadata;
-                if (meta.ReplayGain != 0)
-                    stream.AddTransform(x => new DecibalOffsetProvider(x, meta.ReplayGain));
+                try
+                {
+                    var meta = await Metadata;
+                    if (meta.ReplayGain != 0)
+                        stream.AddTransform(x => new DecibalOffsetProvider(x, meta.ReplayGain));
+                }
+                catch { }
                 foreach (var action in StreamLoadActions)
                 {
                     action(stream);

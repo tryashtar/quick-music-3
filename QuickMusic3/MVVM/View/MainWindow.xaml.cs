@@ -77,7 +77,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     Model.Shared.OpenTheme(dialog.FileName);
                 }
                 else
-                    OpenPlaylist(dialog.FileNames, SearchOption.TopDirectoryOnly);
+                    OpenPlaylistAsync(dialog.FileNames, SearchOption.TopDirectoryOnly);
             }
         });
         OpenFileLocationCommand = new RelayCommand<SongFile>(x =>
@@ -101,10 +101,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         UpdateSize();
         var args = Environment.GetCommandLineArgs();
         if (args.Length > 1)
-            OpenPlaylist(args.Skip(1), SearchOption.TopDirectoryOnly);
+            _ = OpenPlaylistAsync(args.Skip(1), SearchOption.TopDirectoryOnly);
     }
 
-    private async void OpenPlaylist(IEnumerable<string> files, SearchOption search)
+    private async Task OpenPlaylistAsync(IEnumerable<string> files, SearchOption search)
     {
         var playlist = new DispatcherPlaylist(Dispatcher);
         var sources = SongSourceExtensions.FromFileList(files, search, true);
@@ -236,7 +236,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
         bool holding_shift = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
         var search = holding_shift ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-        OpenPlaylist(files, search);
+        OpenPlaylistAsync(files, search);
     }
 
     private void Window_DragOver(object sender, DragEventArgs e)

@@ -1,7 +1,6 @@
 using NAudio.Wave;
 using QuickMusic3.Core;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -9,16 +8,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using TryashtarUtils.Music;
+using YamlDotNet.Core.Tokens;
 
 namespace QuickMusic3.MVVM.Model;
 
 public sealed class Player : ObservableObject, IDisposable
 {
-    private PlaylistStream Stream;
-    private WaveOutEvent Output;
+    private ShufflableSource? Source;
+    private PlaylistStream? Stream;
+    private WaveOutEvent? Output;
     private readonly Timer Timer;
-    public SongFile? CurrentTrack => Stream?.CurrentTrack;
     public PlaybackState PlayState
     {
         get
@@ -62,51 +61,41 @@ public sealed class Player : ObservableObject, IDisposable
             OnPropertyChanged();
         }
     }
-    public bool Shuffle
-    {
-        get { return Properties.Settings.Default.Shuffle; }
-        set
-        {
-            Properties.Settings.Default.Shuffle = value;
-            if (value)
-                Playlist.Shuffle(Stream.CurrentIndex);
-            else
-                Playlist.Unshuffle();
-            OnPropertyChanged();
-        }
-    }
-
-    public string CurrentChapter
+    public bool IsShuffled => Properties.Settings.Default.Shuffle;
+    public TimeSpan TotalTime => Stream?.CurrentStream?.BaseStream?.TotalTime ?? TimeSpan.Zero;
+    public TimeSpan CurrentTime
     {
         get
         {
-            if (CurrentTrack == null)
-                return null;
-            if (CurrentTrack.Metadata.Item.Chapters == null)
-                return null;
-            var chapter = CurrentTrack.Metadata.Item.Chapters.ChapterAtTime(CurrentTime);
-            return chapter?.Title;
+            var stream = Stream?.CurrentStream?.BaseStream;
+            if (stream == null)
+                return TimeSpan.Zero;
+            return stream.CurrentTime + MissingTime.Elapsed;
         }
-    }
-
-    public LyricsEntry CurrentLine { get; private set; }
-
-    public TimeSpan CurrentTime
-    {
-        get => Stream?.CurrentTime + MissingTime.Elapsed ?? TimeSpan.Zero;
         set
         {
-            if (Stream != null)
+            var stream = Stream?.CurrentStream?.BaseStream;
+            if (stream == null)
             {
-                Stream.CurrentTime = value;
-                if (MissingTime.IsRunning)
-                    MissingTime.Restart();
+                Debug.WriteLine("Tried to set CurrentTime but current track isn't loaded :(");
+                return;
             }
+            long position = (long)(value.TotalSeconds * stream.WaveFormat.AverageBytesPerSecond);
+            position = Math.Max(0, position);
+            if (position > stream.Length)
+            {
+                NextAsync().Wait();
+                position = 0;
+            }
+            stream.Position = position;
+            OnPropertyChanged();
+            if (MissingTime.IsRunning)
+                MissingTime.Restart();
         }
     }
-    public TimeSpan TotalTime => Stream?.TotalTime ?? TimeSpan.Zero;
+
     public int PlaylistPosition => (Stream?.CurrentIndex ?? 0) + 1;
-    public int PlaylistTotal => Stream?.Playlist.Count ?? 1;
+    public int PlaylistTotal => Stream?.Playlist.Count ?? 0;
 
     public Player()
     {
@@ -118,86 +107,57 @@ public sealed class Player : ObservableObject, IDisposable
     // so we fill in the missing time ourselves
     private readonly Stopwatch MissingTime = new();
     private long LastPosition;
-    private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
     {
-        if (LastPosition != Stream.CurrentTime.Ticks)
+        var stream = Stream?.CurrentStream?.BaseStream;
+        if (stream == null)
+            Timer.Stop();
+        else
         {
-            LastPosition = Stream.CurrentTime.Ticks;
-            // Debug.WriteLine(MissingTime.ElapsedMilliseconds);
-            MissingTime.Restart();
+            if (LastPosition != stream.CurrentTime.Ticks)
+            {
+                LastPosition = stream.CurrentTime.Ticks;
+                MissingTime.Restart();
+            }
+            OnPropertyChanged(nameof(CurrentTime));
         }
-        TimeChanged();
-        // Debug.WriteLine($"Loaded: {String.Join(", ", Stream.Sources.Where(x => x.IsStreamLoaded).Select(x => System.IO.Path.GetFileNameWithoutExtension(x.Path)))}");
-    }
-
-    private void TimeChanged()
-    {
-        OnPropertyChanged(nameof(CurrentTime));
-        OnPropertyChanged(nameof(CurrentChapter));
-        var line = GetCurrentLine();
-        if (line != CurrentLine)
-        {
-            CurrentLine = line;
-            OnPropertyChanged(nameof(CurrentLine));
-        }
-    }
-
-    private LyricsEntry GetCurrentLine()
-    {
-        if (CurrentTrack == null)
-            return null;
-        if (CurrentTrack.Metadata.Item.Lyrics == null)
-            return null;
-        if (!CurrentTrack.Metadata.Item.Lyrics.Synchronized)
-            return null;
-        return CurrentTrack.Metadata.Item.Lyrics.LyricAtTime(CurrentTime);
     }
 
     public async Task SwitchToAsync(SongFile song)
     {
-        int index = Playlist.IndexOf(song);
+        int index = Stream.Playlist.IndexOf(song);
         if (index != -1)
-            Stream.SetIndexAsync(index);
+            await Stream.SetIndexAsync(index, 1);
     }
 
-    public ISongSource RawSource { get; private set; }
-    public ShufflableSource Playlist { get; private set; }
-    public async Task OpenAsync(ISongSource playlist, int? first_index = 0)
+    public async Task OpenAsync(ISongSource? playlist, int? first_index = 0)
     {
         Close();
-        RawSource = playlist;
-        if (Stream != null)
-            Stream.Dispose();
         if (playlist == null)
         {
-            Playlist = null;
             Stream = null;
             Output = null;
         }
         else
         {
-            Playlist = new ShufflableSource(playlist);
-            if (Shuffle)
-                Playlist.Shuffle(first_index);
-            //if (!first_index.HasValue)
-            //    Playlist.GetInOrder(0, true);
-            Stream = new(Playlist);
+            Source = new ShufflableSource(playlist);
+            if (IsShuffled)
+                await Task.Run(() => Source.Shuffle(first_index));
+            Stream = new(Source);
             Stream.RepeatMode = (RepeatMode)Properties.Settings.Default.RepeatMode;
             Stream.PropertyChanged += Stream_PropertyChanged;
-            if (!Shuffle && first_index.HasValue)
-                await Stream.SetIndexAsync(first_index.Value);
+            if (!IsShuffled && first_index.HasValue)
+                await Stream.SetIndexAsync(first_index.Value, 1);
             else
-                await Stream.SetIndexAsync(0);
+                await Stream.SetIndexAsync(0, 1);
             Output = new();
             Output.PlaybackStopped += Output_PlaybackStopped;
             UpdateVolume();
             Output.Init(Stream);
         }
-        OnPropertyChanged(nameof(Playlist));
         OnPropertyChanged(nameof(PlaylistPosition));
         OnPropertyChanged(nameof(PlaylistTotal));
-        OnPropertyChanged(nameof(CurrentTrack));
-        TimeChanged();
+        OnPropertyChanged(nameof(CurrentTime));
         OnPropertyChanged(nameof(TotalTime));
     }
 
@@ -205,22 +165,38 @@ public sealed class Player : ObservableObject, IDisposable
     {
         if (e.PropertyName == nameof(Stream.CurrentTrack))
         {
-            OnPropertyChanged(nameof(CurrentTrack));
-            TimeChanged();
+            OnPropertyChanged(nameof(CurrentTime));
             OnPropertyChanged(nameof(TotalTime));
         }
-        else if (e.PropertyName == nameof(Stream.CurrentTime))
-            TimeChanged();
         else if (e.PropertyName == nameof(Stream.CurrentIndex))
+        {
             OnPropertyChanged(nameof(PlaylistPosition));
+            OnPropertyChanged(nameof(PlaylistTotal));
+        }
+    }
+
+    public async Task SetShuffleAsync(bool value)
+    {
+        Properties.Settings.Default.Shuffle = value;
+        if (Source != null && Stream != null)
+        {
+            if (value)
+                await Task.Run(() => Source.Shuffle(Stream.CurrentIndex));
+            else
+                await Task.Run(() => Source.Unshuffle());
+        }
+        OnPropertyChanged(nameof(IsShuffled));
     }
 
     public async Task FreshShuffleAsync()
     {
         Properties.Settings.Default.Shuffle = true;
-        Playlist.Shuffle();
-        await Stream.SetIndexAsync(0);
-        OnPropertyChanged(nameof(Shuffle));
+        if (Source != null && Stream != null)
+        {
+            await Task.Run(() => Source.Shuffle());
+            await Stream.SetIndexAsync(0, 1);
+        }
+        OnPropertyChanged(nameof(IsShuffled));
     }
 
     // if you spam forward a lot, it stops sometimes with an error
@@ -246,7 +222,7 @@ public sealed class Player : ObservableObject, IDisposable
             Output.Play();
             Timer.Enabled = true;
             MissingTime.Restart();
-            TimeChanged();
+            OnPropertyChanged(nameof(CurrentTime));
             OnPropertyChanged(nameof(PlayState));
         }
     }
@@ -263,14 +239,16 @@ public sealed class Player : ObservableObject, IDisposable
         }
     }
 
-    public void Next()
+    public async Task NextAsync()
     {
-        Stream?.Next();
+        if (Stream != null)
+            await Stream.SetIndexAsync(Stream.CurrentIndex + 1, 1);
     }
 
-    public void Prev()
+    public async Task PreviousAsync()
     {
-        Stream?.Previous();
+        if (Stream != null)
+            await Stream.SetIndexAsync(Stream.CurrentIndex - 1, -1);
     }
 
     private void Close()
@@ -294,69 +272,5 @@ public sealed class Player : ObservableObject, IDisposable
         Close();
         Timer.Elapsed -= Timer_Elapsed;
         Timer.Dispose();
-    }
-}
-
-public class PlayHistory
-{
-    private readonly Player Parent;
-    private record Entry(ISongSource Source, SongFile Song, TimeSpan Time, PlaybackState State);
-    private int CurrentIndex = 0;
-    private readonly List<Entry> History;
-
-    public PlayHistory(Player parent)
-    {
-        Parent = parent;
-        History = new();
-    }
-
-    private Entry MakeCurrentEntry()
-    {
-        return new Entry(Parent.RawSource, Parent.CurrentTrack, Parent.CurrentTime, Parent.PlayState);
-    }
-
-    public void Add()
-    {
-        if (CurrentIndex < History.Count - 1)
-            History.RemoveRange(CurrentIndex + 1, History.Count - CurrentIndex - 1);
-        History.Add(MakeCurrentEntry());
-        if (History.Count > 1)
-            CurrentIndex++;
-    }
-
-    private async void SwitchTo(Entry entry)
-    {
-        if (Parent.RawSource != entry.Source)
-            await Parent.OpenAsync(entry.Source);
-        await Parent.SwitchToAsync(entry.Song);
-        Parent.CurrentTime = entry.Time;
-        if (entry.State == PlaybackState.Stopped || entry.State == PlaybackState.Paused)
-            Parent.Pause();
-        else if (entry.State == PlaybackState.Playing)
-            Parent.Play();
-    }
-
-    public void Forward()
-    {
-        if (History.Count == 0)
-            return;
-        History[CurrentIndex] = MakeCurrentEntry();
-        if (CurrentIndex < History.Count - 1)
-        {
-            CurrentIndex++;
-            SwitchTo(History[CurrentIndex]);
-        }
-    }
-
-    public void Backward()
-    {
-        if (History.Count == 0)
-            return;
-        History[CurrentIndex] = MakeCurrentEntry();
-        if (CurrentIndex > 0)
-        {
-            CurrentIndex--;
-            SwitchTo(History[CurrentIndex]);
-        }
     }
 }

@@ -15,7 +15,7 @@ public class ShufflableSource : ISongSource
     private readonly List<SongFile> ShuffledCopy;
     public bool IsShuffled { get; private set; }
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public SongFile this[int index] => IsShuffled ? ShuffledCopy[index] : BaseSource[index];
     public int Count => BaseSource.Count;
     public int IndexOf(SongFile song) => IsShuffled ? ShuffledCopy.IndexOf(song) : BaseSource.IndexOf(song);
