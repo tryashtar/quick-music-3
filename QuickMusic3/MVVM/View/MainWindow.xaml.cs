@@ -108,7 +108,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void StreamWatcher_Changed(object? sender, SongFile e)
     {
-        
+
     }
 
     private async Task OpenPlaylistAsync(IEnumerable<string> files, SearchOption search)

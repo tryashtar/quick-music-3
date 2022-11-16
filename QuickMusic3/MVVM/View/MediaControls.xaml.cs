@@ -56,6 +56,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     private readonly StackPanel ProgressGrid;
     private readonly StackPanel RemainingGrid;
 
+    private NestedListener<SongFile>? Listener;
     public MediaControls()
     {
         InitializeComponent();
@@ -63,11 +64,19 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
         ProgressGrid = (StackPanel)FindResource("ProgressGrid");
         RemainingGrid = (StackPanel)FindResource("RemainingGrid");
-        var listener = new NestedListener<SongFile>(this, nameof(Model), nameof(BaseViewModel.Shared), nameof(SharedState.Player), nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
-        listener.Changed += Player_TrackChanged;
+        this.DataContextChanged += (s, e) =>
+        {
+            if (Listener != null)
+                Listener.Changed -= Listener_Changed;
+            if (DataContext is BaseViewModel)
+            {
+                Listener = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
+                Listener.Changed += Listener_Changed;
+            }
+        };
     }
 
-    private void Player_TrackChanged(object? sender, SongFile e)
+    private void Listener_Changed(object? sender, SongFile e)
     {
         Dispatcher.BeginInvoke(() => AddChapters());
     }

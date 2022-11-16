@@ -59,11 +59,20 @@ public partial class MediaDisplay : UserControl
     }
     public BaseViewModel Model => (BaseViewModel)DataContext;
 
+    private NestedListener<PlaylistStream>? Listener;
     public MediaDisplay()
     {
         InitializeComponent();
-        var listener = new NestedListener<PlaylistStream>(this, nameof(Model), nameof(BaseViewModel.Shared), nameof(SharedState.Player), nameof(Player.Stream));
-        listener.ItemChanged += Listener_ItemChanged;
+        this.DataContextChanged += (s, e) =>
+        {
+            if (Listener != null)
+                Listener.ItemChanged -= Listener_ItemChanged;
+            if (DataContext is BaseViewModel)
+            {
+                Listener = new NestedListener<PlaylistStream>(Model.Shared.Player, nameof(Player.Stream));
+                Listener.ItemChanged += Listener_ItemChanged;
+            }
+        };
     }
 
     private void Listener_ItemChanged(object? sender, (PlaylistStream item, string propertyName) e)
