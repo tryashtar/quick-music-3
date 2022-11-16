@@ -20,7 +20,7 @@ public class PlayHistory
 
     private Entry MakeCurrentEntry()
     {
-        return new Entry(Parent.RawSource, Parent.CurrentTrack, Parent.CurrentTime, Parent.PlayState);
+        return new Entry(Parent.RawSource, Parent.Stream.CurrentTrack, Parent.CurrentTime, Parent.PlayState);
     }
 
     public void Add()

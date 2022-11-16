@@ -44,7 +44,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    private BaseViewModel Model => (BaseViewModel)DataContext;
+    public BaseViewModel Model => (BaseViewModel)DataContext;
 
     private bool playdragging;
     public bool PlayDragging
@@ -63,29 +63,18 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
         ProgressGrid = (StackPanel)FindResource("ProgressGrid");
         RemainingGrid = (StackPanel)FindResource("RemainingGrid");
-        this.DataContextChanged += MediaControls_DataContextChanged;
+        var listener = new NestedListener<SongFile>(this, nameof(Model), nameof(BaseViewModel.Shared), nameof(SharedState.Player), nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
+        listener.Changed += Player_TrackChanged;
     }
 
-    private void MediaControls_DataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
+    private void Player_TrackChanged(object? sender, SongFile e)
     {
-        if (e.OldValue is BaseViewModel o)
-            o.Shared.Player.PropertyChanged -= Player_PropertyChanged;
-        if (e.NewValue is BaseViewModel b)
-        {
-            b.Shared.Player.PropertyChanged += Player_PropertyChanged;
-            Dispatcher.BeginInvoke(() => AddChapters());
-        }
-    }
-
-    private void Player_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(Player.CurrentTrack))
-            Dispatcher.BeginInvoke(() => AddChapters());
+        Dispatcher.BeginInvoke(() => AddChapters());
     }
 
     private void AddChapters()
     {
-        var track = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack;
+        var track = ((BaseViewModel)this.DataContext).Shared.Player.Stream.CurrentTrack;
         if (track == null)
             return;
         var chapters = track.Metadata?.Item?.Chapters;
@@ -96,9 +85,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
             var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
             for (int i = -1; i < chapters.Chapters.Count; i++)
             {
-                TimeSpan start = i < 0 ? TimeSpan.Zero : chapters.Chapters[i].Time;
-                TimeSpan end = (i < chapters.Chapters.Count - 1) ? chapters.Chapters[i + 1].Time : duration;
-                var length = end - start;
+                var length = chapters.Chapters[i].End - chapters.Chapters[i].Start;
                 var proportion = length / duration;
                 var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
                 var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };

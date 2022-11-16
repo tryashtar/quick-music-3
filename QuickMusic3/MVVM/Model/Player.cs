@@ -14,8 +14,9 @@ namespace QuickMusic3.MVVM.Model;
 
 public sealed class Player : ObservableObject, IDisposable
 {
-    private ShufflableSource? Source;
-    private PlaylistStream? Stream;
+    public ISongSource? RawSource { get; private set; }
+    public ShufflableSource? Source { get; private set; }
+    public PlaylistStream? Stream { get; private set; }
     private WaveOutEvent? Output;
     private readonly Timer Timer;
     public PlaybackState PlayState
@@ -137,9 +138,12 @@ public sealed class Player : ObservableObject, IDisposable
         {
             Stream = null;
             Output = null;
+            RawSource = null;
+            Source = null;
         }
         else
         {
+            RawSource = playlist;
             Source = new ShufflableSource(playlist);
             if (IsShuffled)
                 await Task.Run(() => Source.Shuffle(first_index));
@@ -155,6 +159,9 @@ public sealed class Player : ObservableObject, IDisposable
             UpdateVolume();
             Output.Init(Stream);
         }
+        OnPropertyChanged(nameof(Stream));
+        OnPropertyChanged(nameof(Source));
+        OnPropertyChanged(nameof(RawSource));
         OnPropertyChanged(nameof(PlaylistPosition));
         OnPropertyChanged(nameof(PlaylistTotal));
         OnPropertyChanged(nameof(CurrentTime));
@@ -167,6 +174,8 @@ public sealed class Player : ObservableObject, IDisposable
         {
             OnPropertyChanged(nameof(CurrentTime));
             OnPropertyChanged(nameof(TotalTime));
+            OnPropertyChanged(nameof(PlaylistPosition));
+            OnPropertyChanged(nameof(PlaylistTotal));
         }
         else if (e.PropertyName == nameof(Stream.CurrentIndex))
         {

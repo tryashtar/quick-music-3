@@ -86,7 +86,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         });
         RemoveTrackCommand = new RelayCommand<SongFile>(x =>
         {
-            Model.Shared.Player.Playlist.Remove(x);
+            Model.Shared.Player.Source.Remove(x);
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
@@ -96,12 +96,19 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupRestoreButton")).Command = ShowWindowCommand;
         ((Button)LogicalTreeHelper.FindLogicalNode(top_right, "PopupCloseButton")).Command = CloseWindowCommand;
         PlaylistList = (ListView)FindResource("PlaylistList");
+        var stream_watcher = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
+        stream_watcher.Changed += StreamWatcher_Changed;
         Model.Shared.Player.PropertyChanged += Player_PropertyChanged;
         Model.PropertyChanged += Model_PropertyChanged;
         UpdateSize();
         var args = Environment.GetCommandLineArgs();
         if (args.Length > 1)
             _ = OpenPlaylistAsync(args.Skip(1), SearchOption.TopDirectoryOnly);
+    }
+
+    private void StreamWatcher_Changed(object? sender, SongFile e)
+    {
+        
     }
 
     private async Task OpenPlaylistAsync(IEnumerable<string> files, SearchOption search)
@@ -160,52 +167,52 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
-    private readonly ListView PlaylistList;
-
-    private int LastKnownPosition;
     private SongFile LastKnownTrack;
+    private int LastKnownPosition;
+    private readonly ListView PlaylistList;
+    private void Stream_TrackChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            PlaylistList.ScrollIntoView(Model.Shared.Player.Stream.CurrentTrack);
+            LastKnownPosition = Model.Shared.Player.PlaylistPosition;
+            LastKnownTrack = Model.Shared.Player.Stream.CurrentTrack;
+        });
+    }
+
     private void Player_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Player.CurrentTrack))
+        if (e.PropertyName == nameof(Player.PlaylistPosition))
         {
-            Dispatcher.BeginInvoke(() =>
-            {
-                PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
-                LastKnownPosition = Model.Shared.Player.PlaylistPosition;
-                LastKnownTrack = Model.Shared.Player.CurrentTrack;
-            });
-        }
-        else if (e.PropertyName == nameof(Player.PlaylistPosition))
-        {
-            Dispatcher.BeginInvoke(() =>
-            {
-                if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
-                {
-                    int pos = Model.Shared.Player.PlaylistPosition;
-                    int children = VisualTreeHelper.GetChildrenCount(PlaylistList);
-                    if (children > 0)
-                    {
-                        var scroller = (ScrollViewer)((Decorator)VisualTreeHelper.GetChild(PlaylistList, 0)).Child;
-                        if (Math.Abs(LastKnownPosition - pos) > 20)
-                            PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
-                        else if (LastKnownPosition > pos)
-                        {
-                            for (int i = 0; i < LastKnownPosition - pos; i++)
-                            {
-                                scroller.LineUp();
-                            }
-                        }
-                        else if (LastKnownPosition < pos)
-                        {
-                            for (int i = 0; i < pos - LastKnownPosition; i++)
-                            {
-                                scroller.LineDown();
-                            }
-                        }
-                    }
-                }
-                LastKnownPosition = Model.Shared.Player.PlaylistPosition;
-            });
+            //Dispatcher.BeginInvoke(() =>
+            //{
+            //    if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
+            //    {
+            //        int pos = Model.Shared.Player.PlaylistPosition;
+            //        int children = VisualTreeHelper.GetChildrenCount(PlaylistList);
+            //        if (children > 0)
+            //        {
+            //            var scroller = (ScrollViewer)((Decorator)VisualTreeHelper.GetChild(PlaylistList, 0)).Child;
+            //            if (Math.Abs(LastKnownPosition - pos) > 20)
+            //                PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
+            //            else if (LastKnownPosition > pos)
+            //            {
+            //                for (int i = 0; i < LastKnownPosition - pos; i++)
+            //                {
+            //                    scroller.LineUp();
+            //                }
+            //            }
+            //            else if (LastKnownPosition < pos)
+            //            {
+            //                for (int i = 0; i < pos - LastKnownPosition; i++)
+            //                {
+            //                    scroller.LineDown();
+            //                }
+            //            }
+            //        }
+            //    }
+            //    LastKnownPosition = Model.Shared.Player.PlaylistPosition;
+            //});
         }
     }
 
