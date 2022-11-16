@@ -32,7 +32,7 @@ public class PlayHistory
             CurrentIndex++;
     }
 
-    private async Task SwitchTo(Entry entry)
+    private async Task SwitchToAsync(Entry entry)
     {
         if (Parent.RawSource != entry.Source)
             await Parent.OpenAsync(entry.Source);
@@ -44,7 +44,7 @@ public class PlayHistory
             Parent.Play();
     }
 
-    public void Forward()
+    public async Task ForwardAsync()
     {
         if (History.Count == 0)
             return;
@@ -52,11 +52,11 @@ public class PlayHistory
         if (CurrentIndex < History.Count - 1)
         {
             CurrentIndex++;
-            SwitchTo(History[CurrentIndex]);
+            await SwitchToAsync(History[CurrentIndex]);
         }
     }
 
-    public void Backward()
+    public async Task BackwardAsync()
     {
         if (History.Count == 0)
             return;
@@ -64,7 +64,7 @@ public class PlayHistory
         if (CurrentIndex > 0)
         {
             CurrentIndex--;
-            SwitchTo(History[CurrentIndex]);
+            await SwitchToAsync(History[CurrentIndex]);
         }
     }
 }

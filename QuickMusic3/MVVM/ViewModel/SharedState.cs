@@ -65,8 +65,8 @@ public class SharedState : ObservableObject
                 History.Add();
             }
         });
-        ForwardCommand = new RelayCommand(() => History.Forward());
-        BackwardCommand = new RelayCommand(() => History.Backward());
+        ForwardCommand = new RelayCommand(async () => await History.ForwardAsync());
+        BackwardCommand = new RelayCommand(async () => await History.BackwardAsync());
         ChangeRepeatCommand = new RelayCommand(() =>
         {
             if (Player.RepeatMode == RepeatMode.RepeatAll)
@@ -77,7 +77,7 @@ public class SharedState : ObservableObject
                 Player.RepeatMode = RepeatMode.RepeatAll;
         });
         ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
-        ChangeShuffleCommand = new RelayCommand(() => { Player.IsShuffled = !Player.IsShuffled; });
+        ChangeShuffleCommand = new RelayCommand(async () => { await Player.SetShuffleAsync(!Player.IsShuffled); });
         ChangeVolumeCommand = new RelayCommand<float>(n => { Player.Volume = Math.Clamp(Player.Volume + n, 0, 1); });
         ChangeLyricsEnabledCommand = new RelayCommand(() => { LyricsEnabled = !LyricsEnabled; });
         SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));

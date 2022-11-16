@@ -15,7 +15,7 @@ public abstract class SourceAggregator : ISongSource
     protected readonly List<SongFile> FlatList = new();
     protected readonly Dictionary<ISongSource, int> SourcePositions = new();
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public SongFile this[int index] => FlatList[index];
     public int Count => FlatList.Count;
     public int IndexOf(SongFile song) => FlatList.IndexOf(song);

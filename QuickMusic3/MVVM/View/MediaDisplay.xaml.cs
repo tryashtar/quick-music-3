@@ -64,7 +64,7 @@ public partial class MediaDisplay : UserControl
         this.DataContextChanged += MediaDisplay_DataContextChanged;
     }
 
-    private void MediaDisplay_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void MediaDisplay_DataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.OldValue is BaseViewModel o)
             o.Shared.Player.PropertyChanged -= Player_PropertyChanged;
@@ -77,7 +77,7 @@ public partial class MediaDisplay : UserControl
         }
     }
 
-    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Player_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Player.CurrentLine))
             Dispatcher.BeginInvoke(() => ScrollLine(), DispatcherPriority.Background);
@@ -117,7 +117,7 @@ public partial class MediaDisplay : UserControl
         }
     }
 
-    private void Lyric_MouseDown(object sender, MouseButtonEventArgs e)
+    private void Lyric_MouseDown(object? sender, MouseButtonEventArgs e)
     {
         var player = ((BaseViewModel)this.DataContext).Shared.Player;
         if (player.CurrentTrack.Metadata.Item.Lyrics.Synchronized)

@@ -13,7 +13,7 @@ public class DirectSource : ISongSource
     public SongFile this[int index] => Files[index];
     public int Count => Files.Count;
     public int IndexOf(SongFile song) => Files.IndexOf(song);
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public IEnumerator<SongFile> GetEnumerator() => Files.GetEnumerator();
 
     public DirectSource(IEnumerable<string> paths)
@@ -31,5 +31,5 @@ public class DirectSource : ISongSource
         }
     }
 
-    public async Task GetInOrderAsync(int index) { }
+    public Task GetInOrderAsync(int index) { return Task.CompletedTask; }
 }

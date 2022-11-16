@@ -43,7 +43,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         set { SetValue(BottomRightProperty, value); }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     private BaseViewModel Model => (BaseViewModel)DataContext;
 
     private bool playdragging;
@@ -66,7 +66,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         this.DataContextChanged += MediaControls_DataContextChanged;
     }
 
-    private void MediaControls_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void MediaControls_DataContextChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.OldValue is BaseViewModel o)
             o.Shared.Player.PropertyChanged -= Player_PropertyChanged;
@@ -77,7 +77,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         }
     }
 
-    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Player_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Player.CurrentTrack))
             Dispatcher.BeginInvoke(() => AddChapters());
@@ -113,20 +113,20 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         }
     }
 
-    private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)
+    private void TimeBar_MouseDown(object? sender, MouseButtonEventArgs e)
     {
         PlayDragging = Model.Shared.Player.PlayState == PlaybackState.Playing;
         Model.Shared.Player.Pause();
     }
 
-    private void TimeBar_MouseUp(object sender, MouseButtonEventArgs e)
+    private void TimeBar_MouseUp(object? sender, MouseButtonEventArgs e)
     {
         if (PlayDragging)
             Model.Shared.Player.Play();
         PlayDragging = false;
     }
 
-    private void Volume_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    private void Volume_PreviewMouseWheel(object? sender, MouseWheelEventArgs e)
     {
         if (e.Delta != 0 && !Model.Shared.Player.Muted)
         {
@@ -135,7 +135,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         }
     }
 
-    private async void Shuffle_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    private async void Shuffle_MouseRightButtonDown(object? sender, MouseButtonEventArgs e)
     {
         await Model.Shared.Player.FreshShuffleAsync();
     }

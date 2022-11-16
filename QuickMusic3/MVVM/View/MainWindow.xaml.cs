@@ -33,7 +33,7 @@ namespace QuickMusic3.MVVM.View;
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
     private readonly TaskbarIcon NotifyIcon;
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public ICommand BrowseCommand { get; }
     public ICommand HideWindowCommand { get; }
@@ -65,7 +65,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 this.WindowState = WindowState.Maximized;
         });
         MinimizeWindowCommand = new RelayCommand(() => { this.WindowState = WindowState.Minimized; });
-        BrowseCommand = new RelayCommand(() =>
+        BrowseCommand = new RelayCommand(async () =>
         {
             var dialog = new OpenFileDialog();
             dialog.Multiselect = true;
@@ -77,7 +77,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     Model.Shared.OpenTheme(dialog.FileName);
                 }
                 else
-                    OpenPlaylistAsync(dialog.FileNames, SearchOption.TopDirectoryOnly);
+                    await OpenPlaylistAsync(dialog.FileNames, SearchOption.TopDirectoryOnly);
             }
         });
         OpenFileLocationCommand = new RelayCommand<SongFile>(x =>
@@ -138,13 +138,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         UpdatingSize = false;
     }
 
-    private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(MainViewModel.ActiveViewModel))
             UpdateSize();
     }
 
-    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void Window_SizeChanged(object? sender, SizeChangedEventArgs e)
     {
         if (UpdatingSize || this.WindowState == WindowState.Maximized)
             return;
@@ -164,7 +164,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private int LastKnownPosition;
     private SongFile LastKnownTrack;
-    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Player_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Player.CurrentTrack))
         {
@@ -209,18 +209,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
-    private void Window_Closed(object sender, EventArgs e)
+    private void Window_Closed(object? sender, EventArgs e)
     {
         Properties.Settings.Default.Save();
         NotifyIcon.Dispose();
     }
 
-    private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void Window_IsVisibleChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TrayIconVisibility)));
     }
 
-    private async void PlaylistItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    private async void PlaylistItem_MouseDoubleClick(object? sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left)
         {
@@ -231,15 +231,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
-    private void Window_Drop(object sender, DragEventArgs e)
+    private async void Window_Drop(object? sender, DragEventArgs e)
     {
         string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
         bool holding_shift = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
         var search = holding_shift ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-        OpenPlaylistAsync(files, search);
+        await OpenPlaylistAsync(files, search);
     }
 
-    private void Window_DragOver(object sender, DragEventArgs e)
+    private void Window_DragOver(object? sender, DragEventArgs e)
     {
         e.Effects = DragDropEffects.None;
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -247,7 +247,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         e.Handled = true;
     }
 
-    private void PlaylistList_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void PlaylistList_SizeChanged(object? sender, SizeChangedEventArgs e)
     {
         var listView = sender as ListView;
         var gView = listView.View as GridView;
@@ -258,11 +258,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         gView.Columns[4].Width = workingWidth * 0.25;
     }
 
-    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    private async void Window_MouseDown(object? sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.XButton1)
-            Model.Shared.History.Backward();
+            await Model.Shared.History.BackwardAsync();
         else if (e.ChangedButton == MouseButton.XButton2)
-            Model.Shared.History.Forward();
+            await Model.Shared.History.ForwardAsync();
     }
 }

@@ -15,7 +15,7 @@ public class FolderSource : ISongSource
     private readonly HashSet<SongFile> Loaded = new();
     private readonly IComparer<SongFile> Sorter;
     private readonly Dictionary<string, List<SongFile>> Folders = new();
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     public int Count => Files.Count;
     public int IndexOf(SongFile song) => Files.IndexOf(song);
@@ -58,8 +58,14 @@ public class FolderSource : ISongSource
             Parent = parent;
         }
 
-        public int Compare(SongFile x, SongFile y)
+        public int Compare(SongFile? x, SongFile? y)
         {
+            if (x == null && y == null)
+                return 0;
+            else if (x == null)
+                return -1;
+            else if (y == null)
+                return 1;
             bool x_loaded = Parent.Loaded.Contains(x);
             bool y_loaded = Parent.Loaded.Contains(y);
             if (x_loaded && !y_loaded)
