@@ -161,7 +161,7 @@
                         <Path.Style>
                             <Style TargetType="Path">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Shared.Player.Shuffle}"
+                                    <DataTrigger Binding="{Binding Shared.Player.IsShuffled}"
                                                  Value="false">
                                         <Setter Property="Opacity"
                                                 Value="0.2" />

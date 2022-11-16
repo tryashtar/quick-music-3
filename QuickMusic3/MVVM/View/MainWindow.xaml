@@ -24,7 +24,7 @@
     <Window.Title>
         <MultiBinding StringFormat="Quick Music – {0} ({1} / {2})"
                       FallbackValue="Quick Music">
-            <Binding Path="Shared.Player.CurrentTrack.Metadata.Item.Title" />
+            <Binding Path="Shared.Player.Stream.CurrentTrack.Metadata.Item.Title" />
             <Binding Path="Shared.Player.PlaylistPosition" />
             <Binding Path="Shared.Player.PlaylistTotal" />
         </MultiBinding>
@@ -282,7 +282,7 @@
             </tb:TaskbarIcon>
             <ListView x:Key="PlaylistList"
                       x:Name="PlaylistList"
-                      ItemsSource="{Binding Shared.Player.Playlist}"
+                      ItemsSource="{Binding Shared.Player.Source}"
                       Focusable="False"
                       BorderThickness="0"
                       FontSize="16"
@@ -330,7 +330,7 @@
                                 <DataTrigger.Binding>
                                     <MultiBinding Converter="{StaticResource EqualityCheck}">
                                         <Binding />
-                                        <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                        <Binding Path="DataContext.Shared.Player.Stream.CurrentTrack"
                                                  RelativeSource="{RelativeSource AncestorType=Window}" />
                                     </MultiBinding>
                                 </DataTrigger.Binding>
@@ -378,7 +378,7 @@
                                                             <DataTrigger.Binding>
                                                                 <MultiBinding Converter="{StaticResource EqualityCheck}">
                                                                     <Binding />
-                                                                    <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                                                    <Binding Path="DataContext.Shared.Player.Stream.CurrentTrack"
                                                                              RelativeSource="{RelativeSource AncestorType=Window}" />
                                                                 </MultiBinding>
                                                             </DataTrigger.Binding>
@@ -401,7 +401,7 @@
                                                             <DataTrigger.Binding>
                                                                 <MultiBinding Converter="{StaticResource EqualityCheck}">
                                                                     <Binding />
-                                                                    <Binding Path="DataContext.Shared.Player.CurrentTrack"
+                                                                    <Binding Path="DataContext.Shared.Player.Stream.CurrentTrack"
                                                                              RelativeSource="{RelativeSource AncestorType=Window}" />
                                                                 </MultiBinding>
                                                             </DataTrigger.Binding>

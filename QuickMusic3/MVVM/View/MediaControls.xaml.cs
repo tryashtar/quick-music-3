@@ -92,7 +92,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         if (chapters != null)
         {
             var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
-            for (int i = -1; i < chapters.Chapters.Count; i++)
+            for (int i = 0; i < chapters.Chapters.Count; i++)
             {
                 var length = chapters.Chapters[i].End - chapters.Chapters[i].Start;
                 var proportion = length / duration;

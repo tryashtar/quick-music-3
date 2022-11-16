@@ -186,7 +186,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             //Dispatcher.BeginInvoke(() =>
             //{
-            //    if (Model.Shared.Player.CurrentTrack == LastKnownTrack)
+            //    if (Model.Shared.Player.Stream.CurrentTrack == LastKnownTrack)
             //    {
             //        int pos = Model.Shared.Player.PlaylistPosition;
             //        int children = VisualTreeHelper.GetChildrenCount(PlaylistList);
@@ -194,7 +194,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             //        {
             //            var scroller = (ScrollViewer)((Decorator)VisualTreeHelper.GetChild(PlaylistList, 0)).Child;
             //            if (Math.Abs(LastKnownPosition - pos) > 20)
-            //                PlaylistList.ScrollIntoView(Model.Shared.Player.CurrentTrack);
+            //                PlaylistList.ScrollIntoView(Model.Shared.Player.Stream.CurrentTrack);
             //            else if (LastKnownPosition > pos)
             //            {
             //                for (int i = 0; i < LastKnownPosition - pos; i++)
