@@ -61,7 +61,7 @@
                     </MultiBinding>
                 </ScrollViewer.Visibility>
                 <ItemsControl x:Name="LyricsBox"
-                              ItemsSource="{Binding Shared.Player.Stream.CurrentTrack.Metadata.Item.Lyrics.Lines}"
+                              ItemsSource="{Binding Shared.Player.Stream.CurrentTrack.Metadata.Item.Lyrics.AllLyrics}"
                               Focusable="False"
                               FontSize="14"
                               Margin="0,3,0,3"
@@ -82,10 +82,10 @@
                                             <Style.Triggers>
                                                 <DataTrigger Value="True">
                                                     <DataTrigger.Binding>
-                                                        <MultiBinding Converter="{StaticResource EqualityCheck}">
-                                                            <Binding />
-                                                            <Binding Path="DataContext.Shared.Player.CurrentLine"
+                                                        <MultiBinding Converter="{StaticResource ContainsCheck}">
+                                                            <Binding Path="DataContext.Shared.Player.Info.CurrentLines"
                                                                      RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                                            <Binding />
                                                         </MultiBinding>
                                                     </DataTrigger.Binding>
                                                     <Setter Property="Background"

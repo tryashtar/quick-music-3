@@ -39,7 +39,7 @@
                            FontSize="18"
                            Foreground="{Binding Shared.ActiveTheme.Text}"
                            HorizontalAlignment="Right" />
-                <TextBlock Text="{Binding Shared.Player.CurrentChapter}"
+                <TextBlock Text="{Binding Shared.Player.Info.CurrentChapters}"
                            FontSize="18"
                            Foreground="{Binding Shared.ActiveTheme.Text}"
                            HorizontalAlignment="Center" />

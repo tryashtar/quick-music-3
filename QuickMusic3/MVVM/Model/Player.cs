@@ -8,12 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using YamlDotNet.Core.Tokens;
 
 namespace QuickMusic3.MVVM.Model;
 
 public sealed class Player : ObservableObject, IDisposable
 {
+    public SongInfo Info { get; } = new();
     public ISongSource? RawSource { get; private set; }
     public ShufflableSource? Source { get; private set; }
     public PlaylistStream? Stream { get; private set; }
@@ -120,7 +120,7 @@ public sealed class Player : ObservableObject, IDisposable
                 LastPosition = stream.CurrentTime.Ticks;
                 MissingTime.Restart();
             }
-            OnPropertyChanged(nameof(CurrentTime));
+            TimeChanged();
         }
     }
 
@@ -164,7 +164,7 @@ public sealed class Player : ObservableObject, IDisposable
         OnPropertyChanged(nameof(RawSource));
         OnPropertyChanged(nameof(PlaylistPosition));
         OnPropertyChanged(nameof(PlaylistTotal));
-        OnPropertyChanged(nameof(CurrentTime));
+        TimeChanged();
         OnPropertyChanged(nameof(TotalTime));
     }
 
@@ -172,7 +172,7 @@ public sealed class Player : ObservableObject, IDisposable
     {
         if (e.PropertyName == nameof(Stream.CurrentTrack))
         {
-            OnPropertyChanged(nameof(CurrentTime));
+            TimeChanged();
             OnPropertyChanged(nameof(TotalTime));
             OnPropertyChanged(nameof(PlaylistPosition));
             OnPropertyChanged(nameof(PlaylistTotal));
@@ -231,7 +231,7 @@ public sealed class Player : ObservableObject, IDisposable
             Output.Play();
             Timer.Enabled = true;
             MissingTime.Restart();
-            OnPropertyChanged(nameof(CurrentTime));
+            TimeChanged();
             OnPropertyChanged(nameof(PlayState));
         }
     }
@@ -258,6 +258,14 @@ public sealed class Player : ObservableObject, IDisposable
     {
         if (Stream != null)
             await Stream.SetIndexAsync(Stream.CurrentIndex - 1, -1);
+    }
+
+    private void TimeChanged()
+    {
+        OnPropertyChanged(nameof(CurrentTime));
+        var song = Stream?.CurrentTrack;
+        if (song != null)
+            Info.Update(song, CurrentTime);
     }
 
     private void Close()

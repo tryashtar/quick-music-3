@@ -22,8 +22,8 @@ public sealed class Metadata : ObservableObject
     public TimeSpan Duration { get; init; }
     public BitmapSource Thumbnail { get; init; }
     public decimal ReplayGain { get; init; }
-    public ChapterCollection Chapters { get; init; }
-    public Lyrics Lyrics { get; init; }
+    public ChapterCollection? Chapters { get; init; }
+    public Lyrics? Lyrics { get; init; }
     public BitmapSource HighResImage
     {
         get

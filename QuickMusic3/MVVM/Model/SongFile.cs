@@ -11,7 +11,7 @@ using TagLib.Flac;
 
 namespace QuickMusic3.MVVM.Model;
 
-public sealed class SongFile : ObservableObject, IAsyncDisposable
+public sealed class SongFile : ObservableObject
 {
     public string FilePath { get; }
     public NewLoadable<MutableStream> Stream { get; }
@@ -62,14 +62,5 @@ public sealed class SongFile : ObservableObject, IAsyncDisposable
                 OnPropertyChanged(nameof(GuessDuration));
             }
         });
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (Stream.Status != TaskStatus.Created)
-        {
-            var result = await Stream;
-            result.Dispose();
-        }
     }
 }
