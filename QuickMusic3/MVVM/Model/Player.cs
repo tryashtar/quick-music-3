@@ -89,7 +89,7 @@ public sealed class Player : ObservableObject, IDisposable
                 position = 0;
             }
             stream.Position = position;
-            OnPropertyChanged();
+            TimeChanged();
             if (MissingTime.IsRunning)
                 MissingTime.Restart();
         }

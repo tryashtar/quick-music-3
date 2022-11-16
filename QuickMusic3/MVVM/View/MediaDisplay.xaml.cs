@@ -59,53 +59,74 @@ public partial class MediaDisplay : UserControl
     }
     public BaseViewModel Model => (BaseViewModel)DataContext;
 
-    private NestedListener<PlaylistStream>? Listener;
+    private NestedListener<PlaylistStream>? StreamListener;
+    private NestedListener<SongInfo>? InfoListener;
     public MediaDisplay()
     {
         InitializeComponent();
-        this.DataContextChanged += (s, e) =>
-        {
-            if (Listener != null)
-                Listener.ItemChanged -= Listener_ItemChanged;
-            if (DataContext is BaseViewModel)
-            {
-                Listener = new NestedListener<PlaylistStream>(Model.Shared.Player, nameof(Player.Stream));
-                Listener.ItemChanged += Listener_ItemChanged;
-            }
-        };
+        this.DataContextChanged += (s, e) => SetEvents();
     }
 
-    private void Listener_ItemChanged(object? sender, (PlaylistStream item, string propertyName) e)
+    private async void SetEvents()
     {
+        if (StreamListener != null)
+            StreamListener.ItemChanged -= StreamListener_ItemChanged;
+        if (InfoListener != null)
+            InfoListener.ItemChanged -= InfoListener_ItemChanged;
+        if (DataContext is BaseViewModel)
+        {
+            StreamListener = new NestedListener<PlaylistStream>(Model.Shared.Player, nameof(Player.Stream));
+            StreamListener.ItemChanged += StreamListener_ItemChanged;
+            InfoListener = new NestedListener<SongInfo>(Model.Shared.Player, nameof(Player.Info));
+            InfoListener.ItemChanged += InfoListener_ItemChanged;
+            LastLineIndex = -1;
+            Dispatcher.BeginInvoke(() => LyricsScroller.ScrollToTop(), DispatcherPriority.Background);
+        }
+    }
+
+    private void InfoListener_ItemChanged(object? sender, (SongInfo item, string propertyName) e)
+    {
+        if (e.propertyName == nameof(SongInfo.CurrentLines))
+            Dispatcher.BeginInvoke(() => ScrollLine(e.item.CurrentLines), DispatcherPriority.Background);
+    }
+
+    private void StreamListener_ItemChanged(object? sender, (PlaylistStream item, string propertyName) e)
+    {
+        if (e.propertyName == nameof(PlaylistStream.CurrentTrack))
+        {
+            LastLineIndex = -1;
+            Dispatcher.BeginInvoke(() => LyricsScroller.ScrollToTop(), DispatcherPriority.Background);
+        }
     }
 
     private int LastLineIndex = -1;
-    private void ScrollLine()
+    private void ScrollLine(HashSet<LyricsEntry> lines)
     {
-        if (this.DataContext == null)
-            return;
-        //var current = ((BaseViewModel)this.DataContext).Shared.Player.CurrentLine;
-        //var element = (FrameworkElement)LyricsBox.ItemContainerGenerator.ContainerFromItem(current);
-        //if (element != null)
-        //{
-        //    int index = ((BaseViewModel)this.DataContext).Shared.Player.Stream.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(current);
-        //    if (LastLineIndex != -1 && index != -1 && index > LastLineIndex)
-        //    {
-        //        for (int i = 0; i < index - LastLineIndex; i++)
-        //        {
-        //            LyricsScroller.LineDown();
-        //        }
-        //    }
-        //    else if (LastLineIndex != -1 && index != -1 && index < LastLineIndex)
-        //    {
-        //        for (int i = 0; i < LastLineIndex - index; i++)
-        //        {
-        //            LyricsScroller.LineUp();
-        //        }
-        //    }
-        //    element.BringIntoView();
-        //    LastLineIndex = index;
-        //}
+        var all_lyrics = Model.Shared.Player.Stream.CurrentTrack.Metadata.Item.Lyrics.AllLyrics.ToList();
+        foreach (var current in lines)
+        {
+            var element = (FrameworkElement)LyricsBox.ItemContainerGenerator.ContainerFromItem(current);
+            if (element != null)
+            {
+                int index = all_lyrics.IndexOf(current);
+                if (LastLineIndex != -1 && index != -1 && index > LastLineIndex)
+                {
+                    for (int i = 0; i < index - LastLineIndex; i++)
+                    {
+                        LyricsScroller.LineDown();
+                    }
+                }
+                else if (LastLineIndex != -1 && index != -1 && index < LastLineIndex)
+                {
+                    for (int i = 0; i < LastLineIndex - index; i++)
+                    {
+                        LyricsScroller.LineUp();
+                    }
+                }
+                element.BringIntoView();
+                LastLineIndex = index;
+            }
+        }
     }
 
     private void Lyric_MouseDown(object? sender, MouseButtonEventArgs e)
@@ -115,7 +136,7 @@ public partial class MediaDisplay : UserControl
         {
             var entry = (LyricsEntry)((FrameworkElement)sender).DataContext;
             player.CurrentTime = entry.Start;
-            //LastLineIndex = player.Stream.CurrentTrack.Metadata.Item.Lyrics.Lines.IndexOf(entry);
+            LastLineIndex = player.Stream.CurrentTrack.Metadata.Item.Lyrics.AllLyrics.ToList().IndexOf(entry);
         }
     }
 }

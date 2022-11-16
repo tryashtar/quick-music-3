@@ -69,13 +69,14 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
 
     private async void SetEvents()
     {
-        if (DataContext is not BaseViewModel)
-            return;
         if (Listener != null)
             Listener.Changed -= Listener_Changed;
-        Listener = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
-        Listener.Changed += Listener_Changed;
-        await SongChanged(Model.Shared.Player.Stream?.CurrentTrack);
+        if (DataContext is BaseViewModel)
+        {
+            Listener = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
+            Listener.Changed += Listener_Changed;
+            await SongChanged(Model.Shared.Player.Stream?.CurrentTrack);
+        }
     }
 
     private async void Listener_Changed(object? sender, SongFile e)
@@ -97,7 +98,6 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
 
     private void AddChapters(ChapterCollection? chapters)
     {
-        Debug.WriteLine("Start!");
         ProgressGrid.Children.Clear();
         RemainingGrid.Children.Clear();
         if (chapters == null)
@@ -118,7 +118,6 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
             ProgressGrid.Children.Add(left_bar);
             RemainingGrid.Children.Add(right_bar);
         }
-        Debug.WriteLine("Done!");
     }
 
     private void TimeBar_MouseDown(object? sender, MouseButtonEventArgs e)
