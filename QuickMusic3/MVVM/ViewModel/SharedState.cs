@@ -77,7 +77,7 @@ public class SharedState : ObservableObject
                 Player.RepeatMode = RepeatMode.RepeatAll;
         });
         ChangeMuteCommand = new RelayCommand(() => { Player.Muted = !Player.Muted; });
-        ChangeShuffleCommand = new RelayCommand(async () => { await Player.SetShuffleAsync(!Player.IsShuffled); });
+        ChangeShuffleCommand = new RelayCommand(() => { Player.SetShuffle(!Player.IsShuffled); });
         ChangeVolumeCommand = new RelayCommand<float>(n => { Player.Volume = Math.Clamp(Player.Volume + n, 0, 1); });
         ChangeLyricsEnabledCommand = new RelayCommand(() => { LyricsEnabled = !LyricsEnabled; });
         SeekCommand = new RelayCommand<double>(n => Player.CurrentTime += TimeSpan.FromSeconds(n));

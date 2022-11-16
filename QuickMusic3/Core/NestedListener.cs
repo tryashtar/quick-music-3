@@ -54,7 +54,7 @@ public sealed class NestedListener<T>
                 {
                     if (cap < Properties.Length && e.PropertyName == Properties[cap])
                     {
-                        Resubscribe(cap + 1);
+                        Resubscribe(cap);
                         Changed?.Invoke(this, (T)Chain[^1]);
                     }
                     if (cap == Chain.Length - 1)

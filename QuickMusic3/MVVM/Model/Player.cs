@@ -184,26 +184,26 @@ public sealed class Player : ObservableObject, IDisposable
         }
     }
 
-    public async Task SetShuffleAsync(bool value)
+    public void SetShuffle(bool value)
     {
         Properties.Settings.Default.Shuffle = value;
         if (Source != null && Stream != null)
         {
             if (value)
-                await Task.Run(() => Source.Shuffle(Stream.CurrentIndex));
+                Source.Shuffle(Stream.CurrentIndex);
             else
-                await Task.Run(() => Source.Unshuffle());
+                Source.Unshuffle();
         }
         OnPropertyChanged(nameof(IsShuffled));
     }
 
-    public async Task FreshShuffleAsync()
+    public void FreshShuffle()
     {
         Properties.Settings.Default.Shuffle = true;
         if (Source != null && Stream != null)
         {
-            await Task.Run(() => Source.Shuffle());
-            await Stream.SetIndexAsync(0, 1);
+            Source.Shuffle();
+            _ = Stream.SetIndexAsync(0, 1);
         }
         OnPropertyChanged(nameof(IsShuffled));
     }

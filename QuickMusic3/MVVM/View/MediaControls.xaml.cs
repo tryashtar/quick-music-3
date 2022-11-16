@@ -131,8 +131,8 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         }
     }
 
-    private async void Shuffle_MouseRightButtonDown(object? sender, MouseButtonEventArgs e)
+    private void Shuffle_MouseRightButtonDown(object? sender, MouseButtonEventArgs e)
     {
-        await Model.Shared.Player.FreshShuffleAsync();
+        Model.Shared.Player.FreshShuffle();
     }
 }
