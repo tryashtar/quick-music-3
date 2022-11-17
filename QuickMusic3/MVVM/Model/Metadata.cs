@@ -12,7 +12,7 @@ using TryashtarUtils.Music;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class Metadata : ObservableObject
+public sealed class Metadata : ObservableObject
 {
     public string Title { get; init; }
     public string Artist { get; init; }
@@ -22,8 +22,8 @@ public class Metadata : ObservableObject
     public TimeSpan Duration { get; init; }
     public BitmapSource Thumbnail { get; init; }
     public decimal ReplayGain { get; init; }
-    public ChapterCollection Chapters { get; init; }
-    public Lyrics Lyrics { get; init; }
+    public ChapterCollection? Chapters { get; init; }
+    public Lyrics? Lyrics { get; init; }
     public BitmapSource HighResImage
     {
         get
@@ -38,6 +38,7 @@ public class Metadata : ObservableObject
     private readonly string FilePath;
     public Metadata(string path)
     {
+        Debug.WriteLine($"Loading metadata at {path}");
         FilePath = path;
         using var file = TagLib.File.Create(path);
         Title = file.Tag.Title ?? Path.GetFileName(path);

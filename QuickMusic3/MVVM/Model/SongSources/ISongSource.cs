@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
 public interface ISongSource : IReadOnlyList<SongFile>, INotifyCollectionChanged
 {
     int IndexOf(SongFile file);
-    void GetInOrder(int index, bool now);
+    Task GetInOrderAsync(int index);
     void Remove(SongFile song);
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -12,7 +13,7 @@ public class DirectSource : ISongSource
     public SongFile this[int index] => Files[index];
     public int Count => Files.Count;
     public int IndexOf(SongFile song) => Files.IndexOf(song);
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public IEnumerator<SongFile> GetEnumerator() => Files.GetEnumerator();
 
     public DirectSource(IEnumerable<string> paths)
@@ -30,5 +31,5 @@ public class DirectSource : ISongSource
         }
     }
 
-    public void GetInOrder(int index, bool now) { }
+    public Task GetInOrderAsync(int index) { return Task.CompletedTask; }
 }

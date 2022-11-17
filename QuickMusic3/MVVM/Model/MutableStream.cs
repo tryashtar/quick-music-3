@@ -8,20 +8,18 @@ using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class MutableStream : IDisposable
+public sealed class MutableStream : IDisposable
 {
-    public readonly string FilePath;
     public bool IsDisposed { get; private set; } = false;
     public WaveStream BaseStream { get; private set; }
     public IWaveProvider PlayableStream { get; private set; }
     public delegate ISampleProvider Transform(ISampleProvider provider);
     private readonly List<Transform> Transforms = new();
 
-    public MutableStream(string path)
+    public MutableStream(WaveStream base_stream)
     {
-        FilePath = path;
-        BaseStream = new AudioFileReader(path, BaseReaders.Auto);
-        PlayableStream = BaseStream;
+        BaseStream = base_stream;
+        PlayableStream = base_stream;
     }
 
     public void AddTransform(Transform transform)

@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -13,7 +15,7 @@ public class FolderSource : ISongSource
     private readonly HashSet<SongFile> Loaded = new();
     private readonly IComparer<SongFile> Sorter;
     private readonly Dictionary<string, List<SongFile>> Folders = new();
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     public int Count => Files.Count;
     public int IndexOf(SongFile song) => Files.IndexOf(song);
@@ -39,8 +41,7 @@ public class FolderSource : ISongSource
             .Select(x => new SongFile(x.FullName)).ToList();
         foreach (var item in Files)
         {
-            item.Metadata.Failed += (s, e) => MoveIntoPlace(item);
-            item.Metadata.Loaded += (s, e) => MoveIntoPlace(item);
+            item.Metadata.AddCallback(() => _ = MoveIntoPlaceAsync(item));
             var folder = Path.GetDirectoryName(item.FilePath);
             if (!Folders.ContainsKey(folder))
                 Folders[folder] = new();
@@ -57,8 +58,14 @@ public class FolderSource : ISongSource
             Parent = parent;
         }
 
-        public int Compare(SongFile x, SongFile y)
+        public int Compare(SongFile? x, SongFile? y)
         {
+            if (x == null && y == null)
+                return 0;
+            else if (x == null)
+                return -1;
+            else if (y == null)
+                return 1;
             bool x_loaded = Parent.Loaded.Contains(x);
             bool y_loaded = Parent.Loaded.Contains(y);
             if (x_loaded && !y_loaded)
@@ -69,7 +76,7 @@ public class FolderSource : ISongSource
         }
     }
 
-    public void GetInOrder(int index, bool now)
+    public async Task GetInOrderAsync(int index)
     {
         if (index < 0 || index >= Files.Count)
             Debug.WriteLine($"Tried to get index {index} in order for {Files.Count} streams");
@@ -77,16 +84,14 @@ public class FolderSource : ISongSource
         {
             foreach (var item in folder)
             {
-                if (now)
-                    item.Metadata.LoadNow();
-                else
-                    item.Metadata.LoadBackground();
+                await item.Metadata;
             }
         }
     }
 
-    private void MoveIntoPlace(SongFile item)
+    private async Task MoveIntoPlaceAsync(SongFile item)
     {
+        await item.Metadata;
         int old_index, destination;
         lock (Files)
         {
@@ -105,7 +110,6 @@ public class FolderSource : ISongSource
             if (destination < 0)
                 destination = ~destination;
             Files.Insert(destination, item);
-            Debug.WriteLine("M " + String.Join(' ', Files.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, destination, old_index));
     }
@@ -119,8 +123,20 @@ public class FolderSource : ISongSource
             if (old_index == -1)
                 return;
             Files.RemoveAt(old_index);
-            Debug.WriteLine("R " + String.Join(' ', Files.Select(x => x.Metadata.IsLoaded ? x.Metadata.Item.TrackNumber.ToString() : x.Metadata.LoadStatus == LoadStatus.Failed ? "F" : ".")));
         }
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, old_index));
+    }
+
+    private string DebugList()
+    {
+        static string Icon(SongFile s)
+        {
+            if (s.Metadata.IsSuccessfullyCompleted)
+                return s.Metadata.Item.TrackNumber.ToString();
+            if (s.Metadata.IsFaulted)
+                return "F";
+            return ".";
+        }
+        return String.Join(' ', Files.Select(x => Icon(x)));
     }
 }

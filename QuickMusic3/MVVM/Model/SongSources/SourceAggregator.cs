@@ -15,20 +15,19 @@ public abstract class SourceAggregator : ISongSource
     protected readonly List<SongFile> FlatList = new();
     protected readonly Dictionary<ISongSource, int> SourcePositions = new();
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public SongFile this[int index] => FlatList[index];
     public int Count => FlatList.Count;
     public int IndexOf(SongFile song) => FlatList.IndexOf(song);
     public IEnumerator<SongFile> GetEnumerator() => FlatList.GetEnumerator();
 
-    public void GetInOrder(int index, bool now)
+    public async Task GetInOrderAsync(int index)
     {
         foreach (var item in SourcePositions.OrderBy(x => x.Value))
         {
             if (index >= item.Value)
             {
-                item.Key.GetInOrder(index - item.Value, now);
-                return;
+                await item.Key.GetInOrderAsync(index - item.Value);
             }
         }
     }

@@ -7,9 +7,15 @@ namespace QuickMusic3.MVVM.Model;
 public class SongSorter : IComparer<SongFile>
 {
     public static readonly SongSorter Instance = new();
-    public int Compare(SongFile x, SongFile y)
+    public int Compare(SongFile? x, SongFile? y)
     {
-        if (x.Metadata.IsLoaded && y.Metadata.IsLoaded)
+        if (x == null && y == null)
+            return 0;
+        else if (x == null)
+            return -1;
+        else if (y == null)
+            return 1;
+        if (x.Metadata.IsSuccessfullyCompleted && y.Metadata.IsSuccessfullyCompleted)
         {
             var xm = x.Metadata.Item;
             var ym = y.Metadata.Item;

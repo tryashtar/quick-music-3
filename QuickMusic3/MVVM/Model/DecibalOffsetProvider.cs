@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 
 namespace QuickMusic3.MVVM.Model;
 
-public class DecibalOffsetProvider : ISampleProvider
+public sealed class DecibalOffsetProvider : ISampleProvider
 {
     private const float Epsilon = 0.0001f;
     public readonly decimal DecibalOffset = 0;

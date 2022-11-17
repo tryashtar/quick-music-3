@@ -43,8 +43,8 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         set { SetValue(BottomRightProperty, value); }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-    private BaseViewModel Model => (BaseViewModel)DataContext;
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public BaseViewModel Model => (BaseViewModel)DataContext;
 
     private bool playdragging;
     public bool PlayDragging
@@ -56,6 +56,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
     private readonly StackPanel ProgressGrid;
     private readonly StackPanel RemainingGrid;
 
+    private NestedListener<SongFile>? Listener;
     public MediaControls()
     {
         InitializeComponent();
@@ -63,67 +64,76 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         TimeBar.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(TimeBar_MouseUp), true);
         ProgressGrid = (StackPanel)FindResource("ProgressGrid");
         RemainingGrid = (StackPanel)FindResource("RemainingGrid");
-        this.DataContextChanged += MediaControls_DataContextChanged;
+        this.DataContextChanged += (s, e) => SetEvents();
     }
 
-    private void MediaControls_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private async void SetEvents()
     {
-        if (e.OldValue is BaseViewModel o)
-            o.Shared.Player.PropertyChanged -= Player_PropertyChanged;
-        if (e.NewValue is BaseViewModel b)
+        if (Listener != null)
+            Listener.Changed -= Listener_Changed;
+        if (DataContext is BaseViewModel)
         {
-            b.Shared.Player.PropertyChanged += Player_PropertyChanged;
-            Dispatcher.BeginInvoke(() => AddChapters());
+            Listener = new NestedListener<SongFile>(Model.Shared.Player, nameof(Player.Stream), nameof(PlaylistStream.CurrentTrack));
+            Listener.Changed += Listener_Changed;
+            await SongChanged(Model.Shared.Player.Stream?.CurrentTrack);
         }
     }
 
-    private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private async void Listener_Changed(object? sender, SongFile e)
     {
-        if (e.PropertyName == nameof(Player.CurrentTrack))
-            Dispatcher.BeginInvoke(() => AddChapters());
+        await SongChanged(e);
     }
 
-    private void AddChapters()
+    private async Task SongChanged(SongFile song)
     {
-        var chapters = ((BaseViewModel)this.DataContext).Shared.Player.CurrentTrack?.Metadata?.Item?.Chapters;
+        if (song == null)
+            return;
+        try
+        {
+            var meta = await song.Metadata;
+            Dispatcher.BeginInvoke(() => AddChapters(meta.Chapters));
+        }
+        catch { }
+    }
+
+    private void AddChapters(ChapterCollection? chapters)
+    {
         ProgressGrid.Children.Clear();
         RemainingGrid.Children.Clear();
-        if (chapters != null)
+        if (chapters == null)
+            return;
+        var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
+        var segments = chapters.UniqueSegments().ToArray();
+        for (int i = 0; i < segments.Length; i++)
         {
-            var duration = ((BaseViewModel)this.DataContext).Shared.Player.TotalTime;
-            for (int i = -1; i < chapters.Chapters.Count; i++)
-            {
-                TimeSpan start = i < 0 ? TimeSpan.Zero : chapters.Chapters[i].Time;
-                TimeSpan end = (i < chapters.Chapters.Count - 1) ? chapters.Chapters[i + 1].Time : duration;
-                var length = end - start;
-                var proportion = length / duration;
-                var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
-                var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
-                var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
-                left_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
-                right_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
-                left_bar.SetBinding(Border.WidthProperty, binding);
-                right_bar.SetBinding(Border.WidthProperty, binding);
-                ProgressGrid.Children.Add(left_bar);
-                RemainingGrid.Children.Add(right_bar);
-            }
+            var length = segments[i] - (i == 0 ? TimeSpan.Zero : segments[i - 1]);
+            var proportion = length / duration;
+            var left_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+            var right_bar = new Border() { BorderThickness = new(1, 0, 1, 0) };
+            var binding = new Binding("ActualWidth") { Source = TimeBar, Converter = MultiplyConverter.Instance, ConverterParameter = proportion };
+            left_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+            right_bar.SetBinding(Border.BorderBrushProperty, "Shared.ActiveTheme.Background");
+            left_bar.SetBinding(Border.WidthProperty, binding);
+            right_bar.SetBinding(Border.WidthProperty, binding);
+            ProgressGrid.Children.Add(left_bar);
+            RemainingGrid.Children.Add(right_bar);
         }
     }
 
-    private void TimeBar_MouseDown(object sender, MouseButtonEventArgs e)
+    private void TimeBar_MouseDown(object? sender, MouseButtonEventArgs e)
     {
         PlayDragging = Model.Shared.Player.PlayState == PlaybackState.Playing;
         Model.Shared.Player.Pause();
     }
 
-    private void TimeBar_MouseUp(object sender, MouseButtonEventArgs e)
+    private void TimeBar_MouseUp(object? sender, MouseButtonEventArgs e)
     {
         if (PlayDragging)
             Model.Shared.Player.Play();
         PlayDragging = false;
     }
 
-    private void Volume_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    private void Volume_PreviewMouseWheel(object? sender, MouseWheelEventArgs e)
     {
         if (e.Delta != 0 && !Model.Shared.Player.Muted)
         {
@@ -132,7 +142,7 @@ public partial class MediaControls : UserControl, INotifyPropertyChanged
         }
     }
 
-    private void Shuffle_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    private void Shuffle_MouseRightButtonDown(object? sender, MouseButtonEventArgs e)
     {
         Model.Shared.Player.FreshShuffle();
     }
