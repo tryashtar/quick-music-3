@@ -105,7 +105,6 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
     private void Playlist_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         int previous_index = CurrentIndex;
-        var previous_track = CurrentTrack;
         if (e.Action == NotifyCollectionChangedAction.Move && e.OldStartingIndex == CurrentIndex)
         {
             CurrentIndex = e.NewStartingIndex;
@@ -192,7 +191,11 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
 
     public void Dispose()
     {
-
+        foreach (var item in Loaded)
+        {
+            item.Dispose();
+        }
+        Loaded.Clear();
     }
 }
 
