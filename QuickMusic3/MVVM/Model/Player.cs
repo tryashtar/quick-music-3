@@ -206,14 +206,10 @@ public sealed class Player : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsShuffled));
     }
 
-    // if you spam forward a lot, it stops sometimes with an error
     private void Output_PlaybackStopped(object? sender, StoppedEventArgs e)
     {
         if (e.Exception != null)
-        {
             Debug.WriteLine(e.Exception.ToString());
-            Play();
-        }
     }
 
     private void UpdateVolume()

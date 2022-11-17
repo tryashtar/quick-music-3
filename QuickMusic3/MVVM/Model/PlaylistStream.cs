@@ -11,6 +11,7 @@ using QuickMusic3.Core;
 using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace QuickMusic3.MVVM.Model;
 
@@ -58,12 +59,9 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         return stream;
     }
 
+    private object TrackLock = new();
     public async Task SetIndexAsync(int index, int direction)
     {
-        foreach (var item in Loaded)
-        {
-            item.Dispose();
-        }
         Loaded.Clear();
         (index, SongFile? song) = await FindGoodSongAsync(index, direction);
         if (song != null)
@@ -72,8 +70,16 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             var stream = await LoadStreamAsync(song);
             stream.BaseStream.Position = 0;
         }
-        CurrentIndex = index;
-        CurrentTrack = song;
+        lock (TrackLock)
+        {
+            foreach (var item in Loaded)
+            {
+                if (item != song.Stream.Item)
+                    item.Dispose();
+            }
+            CurrentIndex = index;
+            CurrentTrack = song;
+        }
         OnPropertyChanged(nameof(CurrentTrack));
         OnPropertyChanged(nameof(CurrentIndex));
         _ = FindGoodSongAsync(UpcomingIndex(), 1);
