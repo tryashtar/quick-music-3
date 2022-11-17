@@ -60,9 +60,15 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
 
     public async Task SetIndexAsync(int index, int direction)
     {
+        foreach (var item in Loaded)
+        {
+            item.Dispose();
+        }
+        Loaded.Clear();
         (index, SongFile? song) = await FindGoodSongAsync(index, direction);
         if (song != null)
         {
+            _ = Playlist.GetInOrderAsync(index);
             var stream = await LoadStreamAsync(song);
             stream.BaseStream.Position = 0;
         }
@@ -70,6 +76,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         CurrentTrack = song;
         OnPropertyChanged(nameof(CurrentTrack));
         OnPropertyChanged(nameof(CurrentIndex));
+        _ = FindGoodSongAsync(UpcomingIndex(), 1);
     }
 
     private async Task<(int index, SongFile? song)> FindGoodSongAsync(int start, int direction)
@@ -125,6 +132,7 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
             {
                 CurrentIndex = e.OldStartingIndex;
                 Debug.WriteLine($"Currently playing track removed, current index advanced to {CurrentIndex}");
+                _ = SetIndexAsync(CurrentIndex, 1);
             }
             else
             {
@@ -139,8 +147,6 @@ public sealed class PlaylistStream : ObservableObject, IWaveProvider, IDisposabl
         }
         if (CurrentIndex != previous_index)
             OnPropertyChanged(nameof(CurrentIndex));
-        if (Playlist[CurrentIndex] != previous_track)
-            _ = SetIndexAsync(CurrentIndex, 1);
     }
 
     public int Read(byte[] buffer, int offset, int count)

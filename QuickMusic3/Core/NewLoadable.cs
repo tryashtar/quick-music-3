@@ -66,7 +66,7 @@ public sealed class NewLoadable<TResult> : INotifyPropertyChanged
     }
 
     public TaskStatus Status => WrappedTask?.Status ?? TaskStatus.Created;
-    public bool IsSuccessfullyCompleted => WrappedTask?.IsCompletedSuccessfully ?? false;
+    public bool IsSuccessfullyCompleted => WrappedTask != null && WrappedTask.IsCompletedSuccessfully && !IsInvalid(WrappedTask.Result);
     public bool IsFaulted => WrappedTask?.IsFaulted ?? false;
     public AggregateException? Exception => WrappedTask?.Exception;
 

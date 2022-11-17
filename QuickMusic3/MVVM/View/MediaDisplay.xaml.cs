@@ -102,6 +102,8 @@ public partial class MediaDisplay : UserControl
     private int LastLineIndex = -1;
     private void ScrollLine(HashSet<LyricsEntry> lines)
     {
+        if (Model.Shared.Player.Stream?.CurrentTrack?.Metadata.Item?.Lyrics == null)
+            return;
         var all_lyrics = Model.Shared.Player.Stream.CurrentTrack.Metadata.Item.Lyrics.AllLyrics.ToList();
         foreach (var current in lines)
         {

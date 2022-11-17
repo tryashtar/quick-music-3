@@ -111,9 +111,7 @@ public sealed class Player : ObservableObject, IDisposable
     private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
     {
         var stream = Stream?.CurrentStream?.BaseStream;
-        if (stream == null)
-            Timer.Stop();
-        else
+        if (stream != null)
         {
             if (LastPosition != stream.CurrentTime.Ticks)
             {
