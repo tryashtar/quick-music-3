@@ -184,6 +184,10 @@
                 <MenuItem Header="Open file location"
                           Command="{Binding OpenFileLocationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                           CommandParameter="{Binding}" />
+                <MenuItem Header="View error"
+                          Command="{Binding ViewErrorCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                          CommandParameter="{Binding}"
+                          Visibility="{Binding Metadata.IsFaulted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </ContextMenu>
             <StackPanel x:Key="MainTopRight"
                         Orientation="Vertical">

@@ -11,4 +11,5 @@
     <converters:ContainsConverter x:Key="ContainsCheck" />
     <converters:LyricsVisibility x:Key="LyricsVisibility" />
     <converters:TypeGetter x:Key="TypeGetter" />
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 </ResourceDictionary>

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace QuickMusic3.MVVM.View;
 
@@ -42,6 +44,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ICommand MaximizeWindowCommand { get; }
     public ICommand MinimizeWindowCommand { get; }
     public ICommand OpenFileLocationCommand { get; }
+    public ICommand ViewErrorCommand { get; }
     public ICommand RemoveTrackCommand { get; }
 
     public Visibility TrayIconVisibility
@@ -87,6 +90,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         RemoveTrackCommand = new RelayCommand<SongFile>(x =>
         {
             Model.Shared.Player.Source.Remove(x);
+        });
+        ViewErrorCommand = new RelayCommand<SongFile>(x =>
+        {
+            MessageBox.Show(x.Metadata.Exception.ToString(), $"Error loading {x.FilePath}", MessageBoxButton.OK);
         });
         NotifyIcon = (TaskbarIcon)FindResource("TaskbarIcon");
         NotifyIcon.Tag = this;
